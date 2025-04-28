@@ -1,0 +1,38 @@
+{
+  "BoardSize": 3,
+  "GameMode": "HvH",
+  "Turn": false,
+  "BoardState": [
+    [
+      3,
+      4,
+      0
+    ],
+    [
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0
+    ]
+  ],
+  "CurrentPlayer1Name": "Alex",
+  "CurrentPlayer2Name": "Js",
+  "IsGameOver": false,
+  "RemainingOdds": [
+    1,
+    5,
+    7,
+    9
+  ],
+  "RemainingEvens": [
+    2,
+    6,
+    8
+  ],
+  "TargetSum": 15,
+  "CurrentTurn": true
+}

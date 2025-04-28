@@ -1,0 +1,40 @@
+{
+  "BoardSize": 3,
+  "GameMode": "HvC",
+  "Turn": false,
+  "BoardState": [
+    [
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0
+    ]
+  ],
+  "CurrentPlayer1Name": "player 1",
+  "CurrentPlayer2Name": "Computer",
+  "IsGameOver": false,
+  "RemainingOdds": [
+    1,
+    3,
+    5,
+    7,
+    9
+  ],
+  "RemainingEvens": [
+    2,
+    4,
+    6,
+    8
+  ],
+  "TargetSum": 15,
+  "CurrentTurn": true
+}

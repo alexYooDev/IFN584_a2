@@ -1,0 +1,14 @@
+/Users/alexyoodev/2025/ifn584/TicTacToe/bin/Debug/net8.0/TicTacToe
+/Users/alexyoodev/2025/ifn584/TicTacToe/bin/Debug/net8.0/TicTacToe.deps.json
+/Users/alexyoodev/2025/ifn584/TicTacToe/bin/Debug/net8.0/TicTacToe.runtimeconfig.json
+/Users/alexyoodev/2025/ifn584/TicTacToe/bin/Debug/net8.0/TicTacToe.dll
+/Users/alexyoodev/2025/ifn584/TicTacToe/bin/Debug/net8.0/TicTacToe.pdb
+/Users/alexyoodev/2025/ifn584/TicTacToe/obj/Debug/net8.0/TicTacToe.GeneratedMSBuildEditorConfig.editorconfig
+/Users/alexyoodev/2025/ifn584/TicTacToe/obj/Debug/net8.0/TicTacToe.AssemblyInfoInputs.cache
+/Users/alexyoodev/2025/ifn584/TicTacToe/obj/Debug/net8.0/TicTacToe.AssemblyInfo.cs
+/Users/alexyoodev/2025/ifn584/TicTacToe/obj/Debug/net8.0/TicTacToe.csproj.CoreCompileInputs.cache
+/Users/alexyoodev/2025/ifn584/TicTacToe/obj/Debug/net8.0/TicTacToe.dll
+/Users/alexyoodev/2025/ifn584/TicTacToe/obj/Debug/net8.0/refint/TicTacToe.dll
+/Users/alexyoodev/2025/ifn584/TicTacToe/obj/Debug/net8.0/TicTacToe.pdb
+/Users/alexyoodev/2025/ifn584/TicTacToe/obj/Debug/net8.0/TicTacToe.genruntimeconfig.cache
+/Users/alexyoodev/2025/ifn584/TicTacToe/obj/Debug/net8.0/ref/TicTacToe.dll
