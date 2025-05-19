@@ -13,11 +13,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/alexyoodev/2025/ifn584/IFN584_a2/TicTacToe/TicTacToe.csproj",
-      "projectName": "TicTacToe",
-      "projectPath": "/Users/alexyoodev/2025/ifn584/IFN584_a2/TicTacToe/TicTacToe.csproj",
+      "projectUniqueName": "/Users/alexyoodev/2025/ifn584/IFN584_a2/GameFrameWork/GameFrameWork.csproj",
+      "projectName": "GameFrameWork",
+      "projectPath": "/Users/alexyoodev/2025/ifn584/IFN584_a2/GameFrameWork/GameFrameWork.csproj",
       "packagesPath": "/Users/alexyoodev/.nuget/packages/",
-      "outputPath": "/Users/alexyoodev/2025/ifn584/IFN584_a2/TicTacToe/obj/",
+      "outputPath": "/Users/alexyoodev/2025/ifn584/IFN584_a2/GameFrameWork/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/Users/alexyoodev/.nuget/NuGet/NuGet.Config"

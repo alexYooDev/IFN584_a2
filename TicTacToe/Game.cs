@@ -24,12 +24,12 @@ Game class methods (Actions)
         private Player Player2;
 
         // true = Player1, false = Player2
-        private bool Turn = true; 
+        private bool Turn = true;
 
         // unique set of numbers for player 1 and player 2
         private HashSet<int> NumberSet1;
         private HashSet<int> NumberSet2;
-        
+
         // Target winning sum of number
         private int TargetSum;
 
@@ -39,7 +39,7 @@ Game class methods (Actions)
         // Game mode (HvH or HvC)
         private string Mode;
 
-        public Game ()
+        public Game()
         {
             // Initialize the number sets for both players
             NumberSet1 = new HashSet<int>();
@@ -76,7 +76,7 @@ Game class methods (Actions)
 
         public string SelectMode()
         {
-            Console.WriteLine("\n|| +++ Select the mode of the game +++ ||"); 
+            Console.WriteLine("\n|| +++ Select the mode of the game +++ ||");
             Console.WriteLine("1. HvH (Human vs Human)");
             Console.WriteLine("2. HvC (Human vs Computer)");
             Console.Write("\nEnter your choice >> ");
@@ -84,7 +84,7 @@ Game class methods (Actions)
             int input = Convert.ToInt32(Console.ReadLine());
             string mode = string.Empty;
 
-            switch(input)
+            switch (input)
             {
                 case 1:
                     // Human vs Human
@@ -108,7 +108,7 @@ Game class methods (Actions)
         public int SelectBoardSize()
         {
             int boardSize = 0;
-                
+
             bool validInput = false;
 
             Console.WriteLine("\n|| +++ Size of the board +++ ||");
@@ -132,7 +132,7 @@ Game class methods (Actions)
 
         public void ConfigurePlayers()
         {
-            switch(Mode)
+            switch (Mode)
             {
                 case "HvH":
                     Console.Write("\nEnter player 1 name >> ");
@@ -157,7 +157,7 @@ Game class methods (Actions)
         {
             Console.WriteLine("\n============================================ Game Started!  ============================================");
             // main game process
-            while(!IsGameOver)
+            while (!IsGameOver)
             {
 
                 // Display the current player's turn
@@ -172,14 +172,14 @@ Game class methods (Actions)
                 {
                     MakeComputerMove();
                 }
-                else 
+                else
                 {
                     DisplayOptions();
                 }
 
                 // Check if the game is over
                 CheckGameOver();
-                
+
                 // Switch turns
                 Turn = !Turn;
             }
@@ -194,7 +194,7 @@ Game class methods (Actions)
         }
 
         // Display the options for the current turn
-        private void DisplayOptions ()
+        private void DisplayOptions()
         {
             Console.WriteLine("\n|| +++ Options +++ ||");
             Console.WriteLine("\nSelect your option for this turn:\n");
@@ -202,9 +202,9 @@ Game class methods (Actions)
             Console.WriteLine("2. Save the game");
             Console.WriteLine("3. View help menu");
             Console.WriteLine("4. Quit the game");
-            Console.Write("\nEnter your choice >> ");    
+            Console.Write("\nEnter your choice >> ");
             string input = Console.ReadLine();
-            switch(input)
+            switch (input)
             {
                 case "1":
                     // Make a move
@@ -220,7 +220,7 @@ Game class methods (Actions)
                     {
                         MakePlayerMove(Player1);
                     }
-                    else if (Mode == "HvH" && !Turn)    
+                    else if (Mode == "HvH" && !Turn)
                     {
                         MakePlayerMove(Player2);
                     }
@@ -243,12 +243,12 @@ Game class methods (Actions)
                     Console.WriteLine("\nInvalid choice. Please try again.");
                     DisplayOptions();
                     break;
-            }        
+            }
         }
 
         // Make a move for the current player
         private void MakePlayerMove(Player player)
-        {   
+        {
             // Get player's selected position
             int number = player.SelectNumber();
             int[] position = Board.SelectPosition();
@@ -261,20 +261,20 @@ Game class methods (Actions)
             else
             {
                 // Retry on invalid input
-                MakePlayerMove(player);  
+                MakePlayerMove(player);
             }
         }
 
-        private bool CalculateSumInLine(string line, int index) 
+        private bool CalculateSumInLine(string line, int index)
         {
             int sum = 0;
             bool hasEmptySlot = false;
             // row 
-            switch(line)
+            switch (line)
             {
                 case "row":
                     // Check if the line has empty slot, if yes then check next line.
-                    for (int i = 0; i < Board.GetBoardSize(); ++i) 
+                    for (int i = 0; i < Board.GetBoardSize(); ++i)
                     {
                         int slotValue = Board.GetValue(index, i);
                         if (slotValue == 0)
@@ -282,14 +282,14 @@ Game class methods (Actions)
                             hasEmptySlot = true;
                             break;
                         }
-                        sum+= slotValue;
+                        sum += slotValue;
                     }
                     // Check if the line is full and if the sum equals the target sum
                     return !hasEmptySlot && sum == TargetSum;
                 case "col":
                     sum = 0;
                     hasEmptySlot = false;
-                    for (int i = 0; i < Board.GetBoardSize(); ++i) 
+                    for (int i = 0; i < Board.GetBoardSize(); ++i)
                     {
                         int slotValue = Board.GetValue(i, index);
                         if (slotValue == 0)
@@ -297,14 +297,14 @@ Game class methods (Actions)
                             hasEmptySlot = true;
                             break;
                         }
-                        sum+= slotValue;
+                        sum += slotValue;
                     }
                     // Check if the line is full and if the sum equals the target sum
                     return !hasEmptySlot && sum == TargetSum;
                 case "diagonal":
                     sum = 0;
                     hasEmptySlot = false;
-                    for (int i = 0; i < Board.GetBoardSize(); ++i) 
+                    for (int i = 0; i < Board.GetBoardSize(); ++i)
                     {
                         int slotValue = Board.GetValue(i, i);
                         if (slotValue == 0)
@@ -312,14 +312,14 @@ Game class methods (Actions)
                             hasEmptySlot = true;
                             break;
                         }
-                        sum+= slotValue;
+                        sum += slotValue;
                     }
                     // Check if the line is full and if the sum equals the target sum
                     return !hasEmptySlot && sum == TargetSum;
                 case "anti-diagonal":
                     sum = 0;
                     hasEmptySlot = false;
-                    for (int i = 0; i < Board.GetBoardSize(); ++i) 
+                    for (int i = 0; i < Board.GetBoardSize(); ++i)
                     {
                         int slotValue = Board.GetValue(i, Board.GetBoardSize() - 1 - i);
                         if (slotValue == 0)
@@ -327,7 +327,7 @@ Game class methods (Actions)
                             hasEmptySlot = true;
                             break;
                         }
-                        sum+= slotValue;
+                        sum += slotValue;
                     }
                     // Check if the line is full and if the sum equals the target sum
                     return !hasEmptySlot && sum == TargetSum;
@@ -405,8 +405,8 @@ Game class methods (Actions)
                 IsGameOver = true;
                 return;
             }
-            
-            else  { IsGameOver = false; }
+
+            else { IsGameOver = false; }
         }
 
 
@@ -437,9 +437,9 @@ Game class methods (Actions)
             bool rowFull = true;
             int boardSize = Board.GetBoardSize();
 
-            for (int i = 0; i < boardSize; ++i) 
+            for (int i = 0; i < boardSize; ++i)
             {
-                
+
                 int rowValue = Board.GetValue(row, i);
                 if (rowValue == 0)
                 {
@@ -451,12 +451,12 @@ Game class methods (Actions)
             if (rowFull && rowSum == TargetSum)
             {
                 return true;
-            }   
+            }
 
             //check column's winning move
             int colSum = 0;
             bool colFull = true;
-            for (int i = 0; i < boardSize; ++i) 
+            for (int i = 0; i < boardSize; ++i)
             {
                 int colValue = Board.GetValue(i, col);
                 if (colValue == 0)
@@ -475,7 +475,7 @@ Game class methods (Actions)
             {
                 int diagonalSum = 0;
                 bool diagonalFull = true;
-                for (int i = 0; i < boardSize; ++i) 
+                for (int i = 0; i < boardSize; ++i)
                 {
                     int diagonalValue = Board.GetValue(i, i);
                     if (diagonalValue == 0)
@@ -495,7 +495,7 @@ Game class methods (Actions)
             {
                 int antiDiagonalSum = 0;
                 bool antiDiagonalFull = true;
-                for (int i = 0; i < boardSize; ++i) 
+                for (int i = 0; i < boardSize; ++i)
                 {
                     int antiDiagonalValue = Board.GetValue(i, boardSize - 1 - i);
                     if (antiDiagonalValue == 0)
@@ -537,7 +537,8 @@ Game class methods (Actions)
                                 Player2.GetGivenNumbers().Remove(number);
                                 Console.WriteLine($"\nComputer placed {number} at position ({row * Board.GetBoardSize() + col + 1})");
                                 return;
-                            } else
+                            }
+                            else
                             {
                                 // Undo the move if it doesn't lead to a win
                                 Board.SetPosition(row, col, 0);
@@ -579,7 +580,7 @@ Game class methods (Actions)
         public void SaveGame()
         {
             // Create a GameData object to hold the game state
-            try 
+            try
             {
                 string saveDirectory = Path.Combine(Directory.GetCurrentDirectory(), "saveData");
 
@@ -605,7 +606,7 @@ Game class methods (Actions)
                         boardData[i][j] = Board.GetValue(i, j);
                     }
                 }
-                GameData SaveGameData = new GameData 
+                GameData SaveGameData = new GameData
                 {
                     BoardSize = Board.GetBoardSize(),
                     GameMode = Mode,
@@ -624,8 +625,8 @@ Game class methods (Actions)
 
                 File.WriteAllText(saveFilePath, jsonString);
                 Console.WriteLine($"\nGame saved successfully : {filename}");
-            } 
-            catch (Exception e) 
+            }
+            catch (Exception e)
             {
                 Console.WriteLine($"Error: {e} | Something went wrong! Try again!");
                 // reprompt the user to save the game
@@ -633,7 +634,7 @@ Game class methods (Actions)
             }
             return;
         }
-        
+
         public void LoadGame()
         {
             // Load the game state from a file
@@ -641,7 +642,7 @@ Game class methods (Actions)
             Console.Write("Enter the filename to load the game >> ");
             string filename = Console.ReadLine();
 
-            try 
+            try
             {
                 string saveDirectory = Path.Combine(Directory.GetCurrentDirectory(), "saveData");
                 string saveFilePath = Path.Combine(saveDirectory, filename + ".json");
@@ -668,7 +669,7 @@ Game class methods (Actions)
                     Mode = loadedGameData.GameMode;
                     Turn = loadedGameData.CurrentTurn;
                     Player1 = new HumanPlayer(loadedGameData.CurrentPlayer1Name, "Human", loadedGameData.RemainingOdds);
-                    Player2 = loadedGameData.CurrentPlayer2Name == "Computer" ?  new ComputerPlayer("Computer", loadedGameData.RemainingEvens) : new HumanPlayer(loadedGameData.CurrentPlayer2Name, "Human", loadedGameData.RemainingEvens);
+                    Player2 = loadedGameData.CurrentPlayer2Name == "Computer" ? new ComputerPlayer("Computer", loadedGameData.RemainingEvens) : new HumanPlayer(loadedGameData.CurrentPlayer2Name, "Human", loadedGameData.RemainingEvens);
                     IsGameOver = loadedGameData.IsGameOver;
                     TargetSum = loadedGameData.TargetSum;
 
@@ -676,13 +677,14 @@ Game class methods (Actions)
                     Console.WriteLine($"\nGame loaded successfully : {filename}");
                     Console.WriteLine("\n============================================ Loaded Game  ============================================");
                     StartGameLoop();
-                } 
-                else 
+                }
+                else
                 {
                     Console.WriteLine("The specified file does not exist. Please try again.");
                     LoadGame();
                 }
-            } catch (Exception e) 
+            }
+            catch (Exception e)
             {
                 Console.WriteLine($"Error loading the game: {e.Message}");
             }
@@ -699,7 +701,7 @@ Game class methods (Actions)
             Console.WriteLine("2. Game commands");
             Console.WriteLine("3. Return to current game");
             Console.Write("\nEnter your choice >> ");
-            try 
+            try
             {
                 helpMenuOption = Convert.ToInt32(Console.ReadLine());
                 switch (helpMenuOption)
@@ -748,7 +750,7 @@ Game class methods (Actions)
                         DisplayHelpMenu();
                         return;
                 }
-            } 
+            }
             catch (FormatException)
             {
                 Console.WriteLine("The Input should be a number! Try again!");
