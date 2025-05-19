@@ -20,12 +20,32 @@ namespace GameFrameWork
         }
 
         /* Abstract game methods to be implemented */
+
+        /* Configure game settings, selecting different games would possibly happen here */
         public abstract void ConfigureGame();
+
+        /* Configure player settings => for setting their names */
+        public abstract void ConfigurePlayer();
+
+        /* To start the game loop */
         public abstract void StartGame();
+
+        /* A method that executes 
+            ConfigureGame();
+            ConfigurePlayers();
+            StartGameLoop();
+         */
         public abstract void Play();
         public abstract bool CheckGameOver();
-        // boardIndex is addded for Notakto
+        /* 
+            boardIndex: the number of board, added in Notakto for board navigation
+            row : row number
+            col : column number
+            moveDate : to store / save information of the board every time player makes move
+         */
         public abstract void MakeMove(int boardIndex, int row, int col, object moveData = null);
+
+        /* Displays current status of the game */
         public abstract void DisplayGameStatus();
 
         /* Save game | Load game */
@@ -34,9 +54,15 @@ namespace GameFrameWork
 
         /* Redo | Undo */
 
+        /* Update changed undo state  */
         protected abstract void ApplyUndoState(Move move);
+
+        /* update changed redo state */
         protected abstract void ApplyRedoState(Move move);
+
+        /* switching players turn */
         protected abstract void SwithCurrentPlayer();
+        
 
         public virtual void UndoMove(int movesToUndo)
         {
@@ -45,7 +71,7 @@ namespace GameFrameWork
                 Console.WriteLine("Invalid number of moves to undo.");
                 return;
             }
-            
+
             int undoCount = 0;
             while (undoCount < movesToUndo && MoveHistory.Count > 0)
             {
@@ -54,7 +80,7 @@ namespace GameFrameWork
                 ApplyUndoState(lastMove);
                 undoCount++;
             }
-            
+
             if (undoCount > 0)
             {
                 Console.WriteLine($"Undid {undoCount} move(s).");
@@ -101,6 +127,7 @@ namespace GameFrameWork
             }
         }
 
+        // Clear redo history when a new move is made after undo
         protected virtual void ClearRedoStackOnNewMove()
         {
             if (RedoHistory.Count > 0)
@@ -111,7 +138,13 @@ namespace GameFrameWork
         }
 
         /* Help menu specific abstract functions */
+
+
+        /* Help instruction would possibly be imported from the seperate file */
+
+        /* display chosen game's rule */
         protected abstract void DisplayRules();
+        /* display specific commands to use in the chosen games */
         protected abstract void DisplayCommands();
 
         /* Display help menu */
