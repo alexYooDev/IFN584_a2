@@ -19,7 +19,13 @@ namespace GameFrameWork
 
         public abstract void DisplayBoard();
         public abstract bool IsValidMove(int boardIndex, int row, int col, object moveData);
-        public abstract void MakeMove(int boardIndex, int row, int col, object moveData);
+        /* 
+            boardIndex: the number of board, added in Notakto for board navigation
+            row : row number
+            col : column number
+            moveDate : to store / save information of the board every time player makes move
+         */
+        public abstract void MakeMove(int boardIndex, int row, int col, object moveData = null);
         public abstract bool IsBoardFull(int boardIndex = 0);
         public abstract bool AreAllBoardsFull();
         public abstract object GetBoardState(); // Needed for saving/loading games

@@ -37,13 +37,6 @@ namespace GameFrameWork
          */
         public abstract void Play();
         public abstract bool CheckGameOver();
-        /* 
-            boardIndex: the number of board, added in Notakto for board navigation
-            row : row number
-            col : column number
-            moveDate : to store / save information of the board every time player makes move
-         */
-        public abstract void MakeMove(int boardIndex, int row, int col, object moveData = null);
 
         /* Displays current status of the game */
         public abstract void DisplayGameStatus();
