@@ -19,7 +19,7 @@ namespace GameFrameWork
 
     public enum PlayerType
     {
-        "Human",
-        "Computer"
+        Human,
+        Computer
     }
 }
