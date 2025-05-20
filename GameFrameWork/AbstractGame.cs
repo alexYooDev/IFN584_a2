@@ -5,8 +5,10 @@ namespace GameFrameWork
     public abstract class AbstractGame
     {
         protected AbstractBoard Board { get; set; }
-        protected Player Player1 { get; set; }
-        protected Player Player2 { get; set; }
+
+        protected AbstractPlayer CurrentPlayer { get; set; }
+        protected AbstractPlayer Player1 { get; set; }
+        protected AbstractPlayer Player2 { get; set; }
         protected bool IsGameOver { get; set; }
         protected string GameMode { get; set; } // HvH or HvC
         protected Stack<Move> MoveHistory { get; set; }

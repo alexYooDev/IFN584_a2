@@ -2,19 +2,24 @@ namespace GameFrameWork
 {
     public class Move
     {
+        /* For navigating multiple boards in Notakto */
+        public int BoardIndex { get; set; }
         public int Row { get; set; }
         public int Col { get; set; }
-        public object Value { get; set; }
+        
+        /* stored player information */
+        public AbstractPlayer Player { get; set; }
         // game specific move data
         public object MoveData { get; set; }
         // Necessary for undoing / redoing move
         public object PreviousBoardState { get; set; }
 
-        public Move(int row, int col, object value, object moveData, object previousBoardState)
+        public Move(int boardIndex, int row, int col, AbstractPlayer player, object moveData, object previousBoardState)
         {
+            BoardIndex = boardIndex;
             Row = row;
             Col = col;
-            Value = value;
+            Player = player;
             MoveData = moveData;
             PreviousBoardState = previousBoardState;
         }

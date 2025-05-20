@@ -1,14 +1,16 @@
-public class ComputerPlayer : AbstractPlayer
+namespace GameFrameWork
+{
+    public class ComputerPlayer : AbstractPlayer
     {
-        public HumanPlayer(PlayerType playerType, object Symbol) : base(AbstractPlayer)
-
-        public override Move GetMove()
-        {
-            throw new System.NotImplementedException();
-        }
+        public ComputerPlayer(string name, PlayerType type, object symbol) : base(name, type, symbol) { }
 
         public override string GetName()
         {
             return "Computer";
         }
+        public override PlayerType GetType()
+        {
+            return Type;
+        }
     }
+}

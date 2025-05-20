@@ -3,25 +3,54 @@ namespace GameFrameWork
     public abstract class AbstractPlayer
     {
         public string Name { get; set; }
-        public PlayerType PlayerType { get; set; }
-        public object Symbol { get; set; }
-        // private HashSet<int> GivenNumbers { get; set; }
+        public PlayerType Type { get; set; }
+        public char? SymbolChar { get; set; }
+        public NumberType? NumberType { get; set; }
 
-        public AbstractPlayer(string name, PlayerType playerType, object symbol)
+
+        /* For dynamically assiging move symbols :
+            Add SymbolChar for Notakto and Gomoku
+            Add NumberType for numerical tictactoe
+        */
+        public object MoveSymbol
         {
-            Name = name;
-            PlayerType = playerType;
-            Symbol = symbol;
+            get
+            {
+                if (SymbolChar.HasValue)
+                    return SymbolChar.Value;
+                if (NumberType.HasValue)
+                    return NumberType.Value;
+
+                // else -> maybe replace to proper exception
+                return null;
+            }
         }
 
-        public abstract Move GetMove();
+        public AbstractPlayer(string name, PlayerType type)
+        {
+            Name = name;
+            Type = type;
+        }
 
-        public abstract string GetName();
+        public virtual string GetName()
+        {
+            return Name;
+        }
+
+        public virtual PlayerType GetType() {
+            return Type;
+        }
     }
 
     public enum PlayerType
     {
         Human,
         Computer
+    }
+
+    public enum NumberType
+    {
+        Even,
+        Odd
     }
 }

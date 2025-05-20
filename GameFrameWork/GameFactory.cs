@@ -8,7 +8,7 @@ namespace GameFrameWork
             {
                 case "numericaltictactoe":
                 case "numerical tictactoe":
-                    return new NumericalTicTacToe(3); // new NumericalTicTacToe
+                    return; // new NumericalTicTacToe
                 case "notakto":
                     return; // new NoTakTo
                 case "gomoku":
