@@ -6,9 +6,7 @@ namespace GameFrameWork
         {
             switch (gameType.ToLower())
             {
-                case "numerical":
                 case "numericaltictactoe":
-                case "numerical tictactoe":
                     return new TicTacToeGame();
                 case "notakto":
                     // This will be implemented in a future update
