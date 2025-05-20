@@ -2,7 +2,7 @@ namespace GameFrameWork
 {
     public class HumanPlayer : AbstractPlayer
     {
-        public HumanPlayer(string name, PlayerType playerType, object symbol) : base(name, playerType, symbol) { }
+        public HumanPlayer(string name, PlayerType playerType) : base(name, playerType) { }
 
         public override string GetName()
         {
