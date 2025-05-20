@@ -18,9 +18,6 @@ namespace GameFrameWork
             BoardIndex = boardIndex;
         }
 
-        // Initialize boards based on board count
-        protected abstract void InitializeBoards();
-
         public abstract void DisplayBoard();
         public abstract bool IsValidMove(int row, int col, object moveData, int boardIndex = 0);
 
