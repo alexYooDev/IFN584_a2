@@ -290,7 +290,7 @@ namespace GameFrameWork
         {
             TicTacToeHumanPlayer humanPlayer = (TicTacToeHumanPlayer)CurrentPlayer;
 
-            // SelectMove
+            // SelectMove for human player
             int number = (int)humanPlayer.SelectMove(Board);
 
             // Get the player's position selection
@@ -309,7 +309,7 @@ namespace GameFrameWork
                 
                 Board.DisplayBoard();
                 
-                // Offer redo/confirm options
+                // Prompt redo/confirm options
                 HandleMoveConfirmation();
             }
             else
@@ -644,14 +644,18 @@ namespace GameFrameWork
             {
                 Console.WriteLine($"\nGame over! {CurrentPlayer.Name} wins!");
             }
+            Console.WriteLine("\nPress any key to continue...");
+            Console.ReadKey();
         }
-        
+
         private void DisplayGameResult()
         {
             Console.WriteLine($"\nFinal Turn: {CurrentPlayer.Name}");
             Console.WriteLine($"Target Sum: {TargetSum}");
+            Board.DisplayBoard();
         }
 
+        // Save game : Serialize necessary game information -> save board, boardState, move history to JSON supported form
         public override void SaveGame(string filename)
         {
             try
@@ -704,9 +708,9 @@ namespace GameFrameWork
                     CurrentPlayerName = CurrentPlayer.Name,
                     Player1Name = Player1.Name,
                     Player2Name = Player2.Name,
-                    Player1Numbers = Player1 is TicTacToeHumanPlayer hp1 ? hp1.GetAvailableNumbers().ToList() : new List<int>(),
-                    Player2Numbers = Player2 is TicTacToeHumanPlayer hp2 ? hp2.GetAvailableNumbers().ToList()
-                                    : Player2 is TicTacToeComputerPlayer cp2 ? cp2.GetAvailableNumbers().ToList() : new List<int>(),
+                    Player1Numbers = Player1 is TicTacToeHumanPlayer humanPlayer1 ? humanPlayer1.GetAvailableNumbers().ToList() : new List<int>(),
+                    Player2Numbers = Player2 is TicTacToeHumanPlayer humanPlayer2 ? humanPlayer2.GetAvailableNumbers().ToList()
+                                    : Player2 is TicTacToeComputerPlayer computerPlayer2 ? computerPlayer2.GetAvailableNumbers().ToList() : new List<int>(),
                     GameType = "NumericalTicTacToe",
                     IsGameOver = IsGameOver,
                     TargetSum = TargetSum,
@@ -727,7 +731,9 @@ namespace GameFrameWork
                 Console.WriteLine($"\nError saving game: {e.Message}");
             }
         }
+        
 
+        // Load operation : load the game file and apply details to the game 
         public override bool LoadGame(string filename)
         {
             try
@@ -753,7 +759,7 @@ namespace GameFrameWork
                     GameMode = gameData.GameMode;
                     IsGameOver = gameData.IsGameOver;
                     TargetSum = gameData.TargetSum;
-                    
+
                     // Restore undone moves count if it exists
                     if (gameData.UndoneMovesCount.HasValue)
                     {
@@ -841,7 +847,7 @@ namespace GameFrameWork
             // Restore the board state
             Board.SetBoardState(move.PreviousBoardState);
 
-            // Return the number ONLY to the player who made the move
+            // Return the number: ONLY to the player who made the move
             int number = (int)move.MoveData;
 
             // Make sure to return the number to the opponent player who made the move

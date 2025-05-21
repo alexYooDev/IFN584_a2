@@ -54,7 +54,9 @@ namespace GameFrameWork
     public class TicTacToeComputerPlayer : AbstractComputerPlayer
     {
         private HashSet<int> AvailableNumbers;
-        private TicTacToeBoard Board; // Added to access board for finding winning moves
+
+        // For computer player to access board to find winning moves
+        private TicTacToeBoard Board;
 
         public TicTacToeComputerPlayer(HashSet<int> availableNumbers)
             : base("Computer", PlayerType.Computer, availableNumbers.First() % 2 == 1 ? NumberType.Odd : NumberType.Even)
@@ -66,16 +68,17 @@ namespace GameFrameWork
         {
             return AvailableNumbers;
         }
-        
-        // Implement the abstract method from AbstractComputerPlayer
+
+        // Implementing the abstract method from AbstractComputerPlayer
+        // Find winning moves according to current board status
         public override object FindWinningMove(AbstractBoard board)
         {
             // Store the board reference for calculating winning moves
             Board = (TicTacToeBoard)board;
-            
+
             // Try each available number in each empty position to see if it creates a winning move
             int boardSize = Board.GetSize();
-            
+
             foreach (int number in AvailableNumbers.ToList())
             {
                 for (int row = 0; row < boardSize; row++)
@@ -95,7 +98,7 @@ namespace GameFrameWork
                             {
                                 // Undo the test move
                                 Board.SetBoardState(previousState);
-                                
+
                                 // Return the number as the winning move
                                 return number;
                             }
@@ -106,7 +109,7 @@ namespace GameFrameWork
                     }
                 }
             }
-            
+
             // No winning move found
             return null;
         }
@@ -190,13 +193,14 @@ namespace GameFrameWork
             return false;
         }
 
-        // Implement the abstract method from AbstractComputerPlayer
+        // Implementing the abstract method from AbstractComputerPlayer
+        // For TicTacToe game, select random numbers instead
         public override object SelectRandomMove()
         {
             return SelectRandomNumber();
         }
         
-        // Original method to select a random number
+        // TicTacToe specific method to select a random number
         public int SelectRandomNumber()
         {
             // For computer, randomly select a number
@@ -210,7 +214,7 @@ namespace GameFrameWork
                 return selectedNumber;
             }
             
-            // This should not happen in a normal game
+            // For unexpected error
             throw new InvalidOperationException("No numbers available for computer player");
         }
     }
