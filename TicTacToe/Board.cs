@@ -1,13 +1,13 @@
-namespace TicTacToe 
+namespace TicTacToe
 {
-       /* 
-        Actual Form of Board 
-        [
-        [ , , ],
-        [ , , ],
-        [ , , ]
-        ]
-     */
+    /* 
+     Actual Form of Board 
+     [
+     [ , , ],
+     [ , , ],
+     [ , , ]
+     ]
+  */
     public class Board
     {
         /* fields for board
@@ -18,13 +18,15 @@ namespace TicTacToe
         private int Size;
 
         // Constructor for new game board
-        public Board(int size) {
+        public Board(int size)
+        {
             Size = size;
             Slot = new int[size, size];
         }
 
         // Constructor for loading a saved game board
-        public Board(int[,] slot, int size) {
+        public Board(int[,] slot, int size)
+        {
             Size = size;
             Slot = slot;
         }
@@ -34,16 +36,16 @@ namespace TicTacToe
             Console.WriteLine("\n|| +++ Current Board Status +++ ||\n");
             for (int i = 0; i < Size; i++)
             {
-                for(int k = 0; k < Size; ++k)
+                for (int k = 0; k < Size; ++k)
                 {
                     Console.Write("----");
                 }
                 Console.WriteLine();
                 for (int j = 0; j < Size; j++)
                 {
-                    if (Slot[i,j] < 10)
+                    if (Slot[i, j] < 10)
                     {
-                         Console.Write(Slot[i, j] == 0 ? $"|   " : $"| {Slot[i, j]} ");
+                        Console.Write(Slot[i, j] == 0 ? $"|   " : $"| {Slot[i, j]} ");
                     }
                     else
                     {
@@ -53,9 +55,9 @@ namespace TicTacToe
                 Console.Write("|");
                 Console.WriteLine();
             }
-            for(int k = 0; k < Size; ++k)
+            for (int k = 0; k < Size; ++k)
             {
-                    Console.Write("----");
+                Console.Write("----");
             }
             Console.WriteLine();
         }
@@ -68,7 +70,7 @@ namespace TicTacToe
             {
                 for (int j = 0; j < size; ++j)
                 {
-                    Slot[i,j] = 0;
+                    Slot[i, j] = 0;
                 }
             }
         }
@@ -97,10 +99,10 @@ namespace TicTacToe
         }
 
         // Display the grid with numbers
-        public void DisplayGrid ()
+        public void DisplayGrid()
         {
             int gridNum = 1;
-                
+
             // Display the grid with numbers
             for (int i = 0; i < Size; ++i)
             {
@@ -117,19 +119,19 @@ namespace TicTacToe
                     // If the slot is empty, display a grid number
                     if (slotValue == 0)
                     {
-                         if (gridNum < 10)
+                        if (gridNum < 10)
                         {
                             Console.Write($"  {gridNum} |");
-                        } 
-                        else 
+                        }
+                        else
                         {
                             Console.Write($" {gridNum} |");
                         }
                     }
                     // If it is taken, display black slot
-                    else 
+                    else
                     {
-                       Console.Write("    |");
+                        Console.Write("    |");
                     }
                     gridNum++;
                 }
@@ -147,14 +149,14 @@ namespace TicTacToe
         // Prompts the user to select a position on the board
         public int[] SelectPosition()
         {
-            while(true)
+            while (true)
             {
 
-                try 
+                try
                 {
                     // Display the grid with numbers
                     Console.WriteLine("\n|| +++ Select a position to put the number +++ ||\n");
-                    
+
                     DisplayGrid();
                     Console.Write($"\nWhere in the board are you put the number? (1 - {Size * Size}) >> ");
                     int position = Convert.ToInt32(Console.ReadLine());
@@ -173,16 +175,16 @@ namespace TicTacToe
                     {
                         continue;
                     }
-                    
+
                     return [row, col];
-                    
+
                 }
-                catch (FormatException) 
+                catch (FormatException)
                 {
                     Console.WriteLine("Your Input should be a number! Try again!");
                     return SelectPosition();
                 }
-                catch (Exception) 
+                catch (Exception)
                 {
                     Console.WriteLine("Unexpected error occured! Try again!");
                     return SelectPosition();
@@ -222,7 +224,7 @@ namespace TicTacToe
             return Slot;
         }
 
-        public int [,] SetBoardData(int[,] slot)
+        public int[,] SetBoardData(int[,] slot)
         {
             Slot = slot;
             return Slot;

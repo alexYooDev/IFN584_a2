@@ -3,3 +3,8 @@
 /Users/alexyoodev/2025/ifn584/IFN584_a2/GameFrameWork/obj/Debug/net8.0/GameFrameWork.AssemblyInfo.cs
 /Users/alexyoodev/2025/ifn584/IFN584_a2/GameFrameWork/obj/Debug/net8.0/GameFrameWork.csproj.CoreCompileInputs.cache
 /Users/alexyoodev/2025/ifn584/IFN584_a2/GameFrameWork/obj/Debug/net8.0/GameFrameWork.sourcelink.json
+/Users/neal/Desktop/IFN584_a2/GameFrameWork/obj/Debug/net8.0/GameFrameWork.GeneratedMSBuildEditorConfig.editorconfig
+/Users/neal/Desktop/IFN584_a2/GameFrameWork/obj/Debug/net8.0/GameFrameWork.AssemblyInfoInputs.cache
+/Users/neal/Desktop/IFN584_a2/GameFrameWork/obj/Debug/net8.0/GameFrameWork.AssemblyInfo.cs
+/Users/neal/Desktop/IFN584_a2/GameFrameWork/obj/Debug/net8.0/GameFrameWork.csproj.CoreCompileInputs.cache
+/Users/neal/Desktop/IFN584_a2/GameFrameWork/obj/Debug/net8.0/GameFrameWork.sourcelink.json

@@ -1,56 +1,61 @@
-namespace GameFrameWork
+public abstract class AbstractBoard
 {
-    public abstract class AbstractBoard
+    protected int Size { get; set; }
+
+    // Support for multiple boards (especially for Notakto which uses 3 boards)
+    protected int BoardCount { get; set; } = 1;
+    protected int ActiveBoardIndex { get; set; } = 0;
+
+    // Allow different board representations for different games
+    // For TicTacToe: int[,] for numbers
+    // For Notakto/Gomoku: char[,] or enum[,] for X/O pieces
+    protected List<object> BoardsState { get; set; }
+
+    public AbstractBoard(int size, int boardCount = 1)
     {
-        protected int Size { get; set; }
-
-        // Default number of board = 1, NoTakTo uses 3
-        protected int BoardIndex { get; set; } = 0;
-
-        protected int[,] Slots { get; set; }
-        protected List<object> BoardsState { get; set; }
-
-        /* Constructor */
-        public AbstractBoard(int size, int boardIndex = 0)
-        {
-            Size = size;
-            Slots = new int[size, size];
-            BoardIndex = boardIndex;
-        }
-
-        // Initialize boards based on board count
-        protected abstract void InitializeBoards();
-
-        public abstract void DisplayBoard();
-        public abstract bool IsValidMove(int row, int col, object moveData, int boardIndex = 0);
-
-        /* 
-            boardIndex: the number of board, added in Notakto for board navigation, set as 0 by default
-            row : row number
-            col : column number
-            moveDate : to store / save information of the board every time player makes move
-         */
-        public abstract void MakeMove(int row, int col, object moveData = null, int boardIndex = 0);
-
-        /* boardIndex: the number of board, added in Notakto for board navigation, set as 0 by default */
-        public abstract bool IsBoardFull(int boardIndex = 0);
-
-        // /* For Notakto to determine if all 3 boards are full */
-        // public abstract bool AreAllBoardsFull();
-
-        public abstract object GetBoardState(); // Needed for saving/loading games
-        public abstract void SetBoardState(object state); // Needed for restoring games
-
-        /* Getter for board size */
-        public int GetSize()
-        {
-            return Size;
-        }
-        
-        /* Getter for the number of board */
-        public int GetBoardIndex()
-        {
-            return BoardIndex;
-        }
+        Size = size;
+        BoardCount = boardCount;
     }
+
+    // // Initialize appropriate board structure for each game (Notakto)
+    // protected abstract void InitializeBoards();
+
+    // Methods every board game needs
+    public abstract void DisplayBoard(int boardIndex = 0);
+    public abstract bool IsValidMove(int row, int col, object moveData, int boardIndex = 0, bool displayMessages = true);
+    public abstract void MakeMove(int row, int col, object moveData = null, int boardIndex = 0);
+
+    // Board status checks
+    public abstract bool IsBoardFull(int boardIndex = 0);
+
+    public abstract bool AreAllBoardsFull(); // For Notakto and potentially other multi-board games
+
+    // For the game state operations
+    public abstract object GetBoardState();
+    public abstract void SetBoardState(object state);
+
+    // Allow switching between multiple boards (for Notakto)
+    // public virtual void SwitchToBoard(int boardIndex)
+    // {
+    //     if (boardIndex >= 0 && boardIndex < BoardCount)
+    //         ActiveBoardIndex = boardIndex;
+    // }
+
+    // Common method for getting the board size
+    public int GetSize()
+    {
+        return Size;
+    }
+
+    // // Get active board index (Notakto)
+    // public int GetActiveBoardIndex()
+    // { 
+    //     return ActiveBoardIndex;
+    // } 
+
+    // Get total number of boards (NoTakto)
+    // public int GetBoardCount()
+    // {
+    //     return BoardCount;
+    // }
 }

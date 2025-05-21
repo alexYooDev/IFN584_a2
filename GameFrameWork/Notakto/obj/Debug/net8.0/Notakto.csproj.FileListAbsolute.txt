@@ -1,0 +1,5 @@
+/Users/neal/Desktop/IFN584_a2/Notakto/obj/Debug/net8.0/Notakto.GeneratedMSBuildEditorConfig.editorconfig
+/Users/neal/Desktop/IFN584_a2/Notakto/obj/Debug/net8.0/Notakto.AssemblyInfoInputs.cache
+/Users/neal/Desktop/IFN584_a2/Notakto/obj/Debug/net8.0/Notakto.AssemblyInfo.cs
+/Users/neal/Desktop/IFN584_a2/Notakto/obj/Debug/net8.0/Notakto.csproj.CoreCompileInputs.cache
+/Users/neal/Desktop/IFN584_a2/Notakto/obj/Debug/net8.0/Notakto.sourcelink.json

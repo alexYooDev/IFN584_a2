@@ -1,0 +1,94 @@
+{
+  "version": 3,
+  "targets": {
+    "net8.0": {
+      "GameFrameWork/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "compile": {
+          "bin/placeholder/GameFrameWork.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/GameFrameWork.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "GameFrameWork/1.0.0": {
+      "type": "project",
+      "path": "../GameFrameWork/GameFrameWork.csproj",
+      "msbuildProject": "../GameFrameWork/GameFrameWork.csproj"
+    }
+  },
+  "projectFileDependencyGroups": {
+    "net8.0": [
+      "GameFrameWork >= 1.0.0"
+    ]
+  },
+  "packageFolders": {
+    "/Users/neal/.nuget/packages/": {}
+  },
+  "project": {
+    "version": "1.0.0",
+    "restore": {
+      "projectUniqueName": "/Users/neal/Desktop/IFN584_a2/Notakto/Notakto.csproj",
+      "projectName": "Notakto",
+      "projectPath": "/Users/neal/Desktop/IFN584_a2/Notakto/Notakto.csproj",
+      "packagesPath": "/Users/neal/.nuget/packages/",
+      "outputPath": "/Users/neal/Desktop/IFN584_a2/Notakto/obj/",
+      "projectStyle": "PackageReference",
+      "configFilePaths": [
+        "/Users/neal/.nuget/NuGet/NuGet.Config"
+      ],
+      "originalTargetFrameworks": [
+        "net8.0"
+      ],
+      "sources": {
+        "https://api.nuget.org/v3/index.json": {}
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "projectReferences": {
+            "/Users/neal/Desktop/IFN584_a2/GameFrameWork/GameFrameWork.csproj": {
+              "projectPath": "/Users/neal/Desktop/IFN584_a2/GameFrameWork/GameFrameWork.csproj"
+            }
+          }
+        }
+      },
+      "warningProperties": {
+        "warnAsError": [
+          "NU1605"
+        ]
+      },
+      "restoreAuditProperties": {
+        "enableAudit": "true",
+        "auditLevel": "low",
+        "auditMode": "direct"
+      }
+    },
+    "frameworks": {
+      "net8.0": {
+        "targetAlias": "net8.0",
+        "imports": [
+          "net461",
+          "net462",
+          "net47",
+          "net471",
+          "net472",
+          "net48",
+          "net481"
+        ],
+        "assetTargetFallback": true,
+        "warn": true,
+        "frameworkReferences": {
+          "Microsoft.NETCore.App": {
+            "privateAssets": "all"
+          }
+        },
+        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.407/PortableRuntimeIdentifierGraph.json"
+      }
+    }
+  }
+}

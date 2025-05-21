@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "/Users/alexyoodev/2025/ifn584/IFN584_a2/GameFrameWork/GameFrameWork.csproj": {}
+    "/Users/neal/Desktop/IFN584_a2/GameFrameWork/GameFrameWork.csproj": {}
   },
   "projects": {
-    "/Users/alexyoodev/2025/ifn584/IFN584_a2/GameFrameWork/GameFrameWork.csproj": {
+    "/Users/neal/Desktop/IFN584_a2/GameFrameWork/GameFrameWork.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/alexyoodev/2025/ifn584/IFN584_a2/GameFrameWork/GameFrameWork.csproj",
+        "projectUniqueName": "/Users/neal/Desktop/IFN584_a2/GameFrameWork/GameFrameWork.csproj",
         "projectName": "GameFrameWork",
-        "projectPath": "/Users/alexyoodev/2025/ifn584/IFN584_a2/GameFrameWork/GameFrameWork.csproj",
-        "packagesPath": "/Users/alexyoodev/.nuget/packages/",
-        "outputPath": "/Users/alexyoodev/2025/ifn584/IFN584_a2/GameFrameWork/obj/",
+        "projectPath": "/Users/neal/Desktop/IFN584_a2/GameFrameWork/GameFrameWork.csproj",
+        "packagesPath": "/Users/neal/.nuget/packages/",
+        "outputPath": "/Users/neal/Desktop/IFN584_a2/GameFrameWork/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/Users/alexyoodev/.nuget/NuGet/NuGet.Config"
+          "/Users/neal/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
@@ -58,7 +58,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.406/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.407/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

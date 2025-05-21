@@ -1,3 +1,6 @@
+using System;
+using GameFrameWork;
+
 namespace GameFrameWork
 {
     public static class GameFactory
@@ -6,16 +9,16 @@ namespace GameFrameWork
         {
             switch (gameType.ToLower())
             {
-                case "numericaltictactoe":
-                case "numerical tictactoe":
-                    return; // new NumericalTicTacToe
+                //case "numericaltictactoe":
+                //return new TicTacToeGame();
                 case "notakto":
-                    return; // new NoTakTo
+                    return new Notakto();
                 case "gomoku":
-                    return; // new Gomoku
+                    // This will be implemented in a future update
+                    throw new NotImplementedException("Gomoku game is not implemented yet");
                 default:
-                    throw new ArgumentException($"Game Type is not valid. ${gameType}, Try again");
-            } 
+                    throw new ArgumentException($"Game Type is not valid: {gameType}. Try again");
+            }
         }
     }
 }
