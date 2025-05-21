@@ -107,7 +107,7 @@ namespace GameFrameWork
                             break;
                         case "4":
                             gameOptionsExit = true;
-                            Console.WriteLine("Exiting the Game... Thank You");
+                            Console.WriteLine("Exiting the Game... Thank you for playing!");
                             Environment.Exit(0);
                             break;
                         default:
