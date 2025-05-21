@@ -699,7 +699,7 @@ namespace GameFrameWork
             }
         }
 
-        public override void LoadGame(string filename)
+        public override bool LoadGame(string filename)
         {
             try
             {
@@ -791,16 +791,18 @@ namespace GameFrameWork
                     }
 
                     Console.WriteLine($"\nGame loaded successfully from {filename}");
-                    StartGame();
+                    return true; // Return true for successful load
                 }
                 else
                 {
                     Console.WriteLine("\nSave file not found. Please check the filename and try again.");
+                    return false; // Return false for failed load => roll back to select options
                 }
             }
             catch (Exception e)
             {
                 Console.WriteLine($"\nError loading game: {e.Message}");
+                return false; // Return false for failed load => roll back to select options
             }
         }
 
