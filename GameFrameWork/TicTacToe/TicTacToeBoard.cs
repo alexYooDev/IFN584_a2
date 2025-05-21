@@ -2,6 +2,8 @@ namespace GameFrameWork
 {
     public class TicTacToeBoard : AbstractBoard
     {
+       private int[,] Slots;
+
         public TicTacToeBoard(int size) : base(size)
         {
             Size = size;
@@ -9,7 +11,14 @@ namespace GameFrameWork
             BoardsState = new List<object> { Slots };
         }
 
-        public override void DisplayBoard()
+        // Add this method to implement the abstract method from AbstractBoard
+        public override bool AreAllBoardsFull()
+        {
+            // For TicTacToe, there's only one board
+            return IsBoardFull();
+        }
+
+        public override void DisplayBoard(int boardIndex = 0)
         {
             Console.WriteLine("\n|| +++ Current Board Status +++ ||\n");
             for (int i = 0; i < Size; i++)
@@ -45,15 +54,13 @@ namespace GameFrameWork
             // Check if row and column are within the boundary of the board
             if (row < 0 || row >= Size || col < 0 || col >= Size)
             {
-                if (displayMessages)
-                    Console.WriteLine("Your move exceeds the board! Please try again!");
+                if (displayMessages) Console.WriteLine("Your move exceeds the board! Please try again!");
                 return false;
             }
             // Check if the slot is already occupied
             if (Slots[row, col] != 0)
             {
-                if (displayMessages)
-                    Console.WriteLine("This slot is already occupied! Please try again!");
+                if (displayMessages) Console.WriteLine("This slot is already occupied! Please try again!");
                 return false;
             }
             return true;

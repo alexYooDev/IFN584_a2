@@ -5,12 +5,12 @@ namespace GameFrameWork
     public abstract class AbstractGame
     {
         protected AbstractBoard Board { get; set; }
-
         protected AbstractPlayer CurrentPlayer { get; set; }
         protected AbstractPlayer Player1 { get; set; }
         protected AbstractPlayer Player2 { get; set; }
         protected bool IsGameOver { get; set; }
         protected string GameMode { get; set; } // HvH or HvC
+        protected bool IsPlayerQuit { get; set; } = false;
         protected Stack<Move> MoveHistory { get; set; }
         protected Stack<Move> RedoHistory { get; set; }
 
@@ -29,35 +29,156 @@ namespace GameFrameWork
         /* Configure player settings => for setting their names */
         public abstract void ConfigurePlayer();
 
-        /* To start the game loop */
-        public abstract void StartGame();
-
-        /* A method that executes 
+        /* Template method for game flow */
+        public virtual void Play()
+        {
+            IsPlayerQuit = false;
             ConfigureGame();
-            ConfigurePlayers();
-            StartGameLoop();
-         */
-        public abstract void Play();
+            ConfigurePlayer();
+            StartGame();
+        }
+
+        /* To start the game loop */
+        public virtual void StartGame()
+        {
+            Console.WriteLine("\n============================================ Game Started!  ============================================");
+            IsGameOver = false;
+            IsPlayerQuit = false;
+
+            // Offer undo after loading a game -> MoveHistory > 0 means it is a loaded game
+            if (MoveHistory.Count > 0)
+            {
+                DisplayGameStatus();
+                OfferUndoAfterLoad();
+            }
+
+            while (!IsGameOver)
+            {
+                DisplayGameStatus();
+
+                if (CurrentPlayer.Type == PlayerType.Human)
+                {
+                    ProcessHumanTurn();
+                }
+                else
+                {
+                    ProcessComputerTurn();
+                }
+
+                IsGameOver = CheckGameOver();
+
+                if (!IsGameOver)
+                {
+                    SwithCurrentPlayer();
+                }
+            }
+            
+            // Only display results if player didn't quit
+            if (!IsPlayerQuit)
+            {
+                DisplayGameStatus();
+                AnnounceWinner();
+            }
+        }
+
+        // Process human player's turn
+        protected virtual void ProcessHumanTurn()
+        {
+            bool turnComplete = false;
+            while (!turnComplete)
+            {
+                DisplayTurnOptions();
+                string input = Console.ReadLine();
+
+                switch (input)
+                {
+                    case "1":
+                        MakeHumanMove();
+                        turnComplete = true;
+                        break;
+                    case "2":
+                        HandleUndoRequest();
+                        break;
+                    case "3":
+                        HandleSaveRequest();
+                        break;
+                    case "4":
+                        DisplayHelpMenu();
+                        break;
+                    case "5":
+                        HandleQuitRequest();
+                        turnComplete = true;
+                        break;
+                    default:
+                        Console.WriteLine("\nInvalid choice. Please try again.");
+                        break;
+                }
+            }
+        }
+        
+        // Common game options
+        protected virtual void DisplayTurnOptions()
+        {
+            Console.WriteLine("\n|| +++ Options +++ ||");
+            Console.WriteLine("\nSelect your option for this turn:\n");
+            Console.WriteLine("1. Make a move");
+            Console.WriteLine("2. Undo previous moves");
+            Console.WriteLine("3. Save the game");
+            Console.WriteLine("4. View help menu");
+            Console.WriteLine("5. Quit the game");
+            Console.Write("\nEnter your choice >> ");
+        }
+        
+        // Handle quit request
+        protected virtual void HandleQuitRequest()
+        {
+            IsGameOver = true;
+            IsPlayerQuit = true;
+        }
+        
+        // Handle save request
+        protected virtual void HandleSaveRequest()
+        {
+            Console.Write("\nEnter filename to save >> ");
+            string saveFilename = Console.ReadLine();
+            SaveGame(saveFilename);
+        }
+        
+        // Handle undo request
+        protected virtual void HandleUndoRequest()
+        {
+            int maxUndo = GetUndoableMoveCountForPlayer(CurrentPlayer);
+            if (maxUndo > 0)
+            {
+                Console.Write($"How many moves to undo (up to {maxUndo})? ");
+                if (int.TryParse(Console.ReadLine(), out int undoCount) && undoCount > 0 && undoCount <= maxUndo)
+                {
+                    UndoPlayerMoves(CurrentPlayer, undoCount);
+                }
+                else
+                {
+                    Console.WriteLine($"Invalid input. You can undo up to {maxUndo} of your move(s).");
+                }
+            }
+            else
+            {
+                Console.WriteLine("No moves to undo.");
+            }
+        }
+
+        /* Abstract methods that need implementation in derived classes */
+        protected abstract void MakeHumanMove();
+        protected abstract void ProcessComputerTurn();
         public abstract bool CheckGameOver();
-
-        /* Displays current status of the game */
+        protected abstract void AnnounceWinner();
         public abstract void DisplayGameStatus();
-
-        /* Save game | Load game */
         public abstract void SaveGame(string filename);
         public abstract bool LoadGame(string filename);
-
-        /* Redo | Undo */
-
-        /* Update changed undo state  */
         protected abstract void ApplyUndoState(Move move);
-
-        /* update changed redo state */
         protected abstract void ApplyRedoState(Move move);
-
-        /* switching players turn */
         protected abstract void SwithCurrentPlayer();
-        
+        protected abstract void DisplayRules();
+        protected abstract void DisplayCommands();
 
         /* Returns the max number of moves players made  */
         protected int GetUndoableMoveCountForPlayer(AbstractPlayer player)
@@ -89,23 +210,51 @@ namespace GameFrameWork
                 Console.WriteLine("Invalid number of moves to undo.");
                 return;
             }
+            
             int undone = 0;
             Stack<Move> tempStack = new Stack<Move>();
+            
+            // Keep track of consecutive opponent moves that were skipped
+            // to maintain correct game state
+            Stack<Move> skippedMoves = new Stack<Move>();
+            
             while (undone < movesToUndo && MoveHistory.Count > 0)
             {
                 var move = MoveHistory.Pop();
+                
                 if (move.Player.Name == player.Name)
                 {
+                    // Process the current player's move
+                    // First, restore any skipped opponent moves to the history
+                    while (skippedMoves.Count > 0)
+                    {
+                        MoveHistory.Push(skippedMoves.Pop());
+                    }
+                    
+                    // Now handle this player's move
                     RedoHistory.Push(move);
                     ApplyUndoState(move);
                     undone++;
                 }
                 else
                 {
-                    tempStack.Push(move);
+                    // If we're undoing our move, we need to also "undo" any opponent 
+                    // moves that happened after our last move
+                    skippedMoves.Push(move);
+                    
+                    // We must also undo the opponent's move from the board state
+                    // but we don't count it toward the player's undo count
+                    ApplyUndoState(move);
                 }
             }
-            // Restore other moves
+            
+            // Restore skipped moves that didn't get processed
+            while (skippedMoves.Count > 0)
+            {
+                MoveHistory.Push(skippedMoves.Pop());
+            }
+            
+            // Restore other moves that were popped but not the player's
             while (tempStack.Count > 0)
                 MoveHistory.Push(tempStack.Pop());
 
@@ -118,7 +267,7 @@ namespace GameFrameWork
                 Console.WriteLine("No moves to undo currently for this player.");
             }
         }
-        
+
         protected void RedoPlayerMoves(AbstractPlayer player, int movesToRedo)
         {
             if (movesToRedo <= 0)
@@ -157,69 +306,6 @@ namespace GameFrameWork
             }
         }
 
-        // public virtual void UndoMove(int movesToUndo)
-        // {
-        //     if (movesToUndo <= 0)
-        //     {
-        //         Console.WriteLine("Invalid number of moves to undo.");
-        //         return;
-        //     }
-
-        //     int undoCount = 0;
-        //     while (undoCount < movesToUndo && MoveHistory.Count > 0)
-        //     {
-        //         Move lastMove = MoveHistory.Pop();
-        //         RedoHistory.Push(lastMove);
-        //         ApplyUndoState(lastMove);
-        //         undoCount++;
-        //     }
-
-        //     if (undoCount > 0)
-        //     {
-        //         Console.WriteLine($"Undid {undoCount} move(s).");
-        //         // The current player should be set in ApplyUndoState implementation
-        //     }
-        //     else
-        //     {
-        //         Console.WriteLine("No moves to undo currently.");
-        //     }
-        // }
-
-        /* if there was a last move in the redo history, pop the move from the redo history stack  */
-
-        /* 
-            Stack DataStructure  []
-            LIFO : Last in First out => ensures that it can reddo the last move made 
-         */
-
-        // public virtual void RedoMove(int movesToRedo)
-        // {
-        //     if (movesToRedo <= 0)
-        //     {
-        //         Console.WriteLine("Invalid number of moves to redo.");
-        //         return;
-        //     }
-
-        //     int redoCount = 0;
-        //     while (redoCount < movesToRedo && RedoHistory.Count > 0)
-        //     {
-        //         Move redoMove = RedoHistory.Pop();
-        //         MoveHistory.Push(redoMove);
-        //         ApplyRedoState(redoMove);
-        //         redoCount++;
-        //     }
-
-        //     if (redoCount > 0)
-        //     {
-        //         Console.WriteLine($"Redid {redoCount} move(s).");
-        //         // The current player should be set in ApplyRedoState implementation
-        //     }
-        //     else
-        //     {
-        //         Console.WriteLine("No moves to redo currently.");
-        //     }
-        // }
-
         // Clear redo history when a new move is made after undo
         protected virtual void ClearRedoStackOnNewMove()
         {
@@ -229,16 +315,6 @@ namespace GameFrameWork
                 Console.WriteLine("Redo history cleared due to new move.");
             }
         }
-
-        /* Help menu specific abstract functions */
-
-
-        /* Help instruction would possibly be imported from the seperate file */
-
-        /* display chosen game's rule */
-        protected abstract void DisplayRules();
-        /* display specific commands to use in the chosen games */
-        protected abstract void DisplayCommands();
 
         /* Display help menu */
         public virtual void DisplayHelpMenu()
@@ -267,6 +343,39 @@ namespace GameFrameWork
                     default:
                         Console.WriteLine("Invalid choice. Please try again!");
                         return;
+                }
+            }
+        }
+        
+        // Check if player quit game
+        public bool DidPlayerQuit()
+        {
+            return IsPlayerQuit;
+        }
+        
+        // Offer undo after loading a saved game
+        protected virtual void OfferUndoAfterLoad()
+        {
+            // Default implementation - can be overridden in derived classes
+            int maxUndo = GetUndoableMoveCountForPlayer(CurrentPlayer);
+            
+            if (maxUndo > 0)
+            {
+                Console.WriteLine($"\nYou have {maxUndo} move(s) that can be undone.");
+                Console.WriteLine("Would you like to undo any moves? (y/n)");
+                string response = Console.ReadLine().ToLower();
+                
+                if (response == "y" || response == "yes")
+                {
+                    Console.Write($"How many moves to undo (up to {maxUndo})? ");
+                    if (int.TryParse(Console.ReadLine(), out int undoCount) && undoCount > 0 && undoCount <= maxUndo)
+                    {
+                        UndoPlayerMoves(CurrentPlayer, undoCount);
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Invalid input. No moves will be undone.");
+                    }
                 }
             }
         }

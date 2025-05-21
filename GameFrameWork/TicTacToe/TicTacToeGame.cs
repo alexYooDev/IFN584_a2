@@ -6,6 +6,7 @@ namespace GameFrameWork
         private int TargetSum;
         private HashSet<int> OddNumbers;
         private HashSet<int> EvenNumbers;
+        private bool IsPlayerQuit = false;
 
         private TicTacToeBoard Board;
         private Move TempMove; // Temporary storage for move before confirmation
@@ -147,6 +148,7 @@ namespace GameFrameWork
         {
             Console.WriteLine("\n============================================ Game Started!  ============================================");
             IsGameOver = false;
+            IsPlayerQuit = false; // Reset the quit flag when starting
 
             // Offer undo after loading a game -> MoveHistory > 0 means it is a loaded game
             if (MoveHistory.Count > 0)
@@ -162,33 +164,90 @@ namespace GameFrameWork
                 if (CurrentPlayer.Type == PlayerType.Human)
                 {
                     ProcessHumanTurn();
+                    
+                    // Check if player quit during their turn
+                    if (IsPlayerQuit)
+                    {
+                        break; // Exit the game loop immediately
+                    }
                 }
                 else
                 {
                     ProcessComputerTurn();
                 }
 
-                IsGameOver = CheckGameOver();
-
-                if (!IsGameOver)
+                // Only check game over if player didn't quit
+                if (!IsPlayerQuit)
                 {
-                    SwithCurrentPlayer();
+                    IsGameOver = CheckGameOver();
+
+                    if (!IsGameOver)
+                    {
+                        SwithCurrentPlayer();
+                    }
                 }
             }
-            AnnounceWinner();
-            DisplayGameResult();
+            
+            // Only announce winner and display result if player didn't quit
+            if (!IsPlayerQuit)
+            {
+                DisplayGameStatus();
+                AnnounceWinner();
+                DisplayGameResult();
+            }
         }
-
-        private void OfferUndoAfterLoad()
+        
+        protected void HandleUndoRequest()
         {
             int maxUndo = GetUndoableMoveCountForPlayer(CurrentPlayer);
-            
+            if (maxUndo > 0)
+            {
+                Console.Write($"How many moves to undo (up to {maxUndo})? ");
+                if (int.TryParse(Console.ReadLine(), out int undoCount) && undoCount > 0 && undoCount <= maxUndo)
+                {
+                    // Save a reference to total move count before undoing
+                    int beforeMoveCount = MoveHistory.Count;
+                    
+                    // Use the method which correctly filters by player
+                    UndoPlayerMoves(CurrentPlayer, undoCount);
+                    
+                    // Calculate how many total moves were undone (could be more than undoCount
+                    // if we had to skip opponent moves)
+                    int movesUndone = beforeMoveCount - MoveHistory.Count;
+                    
+                    UndoneMovesCount += undoCount;
+                    
+                    // After undoing, we need to ensure turns are maintained correctly
+                    // If we undid an odd number of moves, we need to switch current player
+                    if (movesUndone % 2 == 1)
+                    {
+                        SwithCurrentPlayer();
+                        Console.WriteLine($"Turn switched to {CurrentPlayer.Name}");
+                    }
+                    
+                    Board.DisplayBoard(); // Show the board after undo
+                }
+                else
+                {
+                    Console.WriteLine($"Invalid input. You can undo up to {maxUndo} of your move(s).");
+                }
+            }
+            else
+            {
+                Console.WriteLine("No moves to undo.");
+            }
+        }
+
+        protected override void OfferUndoAfterLoad()
+        {
+            int maxUndo = GetUndoableMoveCountForPlayer(CurrentPlayer);
+
             if (maxUndo > 0)
             {
                 Console.WriteLine($"\nYou have {maxUndo} move(s) that can be undone.");
                 Console.WriteLine("Would you like to undo any moves? (y/n)");
                 string response = Console.ReadLine().ToLower();
-                
+
                 if (response == "y" || response == "yes")
                 {
                     Console.Write($"How many moves to undo (up to {maxUndo})? ");
@@ -197,13 +256,13 @@ namespace GameFrameWork
                         // Use the base class method which correctly filters by player
                         UndoPlayerMoves(CurrentPlayer, undoCount);
                         UndoneMovesCount = undoCount;
-                        
+
                         // If it's now a computer's turn after undoing, let it play
                         if (CurrentPlayer.Type == PlayerType.Computer)
                         {
                             DisplayGameStatus();
                             ProcessComputerTurn();
-                            
+
                             // Check if the game is over after computer move
                             IsGameOver = CheckGameOver();
                             if (!IsGameOver)
@@ -227,12 +286,12 @@ namespace GameFrameWork
             StartGame();
         }
 
-        private void MakeHumanMove()
+        protected override void MakeHumanMove()
         {
             TicTacToeHumanPlayer humanPlayer = (TicTacToeHumanPlayer)CurrentPlayer;
 
-            // Get the player's number selection
-            int number = humanPlayer.SelectNumber();
+            // SelectMove
+            int number = (int)humanPlayer.SelectMove(Board);
 
             // Get the player's position selection
             int[] position = Board.SelectPosition();
@@ -241,7 +300,7 @@ namespace GameFrameWork
             object previousState = Board.GetBoardState();
 
             // Make the move
-            if (Board.IsValidMove(position[0], position[1], number, 0,  true))
+            if (Board.IsValidMove(position[0], position[1], number, 0, true))
             {
                 Board.MakeMove(position[0], position[1], number);
 
@@ -307,7 +366,7 @@ namespace GameFrameWork
             }
         }
 
-        private void ProcessHumanTurn()
+        protected override void ProcessHumanTurn()
         {
             bool turnComplete = false;
             while (!turnComplete)
@@ -363,9 +422,8 @@ namespace GameFrameWork
                         // Do not end turn, allow player to continue
                         break;
                     case "5":
-                        Console.WriteLine("\nExiting the game...");
-                        System.Environment.Exit(0);
-                        break;
+                        HandleQuitRequest();
+                        return; // Immediately exit the method without setting turnComplete
                     default:
                         Console.WriteLine("\nInvalid choice. Please try again.");
                         break;
@@ -373,97 +431,69 @@ namespace GameFrameWork
             }
         }
 
-        private void ProcessComputerTurn()
+        protected override void ProcessComputerTurn()
         {
             Console.WriteLine("\nComputer is making a move...");
-            MakeComputerMove();
+            TicTacToeComputerPlayer computerPlayer = (TicTacToeComputerPlayer)CurrentPlayer;
+            
+            // First try to find a winning move using the abstract method
+            object winningMove = computerPlayer.FindWinningMove(Board);
+            
+            if (winningMove != null)
+            {
+                // We have a winning move
+                int number = (int)winningMove;
+                MakeComputerMoveWithNumber(number);
+            }
+            else
+            {
+                // No winning move, make a random move
+                int number = (int)computerPlayer.SelectRandomMove();
+                MakeComputerMoveWithNumber(number);
+            }
         }
 
-        private void MakeComputerMove()
+        // Numerical TicTacToe specific computer move
+        private void MakeComputerMoveWithNumber(int number)
         {
-            TicTacToeComputerPlayer computerPlayer = (TicTacToeComputerPlayer)CurrentPlayer;
             int boardSize = Board.GetSize();
-
-            // Try to find a winning move first
-            foreach (int number in computerPlayer.GetAvailableNumbers().ToList())
-            {
-                for (int row = 0; row < boardSize; row++)
-                {
-                    for (int col = 0; col < boardSize; col++)
-                    {
-                        if (Board.IsValidMove(row, col, number, 0, false))
-                        {
-                            // Save the current board state for undo
-                            object previousState = Board.GetBoardState();
-
-                            // Try the move
-                            Board.MakeMove(row, col, number);
-
-                            // Check if this is a winning move
-                            if (IsWinningMove(row, col))
-                            {
-                                // Create a Move object and add it to history
-                                Move move = new Move(0, row, col, CurrentPlayer, number, previousState);
-                                MoveHistory.Push(move);
-
-                                // Reset undone moves count since a new move was made
-                                UndoneMovesCount = 0;
-
-                                // Clear redo history when a new move is made
-                                RedoHistory.Clear();
-
-                                Console.WriteLine($"\nComputer placed {number} at position ({row + 1}, {col + 1})");
-                                return;
-                            }
-
-                            // Undo the move if it's not a winning move
-                            Board.SetBoardState(previousState);
-                        }
-                    }
-                }
-            }
-
-            // If no winning move, make a random move
-            Random random = new Random();
-            List<(int, int)> emptyPositions = new List<(int, int)>();
-
+            TicTacToeComputerPlayer computerPlayer = (TicTacToeComputerPlayer)CurrentPlayer;
+            
+            // Find a valid position for this number
             for (int row = 0; row < boardSize; row++)
             {
                 for (int col = 0; col < boardSize; col++)
                 {
-                    if (Board.IsValidMove(row, col, null, 0, false))
+                    if (Board.IsValidMove(row, col, number, 0, false))
                     {
-                        emptyPositions.Add((row, col));
+                        // Save the board state for undo
+                        object previousState = Board.GetBoardState();
+                        
+                        // Make the move
+                        Board.MakeMove(row, col, number);
+                        
+                        // Add to move history
+                        Move move = new Move(0, row, col, CurrentPlayer, number, previousState);
+                        MoveHistory.Push(move);
+                        
+                        // Reset undo/redo state
+                        UndoneMovesCount = 0;
+                        RedoHistory.Clear();
+
+                        // remove the number once used
+                        computerPlayer.GetAvailableNumbers().Remove(number);
+                        
+                        Console.WriteLine($"\nComputer placed {number} at position ({row + 1}, {col + 1})");
+                        return;
                     }
                 }
             }
+        }
 
-            if (emptyPositions.Count > 0 && computerPlayer.GetAvailableNumbers().Count > 0)
-            {
-                // Select a random position and number
-                int randomPositionIndex = random.Next(emptyPositions.Count);
-                (int row, int col) = emptyPositions[randomPositionIndex];
-
-                int number = computerPlayer.SelectRandomNumber();
-
-                // Save the current board state for undo
-                object previousState = Board.GetBoardState();
-
-                // Make the move
-                Board.MakeMove(row, col, number);
-
-                // Create a Move object and add it to history
-                Move move = new Move(0, row, col, CurrentPlayer, number, previousState);
-                MoveHistory.Push(move);
-
-                // Reset undone moves count since a new move was made
-                UndoneMovesCount = 0;
-
-                // Clear redo history when a new move is made
-                RedoHistory.Clear();
-
-                Console.WriteLine($"\nComputer placed {number} at position ({row + 1}, {col + 1})");
-            }
+        protected override void HandleQuitRequest()
+        {
+            IsGameOver = true;
+            IsPlayerQuit = true;
         }
 
         public override bool CheckGameOver()
@@ -604,9 +634,8 @@ namespace GameFrameWork
             Board.DisplayBoard();
         }
 
-        private void AnnounceWinner()
+        protected override void AnnounceWinner()
         {
-            Board.DisplayBoard();
             if (Board.IsBoardFull() && !CheckWinningLine())
             {
                 Console.WriteLine("\nGame over! It's a draw!");
@@ -812,9 +841,11 @@ namespace GameFrameWork
             // Restore the board state
             Board.SetBoardState(move.PreviousBoardState);
 
-            // Return the number to the player's available numbers
+            // Return the number ONLY to the player who made the move
             int number = (int)move.MoveData;
 
+            // Make sure to return the number to the opponent player who made the move
+            // Not to the current player who just undid
             if (move.Player is TicTacToeHumanPlayer humanPlayer)
             {
                 humanPlayer.GetAvailableNumbers().Add(number);
@@ -824,7 +855,7 @@ namespace GameFrameWork
                 computerPlayer.GetAvailableNumbers().Add(number);
             }
 
-            Console.WriteLine($"\nMove undone. Current player: {CurrentPlayer.Name}");
+            Console.WriteLine($"\nMove undone for {move.Player.Name}");
         }
 
         protected override void ApplyRedoState(Move move)
