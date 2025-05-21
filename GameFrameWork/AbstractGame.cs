@@ -45,7 +45,7 @@ namespace GameFrameWork
 
         /* Save game | Load game */
         public abstract void SaveGame(string filename);
-        public abstract void LoadGame(string filename);
+        public abstract bool LoadGame(string filename);
 
         /* Redo | Undo */
 

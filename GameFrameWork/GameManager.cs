@@ -49,61 +49,33 @@ namespace GameFrameWork
         public static void PlayGame(string gameType)
         {
             AbstractGame game = GameFactory.CreateGame(gameType);
-            SelectStartOptions(game);
+
+            if (!SelectStartOptions(game))
+            {
+                return; // Return to main menu if SelectStartOptions returns false
+            }
+            
             game.Play();
             
             Console.WriteLine("\nGame over! Would you like to play again? (Y/N)");
             string playAgain = Console.ReadLine();
-            
-            if (playAgain.ToUpper() == "Y")
+
+            // Validate input
+            while (string.IsNullOrWhiteSpace(playAgain) ||
+                (playAgain.Trim().ToLower() != "y" && playAgain.Trim().ToLower() != "n"))
+            {
+                Console.WriteLine("Invalid input. Please enter 'Y' or 'N'.");
+                playAgain = Console.ReadLine();
+            }
+
+            if (playAgain.Trim().ToLower() == "y")
             {
                 PlayGame(gameType);
             }
-        }
-
-        public static void SelectStartOptions(AbstractGame game)
-        {
-            bool startOptionsExit = false;
-            while (!startOptionsExit)
+            else // playAgain == "n"
             {
-                Console.Clear();
-                Console.WriteLine($"Numerical Tic-Tac-Toe Options:");
-                Console.WriteLine("1. Start a new game");
-                Console.WriteLine("2. Load a saved game");
-                Console.WriteLine("3. Back to game selection");
-                Console.Write("\nSelect an option >> ");
-                string startOptionInput = Console.ReadLine();
-                int startOption;
-                try
-                {
-                    startOption = int.Parse(startOptionInput);
-                    switch (startOption)
-                    {
-                        case 1:
-                            Console.WriteLine("\nStarting a new game...");
-                            startOptionsExit = true;
-                            break;
-                        case 2:
-                            Console.WriteLine("\nEnter file name to load >> ");
-                            string filename = Console.ReadLine();
-                            game.LoadGame(filename);
-                            startOptionsExit = true;
-                            break;
-                        case 3:
-                            Console.WriteLine("\nQuitting the game...");
-                            Environment.Exit(0);
-                            break;
-                        default:
-                            Console.WriteLine("\nInvalid option selected. Please try again.");
-                            GameManager.PressAnyKeyToContinue();
-                            break;
-                    }
-                }
-                catch (FormatException)
-                {
-                    Console.WriteLine("\nInvalid input. Please enter a number.");
-                    GameManager.PressAnyKeyToContinue();
-                }
+                // Return to game selection
+                return;
             }
         }
 
@@ -135,7 +107,8 @@ namespace GameFrameWork
                             break;
                         case "4":
                             gameOptionsExit = true;
-                            Console.WriteLine("Exiting the");
+                            Console.WriteLine("Exiting the Game... Thank You");
+                            Environment.Exit(0);
                             break;
                         default:
                             Console.WriteLine("Invalid choice. Please try again.");
@@ -154,6 +127,62 @@ namespace GameFrameWork
                     PressAnyKeyToContinue();
                 }
             }
+        }
+
+        public static bool SelectStartOptions(AbstractGame game)
+        {
+            bool startOptionsExit = false;
+            while (!startOptionsExit)
+            {
+                Console.Clear();
+                Console.WriteLine($"Numerical Tic-Tac-Toe Options:");
+                Console.WriteLine("1. Start a new game");
+                Console.WriteLine("2. Load a saved game");
+                Console.WriteLine("3. Back to game selection");
+                Console.Write("\nSelect an option >> ");
+                string startOptionInput = Console.ReadLine();
+                int startOption;
+                try
+                {
+                    startOption = int.Parse(startOptionInput);
+                    switch (startOption)
+                    {
+                        case 1:
+                            Console.WriteLine("\nStarting a new game...");
+                            startOptionsExit = true;
+                            return true; // Return true to indicate we should play the game
+                        case 2:
+                            Console.WriteLine("\nEnter file name to load >> ");
+                            string filename = Console.ReadLine();
+                            TicTacToeGame loadedGame = (TicTacToeGame)game;
+                            if (loadedGame.LoadGame(filename))
+                            {
+                                // Game loaded successfully, start playing
+                                loadedGame.StartGame();
+                                // After game is done, come back to this menu
+                                startOptionsExit = false;
+                            }
+                            else
+                            {
+                                GameManager.PressAnyKeyToContinue();
+                            }
+                            break;
+                        case 3:
+                            Console.WriteLine("\nReturning to game selection...");
+                            return false; // Return false to indicate we want to go back to game selection
+                        default:
+                            Console.WriteLine("\nInvalid option selected. Please try again.");
+                            GameManager.PressAnyKeyToContinue();
+                            break;
+                    }
+                }
+                catch (FormatException)
+                {
+                    Console.WriteLine("\nInvalid input. Please enter a number.");
+                    GameManager.PressAnyKeyToContinue();
+                }
+            }
+            return true; // Default case - should play the game
         }
 
         public static void PressAnyKeyToContinue()
