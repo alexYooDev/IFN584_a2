@@ -19,10 +19,14 @@ namespace GameFrameWork
             // Display the intro of the game
             string[] introduction = {
                 "=======================================",
-                "|| Welcome to Numerical Tic Tac Toe! ||",
-                "||   Play Tic Tac Toe with numbers!  ||",
+                "|| Welcome to Board Game World!       ||",
+                "|| 3 Different board games in one!    ||",
                 "=======================================",
-                "||  Written by: [N12159069] Alex Yoo ||",
+                "||  Written by:                       ||",
+                "||         [N12159069] Alex Yoo       ||",
+                "||         [N12159069] Yang-lin, Liu  ||",
+                "||         [N12159069] Alex Yoo       ||",
+                "||         [N12159069] Alex Yoo       ||",
                 "======================================="
             };
             foreach (string line in introduction)

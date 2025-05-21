@@ -192,17 +192,6 @@ namespace GameFrameWork
             return count;
         }
 
-        protected int GetRedoableMoveCountForPlayer(AbstractPlayer player)
-        {
-            int count = 0;
-            foreach (var move in RedoHistory)
-            {
-                if (move.Player.Name == player.Name)
-                    count++;
-            }
-            return count;
-        }
-
         protected void UndoPlayerMoves(AbstractPlayer player, int movesToUndo)
         {
             if (movesToUndo <= 0)
@@ -238,12 +227,12 @@ namespace GameFrameWork
                 }
                 else
                 {
-                    // If we're undoing our move, we need to also "undo" any opponent 
-                    // moves that happened after our last move
+                    // If the player undoes the move, it undoes any opponent's previous move
+                    // moves that happened after the last move
                     skippedMoves.Push(move);
                     
                     // We must also undo the opponent's move from the board state
-                    // but we don't count it toward the player's undo count
+                    // Without counting it toward the player's undo count
                     ApplyUndoState(move);
                 }
             }
