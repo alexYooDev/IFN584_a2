@@ -59,68 +59,166 @@ namespace GameFrameWork
         protected abstract void SwithCurrentPlayer();
         
 
-        public virtual void UndoMove(int movesToUndo)
+        /* Returns the max number of moves players made  */
+        protected int GetUndoableMoveCountForPlayer(AbstractPlayer player)
+        {
+            int count = 0;
+            foreach (var move in MoveHistory)
+            {
+                if (move.Player.Name == player.Name)
+                    count++;
+            }
+            return count;
+        }
+
+        protected int GetRedoableMoveCountForPlayer(AbstractPlayer player)
+        {
+            int count = 0;
+            foreach (var move in RedoHistory)
+            {
+                if (move.Player.Name == player.Name)
+                    count++;
+            }
+            return count;
+        }
+
+        protected void UndoPlayerMoves(AbstractPlayer player, int movesToUndo)
         {
             if (movesToUndo <= 0)
             {
                 Console.WriteLine("Invalid number of moves to undo.");
                 return;
             }
-
-            int undoCount = 0;
-            while (undoCount < movesToUndo && MoveHistory.Count > 0)
+            int undone = 0;
+            Stack<Move> tempStack = new Stack<Move>();
+            while (undone < movesToUndo && MoveHistory.Count > 0)
             {
-                Move lastMove = MoveHistory.Pop();
-                RedoHistory.Push(lastMove);
-                ApplyUndoState(lastMove);
-                undoCount++;
+                var move = MoveHistory.Pop();
+                if (move.Player.Name == player.Name)
+                {
+                    RedoHistory.Push(move);
+                    ApplyUndoState(move);
+                    undone++;
+                }
+                else
+                {
+                    tempStack.Push(move);
+                }
             }
+            // Restore other moves
+            while (tempStack.Count > 0)
+                MoveHistory.Push(tempStack.Pop());
 
-            if (undoCount > 0)
+            if (undone > 0)
             {
-                Console.WriteLine($"Undid {undoCount} move(s).");
-                // The current player should be set in ApplyUndoState implementation
+                Console.WriteLine($"Undid {undone} move(s) for {player.Name}.");
             }
             else
             {
-                Console.WriteLine("No moves to undo currently.");
+                Console.WriteLine("No moves to undo currently for this player.");
             }
         }
-
-        /* if there was a last move in the redo history, pop the move from the redo history stack  */
-
-            /* 
-                Stack DataStructure  []
-                LIFO : Last in First out => ensures that it can reddo the last move made 
-             */
-
-        public virtual void RedoMove(int movesToRedo)
+        
+        protected void RedoPlayerMoves(AbstractPlayer player, int movesToRedo)
         {
             if (movesToRedo <= 0)
             {
                 Console.WriteLine("Invalid number of moves to redo.");
                 return;
             }
-            
-            int redoCount = 0;
-            while (redoCount < movesToRedo && RedoHistory.Count > 0)
+
+            int redone = 0;
+            Stack<Move> tempStack = new Stack<Move>();
+            while (redone < movesToRedo && RedoHistory.Count > 0)
             {
-                Move redoMove = RedoHistory.Pop();
-                MoveHistory.Push(redoMove);
-                ApplyRedoState(redoMove);
-                redoCount++;
+                var move = RedoHistory.Pop();
+                if (move.Player.Name == player.Name)
+                {
+                    MoveHistory.Push(move);
+                    ApplyRedoState(move);
+                    redone++;
+                }
+                else
+                {
+                    tempStack.Push(move);
+                }
             }
-            
-            if (redoCount > 0)
+            // Restore other moves
+            while (tempStack.Count > 0)
+                RedoHistory.Push(tempStack.Pop());
+
+            if (redone > 0)
             {
-                Console.WriteLine($"Redid {redoCount} move(s).");
-                // The current player should be set in ApplyRedoState implementation
+                Console.WriteLine($"Redid {redone} move(s) for {player.Name}.");
             }
             else
             {
-                Console.WriteLine("No moves to redo currently.");
+                Console.WriteLine("No moves to redo currently for this player.");
             }
         }
+
+        // public virtual void UndoMove(int movesToUndo)
+        // {
+        //     if (movesToUndo <= 0)
+        //     {
+        //         Console.WriteLine("Invalid number of moves to undo.");
+        //         return;
+        //     }
+
+        //     int undoCount = 0;
+        //     while (undoCount < movesToUndo && MoveHistory.Count > 0)
+        //     {
+        //         Move lastMove = MoveHistory.Pop();
+        //         RedoHistory.Push(lastMove);
+        //         ApplyUndoState(lastMove);
+        //         undoCount++;
+        //     }
+
+        //     if (undoCount > 0)
+        //     {
+        //         Console.WriteLine($"Undid {undoCount} move(s).");
+        //         // The current player should be set in ApplyUndoState implementation
+        //     }
+        //     else
+        //     {
+        //         Console.WriteLine("No moves to undo currently.");
+        //     }
+        // }
+
+        /* if there was a last move in the redo history, pop the move from the redo history stack  */
+
+        /* 
+            Stack DataStructure  []
+            LIFO : Last in First out => ensures that it can reddo the last move made 
+         */
+
+        // public virtual void RedoMove(int movesToRedo)
+        // {
+        //     if (movesToRedo <= 0)
+        //     {
+        //         Console.WriteLine("Invalid number of moves to redo.");
+        //         return;
+        //     }
+
+        //     int redoCount = 0;
+        //     while (redoCount < movesToRedo && RedoHistory.Count > 0)
+        //     {
+        //         Move redoMove = RedoHistory.Pop();
+        //         MoveHistory.Push(redoMove);
+        //         ApplyRedoState(redoMove);
+        //         redoCount++;
+        //     }
+
+        //     if (redoCount > 0)
+        //     {
+        //         Console.WriteLine($"Redid {redoCount} move(s).");
+        //         // The current player should be set in ApplyRedoState implementation
+        //     }
+        //     else
+        //     {
+        //         Console.WriteLine("No moves to redo currently.");
+        //     }
+        // }
 
         // Clear redo history when a new move is made after undo
         protected virtual void ClearRedoStackOnNewMove()

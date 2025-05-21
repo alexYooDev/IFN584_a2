@@ -1,5 +1,7 @@
 namespace GameFrameWork
 {
+    using System.Collections.Generic;
+    
     public abstract class GameData
     {
         public int BoardSize { get; set; }
@@ -10,5 +12,7 @@ namespace GameFrameWork
         public string GameType { get; set; }
         public bool IsGameOver { get; set; }
         public object BoardState { get; set; }
+        public List<object> UndoStack { get; set; }
+        public List<object> RedoStack { get; set; }
     }
 }
