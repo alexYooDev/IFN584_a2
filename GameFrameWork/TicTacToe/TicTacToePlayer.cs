@@ -94,7 +94,7 @@ namespace GameFrameWork
                             Board.MakeMove(row, col, number);
 
                             // Check if this is a winning move
-                            if (IsWinningMove(row, col))
+                            if (IsWinningMove(Board, row, col))
                             {
                                 // Undo the test move
                                 Board.SetBoardState(previousState);
@@ -115,17 +115,18 @@ namespace GameFrameWork
         }
         
         // Helper method to check if a move is a winning move
-        private bool IsWinningMove(int row, int col)
+        private bool IsWinningMove(TicTacToeBoard board, int row, int col)
         {
-            int boardSize = Board.GetSize();
+            int boardSize = board.GetSize();
             int targetSum = boardSize * (boardSize * boardSize + 1) / 2;
+
 
             // Check row
             int rowSum = 0;
             bool rowFull = true;
             for (int c = 0; c < boardSize; c++)
             {
-                int value = Board.GetValue(row, c);
+                int value = board.GetValue(row, c);
                 if (value == 0)
                 {
                     rowFull = false;
@@ -141,7 +142,7 @@ namespace GameFrameWork
             bool colFull = true;
             for (int r = 0; r < boardSize; r++)
             {
-                int value = Board.GetValue(r, col);
+                int value = board.GetValue(r, col);
                 if (value == 0)
                 {
                     colFull = false;
@@ -159,7 +160,7 @@ namespace GameFrameWork
                 bool diagFull = true;
                 for (int i = 0; i < boardSize; i++)
                 {
-                    int value = Board.GetValue(i, i);
+                    int value = board.GetValue(i, i);
                     if (value == 0)
                     {
                         diagFull = false;
@@ -178,7 +179,7 @@ namespace GameFrameWork
                 bool antiDiagFull = true;
                 for (int i = 0; i < boardSize; i++)
                 {
-                    int value = Board.GetValue(i, boardSize - 1 - i);
+                    int value = board.GetValue(i, boardSize - 1 - i);
                     if (value == 0)
                     {
                         antiDiagFull = false;

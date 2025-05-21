@@ -639,20 +639,19 @@ namespace GameFrameWork
             if (Board.IsBoardFull() && !CheckWinningLine())
             {
                 Console.WriteLine("\nGame over! It's a draw!");
+                Console.WriteLine("\nPress any key to continue...");
+                Console.ReadKey();
             }
             else
             {
                 Console.WriteLine($"\nGame over! {CurrentPlayer.Name} wins!");
             }
-            Console.WriteLine("\nPress any key to continue...");
-            Console.ReadKey();
         }
 
         private void DisplayGameResult()
         {
             Console.WriteLine($"\nFinal Turn: {CurrentPlayer.Name}");
             Console.WriteLine($"Target Sum: {TargetSum}");
-            Board.DisplayBoard();
         }
 
         // Save game : Serialize necessary game information -> save board, boardState, move history to JSON supported form
