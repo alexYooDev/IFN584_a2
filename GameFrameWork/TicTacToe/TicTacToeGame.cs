@@ -1,7 +1,4 @@
-using System.ComponentModel;
 using System.Text.Json;
-using System.Collections.Generic;
-using System.IO;
 namespace GameFrameWork
 {
     public class TicTacToeGame : AbstractGame
@@ -11,6 +8,8 @@ namespace GameFrameWork
         private HashSet<int> EvenNumbers;
 
         private TicTacToeBoard Board;
+        private Move TempMove; // Temporary storage for move before confirmation
+        private int UndoneMovesCount = 0; // Track number of undone moves
 
         public TicTacToeGame() : base()
         {
@@ -20,7 +19,6 @@ namespace GameFrameWork
 
         public override void ConfigureGame()
         {
-
             int boardSize = SelectBoardSize();
             Board = new TicTacToeBoard(boardSize);
 
@@ -150,6 +148,13 @@ namespace GameFrameWork
             Console.WriteLine("\n============================================ Game Started!  ============================================");
             IsGameOver = false;
 
+            // Offer undo after loading a game -> MoveHistory > 0 means it is a loaded game
+            if (MoveHistory.Count > 0)
+            {
+                DisplayGameStatus();
+                OfferUndoAfterLoad();
+            }
+
             while (!IsGameOver)
             {
                 DisplayGameStatus();
@@ -170,8 +175,49 @@ namespace GameFrameWork
                     SwithCurrentPlayer();
                 }
             }
-
+            AnnounceWinner();
             DisplayGameResult();
+        }
+
+        private void OfferUndoAfterLoad()
+        {
+            int maxUndo = GetUndoableMoveCountForPlayer(CurrentPlayer);
+            
+            if (maxUndo > 0)
+            {
+                Console.WriteLine($"\nYou have {maxUndo} move(s) that can be undone.");
+                Console.WriteLine("Would you like to undo any moves? (y/n)");
+                string response = Console.ReadLine().ToLower();
+                
+                if (response == "y" || response == "yes")
+                {
+                    Console.Write($"How many moves to undo (up to {maxUndo})? ");
+                    if (int.TryParse(Console.ReadLine(), out int undoCount) && undoCount > 0 && undoCount <= maxUndo)
+                    {
+                        // Use the base class method which correctly filters by player
+                        UndoPlayerMoves(CurrentPlayer, undoCount);
+                        UndoneMovesCount = undoCount;
+                        
+                        // If it's now a computer's turn after undoing, let it play
+                        if (CurrentPlayer.Type == PlayerType.Computer)
+                        {
+                            DisplayGameStatus();
+                            ProcessComputerTurn();
+                            
+                            // Check if the game is over after computer move
+                            IsGameOver = CheckGameOver();
+                            if (!IsGameOver)
+                            {
+                                SwithCurrentPlayer();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Invalid input. No moves will be undone.");
+                    }
+                }
+            }
         }
 
         public override void Play()
@@ -191,18 +237,21 @@ namespace GameFrameWork
             // Get the player's position selection
             int[] position = Board.SelectPosition();
 
-            // Save the current board state for undo
+            // Save the current board state for potential undo/redo
             object previousState = Board.GetBoardState();
 
             // Make the move
-            if (Board.IsValidMove(position[0], position[1], number))
+            if (Board.IsValidMove(position[0], position[1], number, 0,  true))
             {
                 Board.MakeMove(position[0], position[1], number);
 
-                // Record the move for undo/redo
-                Move move = new Move(0, position[0], position[1], CurrentPlayer, number, previousState);
-                MoveHistory.Push(move);
-
+                // Store the move in temporary storage, not in history yet
+                TempMove = new Move(0, position[0], position[1], CurrentPlayer, number, previousState);
+                
+                Board.DisplayBoard();
+                
+                // Offer redo/confirm options
+                HandleMoveConfirmation();
             }
             else
             {
@@ -210,6 +259,51 @@ namespace GameFrameWork
                 Console.WriteLine("Invalid move! Please try again.");
                 humanPlayer.GetAvailableNumbers().Add(number); // Return the number to available set
                 MakeHumanMove();
+            }
+        }
+
+        private void HandleMoveConfirmation()
+        {
+            while (true)
+            {
+                Console.WriteLine("\nWhat would you like to do with this move?");
+                Console.WriteLine("1. Redo this move (place a different number or position)");
+                Console.WriteLine("2. Confirm and end your turn");
+                Console.Write("\nEnter your choice >> ");
+                string input = Console.ReadLine();
+
+                if (input == "1")
+                {
+                    // Redo the move - restore the board state and return the number
+                    Board.SetBoardState(TempMove.PreviousBoardState);
+                    
+                    // Return the number to the player's available set
+                    if (CurrentPlayer is TicTacToeHumanPlayer humanPlayer)
+                    {
+                        humanPlayer.GetAvailableNumbers().Add((int)TempMove.MoveData);
+                    }
+                    
+                    // Let the player make a new move
+                    MakeHumanMove();
+                    return; // Exit this loop after making a new move
+                }
+                else if (input == "2")
+                {
+                    // Confirm the move - add it to move history
+                    MoveHistory.Push(TempMove);
+                    
+                    // When a new move is confirmed, we are no longer in an undone state
+                    UndoneMovesCount = 0;
+                    
+                    // Clear redo history when a new move is confirmed
+                    RedoHistory.Clear();
+                    
+                    return; // Exit the loop
+                }
+                else
+                {
+                    Console.WriteLine("Invalid choice. Please try again.");
+                }
             }
         }
 
@@ -221,9 +315,10 @@ namespace GameFrameWork
                 Console.WriteLine("\n|| +++ Options +++ ||");
                 Console.WriteLine("\nSelect your option for this turn:\n");
                 Console.WriteLine("1. Make a move");
-                Console.WriteLine("2. Save the game");
-                Console.WriteLine("3. View help menu");
-                Console.WriteLine("4. Quit the game");
+                Console.WriteLine("2. Undo previous moves");
+                Console.WriteLine("3. Save the game");
+                Console.WriteLine("4. View help menu");
+                Console.WriteLine("5. Quit the game");
                 Console.Write("\nEnter your choice >> ");
 
                 string input = Console.ReadLine();
@@ -232,91 +327,44 @@ namespace GameFrameWork
                 {
                     case "1":
                         MakeHumanMove();
-
-                        Board.DisplayBoard();
-
-                        // After making a move, offer undo/redo/confirm options before switching turn
-                        while (true)
+                        turnComplete = true; // Turn is complete after move is confirmed
+                        break;
+                    case "2":
+                        int maxUndo = GetUndoableMoveCountForPlayer(CurrentPlayer);
+                        if (maxUndo > 0)
                         {
-                            int maxUndo = GetUndoableMoveCountForPlayer(CurrentPlayer);
-                            int maxRedo = GetRedoableMoveCountForPlayer(CurrentPlayer);
-
-                            Console.WriteLine("\nWhat would you like to do next?");
-                            Console.WriteLine("1. Undo your move");
-                            Console.WriteLine("2. Redo a move");
-                            Console.WriteLine("3. Confirm and end your turn");
-                            Console.Write("\nEnter your choice >> ");
-                            string postMoveInput = Console.ReadLine();
-
-                            if (postMoveInput == "1")
+                            Console.Write($"How many moves to undo (up to {maxUndo})? ");
+                            if (int.TryParse(Console.ReadLine(), out int undoCount) && undoCount > 0 && undoCount <= maxUndo)
                             {
-                                if (maxUndo > 0)
-                                {
-                                    Console.Write($"How many moves to undo (1/{maxUndo})? ");
-                                    if (int.TryParse(Console.ReadLine(), out int undoCount) && undoCount > 0 && undoCount <= maxUndo)
-                                    {
-                                        UndoPlayerMoves(CurrentPlayer, undoCount);
-                                        // After undo, allow the player to make a move again
-                                        MakeHumanMove();
-                                        continue;
-                                    }
-                                    else
-                                    {
-                                        Console.WriteLine($"Invalid input. You can undo up to {maxUndo} of your move(s).");
-                                    }
-                                }
-                                else
-                                {
-                                    Console.WriteLine("No moves to undo.");
-                                }
-                            }
-                            else if (postMoveInput == "2")
-                            {
-                                if (maxRedo > 0)
-                                {
-                                    Console.Write($"How many moves to redo (1/{maxRedo})? ");
-                                    if (int.TryParse(Console.ReadLine(), out int redoCount) && redoCount > 0 && redoCount <= maxRedo)
-                                    {
-                                        RedoPlayerMoves(CurrentPlayer, redoCount);
-                                        // After redo, allow the player to undo/redo/confirm again
-                                        continue;
-                                    }
-                                    else
-                                    {
-                                        Console.WriteLine($"Invalid input. You can redo up to {maxRedo} of your move(s).");
-                                    }
-                                }
-                                else
-                                {
-                                    Console.WriteLine("No moves to redo.");
-                                }
-                            }
-                            else if (postMoveInput == "3")
-                            {
-                                // Confirm and end turn
-                                turnComplete = true;
-                                break;
+                                // Use the base class method which correctly filters by player
+                                UndoPlayerMoves(CurrentPlayer, undoCount);
+                                UndoneMovesCount += undoCount;
+                                Board.DisplayBoard(); // Show the board after undo
                             }
                             else
                             {
-                                Console.WriteLine("Invalid choice. Please try again.");
+                                Console.WriteLine($"Invalid input. You can undo up to {maxUndo} of your move(s).");
                             }
                         }
+                        else
+                        {
+                            Console.WriteLine("No moves to undo.");
+                        }
                         break;
-                    case "2":
-                        Console.Write("\nEnter filename to save: ");
+                    case "3":
+                        Console.Write("\nEnter filename to save >> ");
                         string saveFilename = Console.ReadLine();
                         SaveGame(saveFilename);
                         // Do not end turn, allow player to continue
                         break;
-                    case "3":
+                    case "4":
                         DisplayHelpMenu();
                         Board.DisplayBoard();
                         // Do not end turn, allow player to continue
                         break;
-                    case "4":
+                    case "5":
                         Console.WriteLine("\nExiting the game...");
-                        Environment.Exit(0);
+                        System.Environment.Exit(0);
                         break;
                     default:
                         Console.WriteLine("\nInvalid choice. Please try again.");
@@ -343,7 +391,7 @@ namespace GameFrameWork
                 {
                     for (int col = 0; col < boardSize; col++)
                     {
-                        if (Board.IsValidMove(row, col, number))
+                        if (Board.IsValidMove(row, col, number, 0, false))
                         {
                             // Save the current board state for undo
                             object previousState = Board.GetBoardState();
@@ -358,8 +406,11 @@ namespace GameFrameWork
                                 Move move = new Move(0, row, col, CurrentPlayer, number, previousState);
                                 MoveHistory.Push(move);
 
+                                // Reset undone moves count since a new move was made
+                                UndoneMovesCount = 0;
+
                                 // Clear redo history when a new move is made
-                                ClearRedoStackOnNewMove();
+                                RedoHistory.Clear();
 
                                 Console.WriteLine($"\nComputer placed {number} at position ({row + 1}, {col + 1})");
                                 return;
@@ -380,7 +431,7 @@ namespace GameFrameWork
             {
                 for (int col = 0; col < boardSize; col++)
                 {
-                    if (Board.IsValidMove(row, col, null))
+                    if (Board.IsValidMove(row, col, null, 0, false))
                     {
                         emptyPositions.Add((row, col));
                     }
@@ -405,8 +456,11 @@ namespace GameFrameWork
                 Move move = new Move(0, row, col, CurrentPlayer, number, previousState);
                 MoveHistory.Push(move);
 
+                // Reset undone moves count since a new move was made
+                UndoneMovesCount = 0;
+
                 // Clear redo history when a new move is made
-                ClearRedoStackOnNewMove();
+                RedoHistory.Clear();
 
                 Console.WriteLine($"\nComputer placed {number} at position ({row + 1}, {col + 1})");
             }
@@ -549,10 +603,10 @@ namespace GameFrameWork
             Console.WriteLine($"Target Sum: {TargetSum}");
             Board.DisplayBoard();
         }
-        private void DisplayGameResult()
+
+        private void AnnounceWinner()
         {
             Board.DisplayBoard();
-
             if (Board.IsBoardFull() && !CheckWinningLine())
             {
                 Console.WriteLine("\nGame over! It's a draw!");
@@ -562,6 +616,12 @@ namespace GameFrameWork
                 Console.WriteLine($"\nGame over! {CurrentPlayer.Name} wins!");
             }
         }
+        
+        private void DisplayGameResult()
+        {
+            Console.WriteLine($"\nFinal Turn: {CurrentPlayer.Name}");
+            Console.WriteLine($"Target Sum: {TargetSum}");
+        }
 
         public override void SaveGame(string filename)
         {
@@ -569,26 +629,65 @@ namespace GameFrameWork
             {
                 string saveDirectory = Path.Combine(Directory.GetCurrentDirectory(), "saveData");
 
-                // Create directory if it doesn't exist
                 if (!Directory.Exists(saveDirectory))
                 {
                     Directory.CreateDirectory(saveDirectory);
                 }
 
-                // Create a class to hold game data
+                int[,] boardArray = (int[,])Board.GetBoardState();
+                int[][] boardJagged = TicTacToeGameData.ConvertTo2DJaggedArray(boardArray);
+
+                // Save the entire move history including undone moves
+                List<MovesToSerialize> serializedMoveHistory = new List<MovesToSerialize>();
+                foreach (Move move in MoveHistory)
+                {
+                    int[,] previousBoard = (int[,])move.PreviousBoardState;
+                    serializedMoveHistory.Add(new MovesToSerialize
+                    {
+                        BoardIndex = move.BoardIndex,
+                        Row = move.Row,
+                        Col = move.Col,
+                        PlayerName = move.Player.Name,
+                        MoveData = (int)move.MoveData,
+                        PreviousBoardState = TicTacToeGameData.ConvertTo2DJaggedArray(previousBoard)
+                    });
+                }
+
+                List<MovesToSerialize> serializedRedoHistory = new List<MovesToSerialize>();
+                foreach (Move move in RedoHistory)
+                {
+                    int[,] previousBoard = (int[,])move.PreviousBoardState;
+                    serializedRedoHistory.Add(new MovesToSerialize
+                    {
+                        BoardIndex = move.BoardIndex,
+                        Row = move.Row,
+                        Col = move.Col,
+                        PlayerName = move.Player.Name,
+                        MoveData = (int)move.MoveData,
+                        PreviousBoardState = TicTacToeGameData.ConvertTo2DJaggedArray(previousBoard)
+                    });
+                }
+
                 var gameData = new TicTacToeGameData
                 {
                     BoardSize = Board.GetSize(),
                     GameMode = GameMode,
-                    CurrentPlayer = CurrentPlayer,
-                    Player1 = Player1,
-                    Player2 = Player2,
+                    CurrentPlayerName = CurrentPlayer.Name,
+                    Player1Name = Player1.Name,
+                    Player2Name = Player2.Name,
+                    Player1Numbers = Player1 is TicTacToeHumanPlayer hp1 ? hp1.GetAvailableNumbers().ToList() : new List<int>(),
+                    Player2Numbers = Player2 is TicTacToeHumanPlayer hp2 ? hp2.GetAvailableNumbers().ToList()
+                                    : Player2 is TicTacToeComputerPlayer cp2 ? cp2.GetAvailableNumbers().ToList() : new List<int>(),
                     GameType = "NumericalTicTacToe",
                     IsGameOver = IsGameOver,
-                    BoardState = Board.GetBoardState()
+                    TargetSum = TargetSum,
+                    BoardState = boardJagged,
+                    MoveHistory = serializedMoveHistory,
+                    RedoHistory = serializedRedoHistory,
+                    UndoneMovesCount = UndoneMovesCount  // Save the count of undone moves
                 };
 
-                string jsonString = System.Text.Json.JsonSerializer.Serialize(gameData);
+                string jsonString = JsonSerializer.Serialize(gameData);
                 string saveFilePath = Path.Combine(saveDirectory, filename + ".json");
 
                 File.WriteAllText(saveFilePath, jsonString);
@@ -615,35 +714,84 @@ namespace GameFrameWork
                     // Create board with loaded size
                     Board = new TicTacToeBoard(gameData.BoardSize);
 
+                    // Convert int[][] to int[,] before restoring board state
+                    int[,] boardArray = TicTacToeGameData.ConvertToArray2D(gameData.BoardState);
+
                     // Restore board state
-                    Board.SetBoardState(gameData.BoardState);
+                    Board.SetBoardState(boardArray);
 
                     // Restore game properties
                     GameMode = gameData.GameMode;
                     IsGameOver = gameData.IsGameOver;
                     TargetSum = gameData.TargetSum;
+                    
+                    // Restore undone moves count if it exists
+                    if (gameData.UndoneMovesCount.HasValue)
+                    {
+                        UndoneMovesCount = gameData.UndoneMovesCount.Value;
+                    }
 
                     // Restore players
                     if (GameMode == "HvH")
                     {
-                        Player1 = new TicTacToeHumanPlayer(
-                            gameData.Player1.Name, gameData.Player1Numbers);
-
-                        Player2 = new TicTacToeHumanPlayer(
-                            gameData.Player2.Name, gameData.Player2Numbers);
+                        Player1 = new TicTacToeHumanPlayer(gameData.Player1Name, new HashSet<int>(gameData.Player1Numbers));
+                        Player2 = new TicTacToeHumanPlayer(gameData.Player2Name, new HashSet<int>(gameData.Player2Numbers));
                     }
                     else // HvC
                     {
-                        Player1 = new TicTacToeHumanPlayer(
-                            gameData.Player1.Name, gameData.Player1Numbers);
-
-                        Player2 = new TicTacToeComputerPlayer(gameData.Player2Numbers);
+                        Player1 = new TicTacToeHumanPlayer(gameData.Player1Name, new HashSet<int>(gameData.Player1Numbers));
+                        Player2 = new TicTacToeComputerPlayer(new HashSet<int>(gameData.Player2Numbers));
                     }
 
                     // Set current player
-                    CurrentPlayer = gameData.CurrentPlayer.Name == Player1.Name ? Player1 : Player2;
+                    CurrentPlayer = gameData.CurrentPlayerName == Player1.Name ? Player1 : Player2;
+
+                    // Clear existing history 
+                    MoveHistory.Clear();
+                    RedoHistory.Clear();
+
+                    // Restore move history - use reverse order to ensure correct stack order
+                    if (gameData.MoveHistory != null)
+                    {
+                        // Since we want the stack to have the most recent move at the top,
+                        // we need to iterate in reverse order when pushing moves
+                        for (int i = gameData.MoveHistory.Count - 1; i >= 0; i--)
+                        {
+                            var serializedMove = gameData.MoveHistory[i];
+                            AbstractPlayer player = serializedMove.PlayerName == Player1.Name ? Player1 : Player2;
+                            Move move = new Move(
+                                serializedMove.BoardIndex,
+                                serializedMove.Row,
+                                serializedMove.Col,
+                                player,
+                                serializedMove.MoveData,
+                                TicTacToeGameData.ConvertToArray2D(serializedMove.PreviousBoardState)
+                            );
+                            MoveHistory.Push(move);
+                        }
+                    }
+
+                    // Restore redo history - also in reverse order
+                    if (gameData.RedoHistory != null)
+                    {
+                        for (int i = gameData.RedoHistory.Count - 1; i >= 0; i--)
+                        {
+                            var serializedMove = gameData.RedoHistory[i];
+                            AbstractPlayer player = serializedMove.PlayerName == Player1.Name ? Player1 : Player2;
+                            Move move = new Move(
+                                serializedMove.BoardIndex,
+                                serializedMove.Row,
+                                serializedMove.Col,
+                                player,
+                                serializedMove.MoveData,
+                                TicTacToeGameData.ConvertToArray2D(serializedMove.PreviousBoardState)
+                            );
+                            RedoHistory.Push(move);
+                        }
+                    }
 
                     Console.WriteLine($"\nGame loaded successfully from {filename}");
+                    StartGame();
                 }
                 else
                 {
@@ -656,6 +804,7 @@ namespace GameFrameWork
             }
         }
 
+        // Override for applying undo state
         protected override void ApplyUndoState(Move move)
         {
             // Restore the board state
@@ -678,19 +827,19 @@ namespace GameFrameWork
 
         protected override void ApplyRedoState(Move move)
         {
-            // Make the move again
-            Board.MakeMove(move.Row, move.Col, move.MoveData);
+            // Restore the board state to the previous state before the move
+            Board.SetBoardState(move.PreviousBoardState);
 
-            // Remove the number from the player's available numbers
+            // Add the number from the player's available numbers
             int number = (int)move.MoveData;
 
             if (move.Player is TicTacToeHumanPlayer humanPlayer)
             {
-                humanPlayer.GetAvailableNumbers().Remove(number);
+                humanPlayer.GetAvailableNumbers().Add(number);
             }
             else if (move.Player is TicTacToeComputerPlayer computerPlayer)
             {
-                computerPlayer.GetAvailableNumbers().Remove(number);
+                computerPlayer.GetAvailableNumbers().Add(number);
             }
 
             Console.WriteLine($"\nMove redone. Current player: {CurrentPlayer.Name}");
@@ -720,20 +869,20 @@ namespace GameFrameWork
             Console.WriteLine("\n============================================ Game Commands ============================================");
             Console.WriteLine("\nDuring your turn, you can choose from the following options:");
             Console.WriteLine("1. Make a move - Place a number on the board");
-            Console.WriteLine("2. Save the game - Save the current game state");
-            Console.WriteLine("3. View help menu - Display game rules and commands");
-            Console.WriteLine("4. Undo last move - Revert the previous move");
-            Console.WriteLine("5. Redo last move - Redo a previously undone move");
-            Console.WriteLine("6. Quit the game - Exit the application");
+            Console.WriteLine("2. Undo previous moves - Revert to an earlier state of the game");
+            Console.WriteLine("3. Save the game - Save the current game state");
+            Console.WriteLine("4. View help menu - Display game rules and commands");
+            Console.WriteLine("5. Quit the game - Exit the application");
             
             Console.WriteLine("\nWhen making a move:");
             Console.WriteLine("1. First select a number from your available set");
             Console.WriteLine("2. Then select a position on the board to place the number");
+            Console.WriteLine("3. You can either confirm your move or redo it before ending your turn");
             
             Console.WriteLine("\nSaving and loading games:");
             Console.WriteLine("- When saving, enter a filename without an extension");
             Console.WriteLine("- When loading, enter the same filename you used to save");
+            Console.WriteLine("- After loading a game, you'll have the option to undo moves");
         }
-
     }
 }

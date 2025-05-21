@@ -19,7 +19,7 @@ namespace GameFrameWork
         }
 
         public abstract void DisplayBoard();
-        public abstract bool IsValidMove(int row, int col, object moveData, int boardIndex = 0);
+        public abstract bool IsValidMove(int row, int col, object moveData, int boardIndex = 0, bool displayMessages = true);
 
         /* 
             boardIndex: the number of board, added in Notakto for board navigation, set as 0 by default

@@ -40,18 +40,20 @@ namespace GameFrameWork
             Console.WriteLine();
         }
 
-        public override bool IsValidMove(int row, int col, object moveData, int boardIndex = 0)
+        public override bool IsValidMove(int row, int col, object moveData, int boardIndex = 0, bool displayMessages = true)
         {
             // Check if row and column are within the boundary of the board
             if (row < 0 || row >= Size || col < 0 || col >= Size)
             {
-                Console.WriteLine("Your move exceeds the board! Please try again!");
+                if (displayMessages)
+                    Console.WriteLine("Your move exceeds the board! Please try again!");
                 return false;
             }
             // Check if the slot is already occupied
             if (Slots[row, col] != 0)
             {
-                Console.WriteLine("This slot is already occupied! Please try again!");
+                if (displayMessages)
+                    Console.WriteLine("This slot is already occupied! Please try again!");
                 return false;
             }
             return true;
@@ -111,7 +113,7 @@ namespace GameFrameWork
             {
                 for (int k = 0; k < Size; ++k)
                 {
-                    Console.Write("-----");
+                    Console.Write("------");
                 }
                 Console.WriteLine();
                 Console.Write($"|");
@@ -122,6 +124,8 @@ namespace GameFrameWork
                     // If the slot is empty, display a grid number
                     if (slotValue == 0)
                     {
+
+                        /* Grid layout up to 3 digits numbers */
                         if (gridNum < 10)
                         {
                             Console.Write($"  {gridNum}  |"); // 2 spaces before, 2 after for 1 digit
@@ -135,10 +139,10 @@ namespace GameFrameWork
                             Console.Write($"{gridNum}  |"); // no space before, 2 after for 3 digits
                         }
                     }
-                    // If it is taken, display blank slot
+                    // If it is taken, blank slot is displayed instead
                     else
                     {
-                        Console.Write("    |");
+                        Console.Write("     |");
                     }
                     gridNum++;
                 }
@@ -146,7 +150,7 @@ namespace GameFrameWork
             }
             for (int k = 0; k < Size; ++k)
             {
-                Console.Write("-----");
+                Console.Write("------");
             }
             Console.WriteLine();
         }
@@ -173,7 +177,9 @@ namespace GameFrameWork
                     int row = (position - 1) / Size;
                     int col = (position - 1) % Size;
 
-                    if (Slots[row, col] != 0) // Position already taken
+
+                    /* When the position is already taken */
+                    if (Slots[row, col] != 0)
                     {
                         Console.WriteLine("This position is already taken! Try again!");
                         continue;
