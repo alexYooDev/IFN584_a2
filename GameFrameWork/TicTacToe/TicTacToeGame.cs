@@ -22,6 +22,7 @@ namespace GameFrameWork
         {
             int boardSize = SelectBoardSize();
             Board = new TicTacToeBoard(boardSize);
+            SelectGameMode();
 
             // Initialize the number sets
             for (int i = 1; i <= boardSize * boardSize; ++i)
