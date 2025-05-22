@@ -162,7 +162,7 @@ namespace GameFrameWork
             }
         }
         
-        protected void HandleUndoRequest()
+        protected override void HandleUndoRequest()
         {
             int maxUndo = GetUndoableMoveCountForPlayer(CurrentPlayer);
             if (maxUndo > 0)
