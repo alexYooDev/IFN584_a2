@@ -15,8 +15,8 @@ namespace GameFrameWork
         {
             int boardSize = SelectBoardSize();
             GomokuBoard = new GomokuBoard(boardSize, 1);
-            SelectGameMode();
             Board = GomokuBoard;
+            SelectGameMode();
         }
 
         public int SelectBoardSize()
