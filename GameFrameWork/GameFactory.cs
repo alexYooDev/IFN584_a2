@@ -13,7 +13,7 @@ namespace GameFrameWork
                     throw new NotImplementedException("Notakto game is not implemented yet");
                 case "gomoku":
                     // This will be implemented in a future update
-                    throw new NotImplementedException("Gomoku game is not implemented yet");
+                    return new GomokuGame();
                 default:
                     throw new ArgumentException($"Game Type is not valid: {gameType}. Try again");
             } 
