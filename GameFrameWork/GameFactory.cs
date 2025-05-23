@@ -9,8 +9,7 @@ namespace GameFrameWork
                 case "numericaltictactoe":
                     return new TicTacToeGame();
                 case "notakto":
-                    // This will be implemented in a future update
-                    throw new NotImplementedException("Notakto game is not implemented yet");
+                    return new NotaktoGame();
                 case "gomoku":
                     // This will be implemented in a future update
                     return new GomokuGame();

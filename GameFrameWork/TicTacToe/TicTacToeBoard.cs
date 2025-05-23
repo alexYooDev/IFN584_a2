@@ -1,8 +1,10 @@
+using System.IO.Compression;
+
 namespace GameFrameWork
 {
     public class TicTacToeBoard : AbstractBoard
     {
-       private int[,] Slots;
+        private int[,] Slots;
 
         public TicTacToeBoard(int size) : base(size)
         {
@@ -11,12 +13,6 @@ namespace GameFrameWork
             BoardsState = new List<object> { Slots };
         }
 
-        // Add this method to implement the abstract method from AbstractBoard
-        public override bool AreAllBoardsFull()
-        {
-            // For TicTacToe, there's only one board
-            return IsBoardFull();
-        }
 
         public override void DisplayBoard(int boardIndex = 0)
         {
@@ -73,6 +69,7 @@ namespace GameFrameWork
                 Slots[row, col] = number;
             }
         }
+
 
         public override bool IsBoardFull(int boardIndex = 0)
         {

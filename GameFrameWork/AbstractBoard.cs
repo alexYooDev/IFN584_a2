@@ -16,9 +16,6 @@ public abstract class AbstractBoard
         Size = size;
         BoardCount = boardCount;
     }
-
-    // // Initialize appropriate board structure for each game (Notakto)
-    // protected abstract void InitializeBoards();
     
     // Methods every board game needs
     public abstract void DisplayBoard(int boardIndex = 0);
@@ -27,19 +24,8 @@ public abstract class AbstractBoard
     
     // Board status checks
     public abstract bool IsBoardFull(int boardIndex = 0);
-    
-    public abstract bool AreAllBoardsFull(); // For Notakto and potentially other multi-board games
-
-    // For the game state operations
     public abstract object GetBoardState(); 
     public abstract void SetBoardState(object state);
-
-    // Allow switching between multiple boards (for Notakto)
-    // public virtual void SwitchToBoard(int boardIndex)
-    // {
-    //     if (boardIndex >= 0 && boardIndex < BoardCount)
-    //         ActiveBoardIndex = boardIndex;
-    // }
 
     // Common method for getting the board size
     public int GetSize()
@@ -47,15 +33,9 @@ public abstract class AbstractBoard
         return Size;
     }
 
-    // // Get active board index (Notakto)
-    // public int GetActiveBoardIndex()
-    // { 
-    //     return ActiveBoardIndex;
-    // } 
-
-    // Get total number of boards (NoTakto)
-    // public int GetBoardCount()
-    // {
-    //     return BoardCount;
-    // }
+    // Get total number of boards (for Notakto)
+    public int GetBoardCount()
+    {
+        return BoardCount;
+    }
 }
