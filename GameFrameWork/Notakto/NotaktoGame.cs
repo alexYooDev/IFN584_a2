@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Text.Json;
+using System.Linq;
 using System.IO;
 
 namespace GameFrameWork
@@ -8,66 +8,198 @@ namespace GameFrameWork
     public class NotaktoGame : AbstractGame
     {
         private NotaktoBoard NotaktoBoard;
-        // Temporary storage for move before confirmation
         private Move TempMove;
 
-        public NotaktoGame() : base() { }
+        // Constructor with dependency injection
+        public NotaktoGame(IGameRenderer renderer, IInputHandler inputHandler, IGameDataPersistence dataPersistence) 
+            : base(renderer, inputHandler, dataPersistence)
+        {
+        }
 
-        public override void ConfigureGame()
+        // Default constructor using console implementations
+        public NotaktoGame() : this(new ConsoleGameRenderer(), new ConsoleInputHandler(), new JsonGameDataPersistence())
+        {
+        }
+
+        // Public getters for data access (following TicTacToe pattern)
+        public string GetGameMode() => GameMode;
+        public string GetCurrentPlayerName() => CurrentPlayer.Name;
+        public string GetPlayer1Name() => Player1.Name;
+        public string GetPlayer2Name() => Player2.Name;
+        public bool GetIsGameOver() => IsGameOver;
+        public NotaktoBoard GetNotaktoBoard() => NotaktoBoard;
+        public AbstractPlayer GetPlayer1() => Player1;
+        public AbstractPlayer GetPlayer2() => Player2;
+        public Stack<Move> GetMoveHistory() => MoveHistory;
+        public Stack<Move> GetRedoHistory() => RedoHistory;
+
+        // Setters for data restoration
+        public void SetGameMode(string gameMode) => GameMode = gameMode;
+        public void SetIsGameOver(bool isGameOver) => IsGameOver = isGameOver;
+        public void SetNotaktoBoard(NotaktoBoard board) => NotaktoBoard = board;
+        public void SetMoveHistory(Stack<Move> moveHistory) => MoveHistory = moveHistory;
+        public void SetRedoHistory(Stack<Move> redoHistory) => RedoHistory = redoHistory;
+
+        public void SetCurrentPlayerByName(string playerName)
+        {
+            CurrentPlayer = playerName == Player1.Name ? Player1 : Player2;
+        }
+
+        public void RestorePlayersFromData(string gameMode, string player1Name, string player2Name)
+        {
+            if (gameMode == "HvH")
+            {
+                Player1 = new NotaktoHumanPlayer(player1Name);
+                Player2 = new NotaktoHumanPlayer(player2Name);
+            }
+            else
+            {
+                Player1 = new NotaktoHumanPlayer(player1Name);
+                Player2 = new NotaktoComputerPlayer();
+            }
+        }
+
+        protected override void ConfigureGame()
         {
             NotaktoBoard = new NotaktoBoard();
             Board = NotaktoBoard;
             SelectGameMode();
         }
 
-        public void SelectGameMode()
+        private void SelectGameMode()
         {
-            Console.WriteLine("\n|| +++ Select the mode of the game +++ ||");
-            Console.WriteLine("1. HvH (Human vs Human)");
-            Console.WriteLine("2. HvC (Human vs Computer)");
-            Console.Write("\nEnter your choice >> ");
-
-            int modeChoice = Convert.ToInt32(Console.ReadLine());
+            renderer.DisplayMessage("\n|| +++ Select the mode of the game +++ ||");
+            renderer.DisplayMessage("1. HvH (Human vs Human)");
+            renderer.DisplayMessage("2. HvC (Human vs Computer)");
+            
+            int modeChoice = inputHandler.GetUserIntInput("Enter your choice", 1, 2);
 
             switch (modeChoice)
             {
                 case 1:
-                    Console.WriteLine("\nYou selected Human vs Human mode.");
+                    renderer.DisplayMessage("\nYou selected Human vs Human mode.");
                     GameMode = "HvH";
                     break;
                 case 2:
-                    Console.WriteLine("\nYou selected Human vs Computer mode.");
+                    renderer.DisplayMessage("\nYou selected Human vs Computer mode.");
                     GameMode = "HvC";
-                    break;
-                default:
-                    Console.WriteLine("\nInvalid mode selected. Defaulting to Human vs Human.");
-                    GameMode = "HvH";
                     break;
             }
         }
 
-        public override void ConfigurePlayer()
+        protected override void ConfigurePlayer()
         {
-            switch (GameMode)
-            {
-                case "HvH":
-                    Console.Write("\nEnter player 1 name >> ");
-                    string player1Name = Console.ReadLine();
-                    Player1 = new NotaktoHumanPlayer(player1Name);
+            ConfigurePlayersWithNames();
+        }
 
-                    Console.Write("\nEnter player 2 name >> ");
-                    string player2Name = Console.ReadLine();
-                    Player2 = new NotaktoHumanPlayer(player2Name);
-                    break;
-                case "HvC":
-                    Console.Write("\nEnter your name >> ");
-                    string playerName = Console.ReadLine();
-                    Player1 = new NotaktoHumanPlayer(playerName);
-                    Player2 = new NotaktoComputerPlayer();
-                    break;
+        protected override void CreateHumanVsHumanPlayers(string player1Name, string player2Name)
+        {
+            Player1 = new NotaktoHumanPlayer(player1Name);
+            Player2 = new NotaktoHumanPlayer(player2Name);
+        }
+
+        protected override void CreateHumanVsComputerPlayers(string playerName)
+        {
+            Player1 = new NotaktoHumanPlayer(playerName);
+            Player2 = new NotaktoComputerPlayer();
+        }
+
+        public override void StartGame()
+        {
+            renderer.DisplayMessage("\n============================================ Game Started!  ============================================");
+            IsGameOver = false;
+            IsPlayerQuit = false;
+
+            // Offer undo after loading a game
+            if (MoveHistory.Count > 0)
+            {
+                DisplayGameStatus();
+                OfferUndoAfterLoad();
             }
 
-            CurrentPlayer = Player1;
+            while (!IsGameOver)
+            {
+                DisplayGameStatus();
+
+                if (CurrentPlayer.Type == PlayerType.Human)
+                {
+                    ProcessHumanTurn();
+
+                    if (IsPlayerQuit)
+                    {
+                        break;
+                    }
+                }
+                else
+                {
+                    ProcessComputerTurn();
+                }
+
+                if (!IsPlayerQuit)
+                {
+                    IsGameOver = CheckGameOver();
+
+                    if (!IsGameOver)
+                    {
+                        SwithCurrentPlayer();
+                    }
+                }
+            }
+
+            if (!IsPlayerQuit)
+            {
+                DisplayGameStatus();
+                AnnounceWinner();
+            }
+        }
+
+        public override void Play()
+        {
+            ConfigureGame();
+            ConfigurePlayer();
+            StartGame();
+        }
+
+        protected override void ProcessHumanTurn()
+        {
+            bool turnComplete = false;
+            while (!turnComplete)
+            {
+                renderer.DisplayMessage("\n|| +++ Options +++ ||");
+                renderer.DisplayMessage("\nSelect your option for this turn:\n");
+                renderer.DisplayMessage("1. Make a move");
+                renderer.DisplayMessage("2. Undo previous moves");
+                renderer.DisplayMessage("3. Save the game");
+                renderer.DisplayMessage("4. View help menu");
+                renderer.DisplayMessage("5. Quit the game");
+
+                string input = inputHandler.GetUserInput("\nEnter your choice");
+
+                switch (input)
+                {
+                    case "1":
+                        MakeHumanMove();
+                        turnComplete = true;
+                        break;
+                    case "2":
+                        HandleUndoRequest();
+                        break;
+                    case "3":
+                        string saveFilename = inputHandler.GetUserInput("\nEnter filename to save");
+                        SaveGame(saveFilename);
+                        break;
+                    case "4":
+                        renderer.DisplayHelpMenu();
+                        Board.DisplayBoard();
+                        break;
+                    case "5":
+                        HandleQuitRequest();
+                        return;
+                    default:
+                        renderer.DisplayMessage("\nInvalid choice. Please try again.");
+                        break;
+                }
+            }
         }
 
         protected override void MakeHumanMove()
@@ -85,59 +217,35 @@ namespace GameFrameWork
             if (Board.IsValidMove(row, col, symbol, selectedBoard, true))
             {
                 Board.MakeMove(row, col, symbol, selectedBoard);
-                TempMove = new Move(selectedBoard, row, col, CurrentPlayer, symbol, previousState);
-                Board.DisplayBoard();
-                // Prompt redo/confirm options
-                HandleMoveConfirmation();
-            }
-            else
-            {
-                // If the move is invalid, let the player try again
-                Console.WriteLine("Invalid move! Please try again.");
-                MakeHumanMove();
-            }
-        }
+                renderer.DisplayBoard(Board);
 
-        private void HandleMoveConfirmation()
-        {
-            while (true)
-            {
-                Console.WriteLine("\nWhat would you like to do with this move?");
-                Console.WriteLine("1. Redo this move (select a different position)");
-                Console.WriteLine("2. Confirm and end your turn");
-                Console.Write("\nEnter your choice >> ");
-                string input = Console.ReadLine();
+                bool confirmed = inputHandler.GetUserConfirmation("Confirm this move?");
 
-                if (input == "1")
+                if (confirmed)
                 {
-                     // Redo the move - restore the board state and return the number
-                    Board.SetBoardState(TempMove.PreviousBoardState);
-                    // Let the player make a new move
-                    MakeHumanMove();
-
-                    // Exit this loop after making a new move
-                    return;
-                }
-                else if (input == "2")
-                {
-                    // Confirm the move - add it to move history
-                    MoveHistory.Push(TempMove);
+                    var move = new Move(selectedBoard, row, col, CurrentPlayer, symbol, previousState);
+                    MoveHistory.Push(move);
                     ClearRedoStackOnNewMove();
-                    return;
                 }
                 else
                 {
-                    Console.WriteLine("Invalid choice. Please try again.");
+                    Board.SetBoardState(previousState);
+                    renderer.DisplayMessage("Move cancelled. Try again.");
+                    MakeHumanMove();
                 }
+            }
+            else
+            {
+                renderer.DisplayMessage("Invalid move! Please try again.");
+                MakeHumanMove();
             }
         }
 
         protected override void ProcessComputerTurn()
         {
-            Console.WriteLine("\nComputer is making a move...");
+            renderer.DisplayMessage("\nComputer is making a move...");
             NotaktoComputerPlayer computerPlayer = (NotaktoComputerPlayer)CurrentPlayer;
 
-            // Set the board reference for the computer player
             computerPlayer.SetBoard(NotaktoBoard);
 
             object winningMove = computerPlayer.FindWinningMove(Board);
@@ -164,40 +272,41 @@ namespace GameFrameWork
             char symbol = (char)CurrentPlayer.MoveSymbol;
             Board.MakeMove(row, col, symbol, boardIndex);
 
-            Move move = new Move(boardIndex, row, col, CurrentPlayer, symbol, previousState);
+            var move = new Move(boardIndex, row, col, CurrentPlayer, symbol, previousState);
             MoveHistory.Push(move);
             ClearRedoStackOnNewMove();
 
-            Console.WriteLine($"\nComputer placed {symbol} at Board {boardIndex + 1}, position ({row + 1}, {col + 1})");
+            renderer.DisplayMessage($"\nComputer placed {symbol} at Board {boardIndex + 1}, position ({row + 1}, {col + 1})");
         }
 
-        public override bool CheckGameOver()
+        protected override void HandleQuitRequest()
+        {
+            IsGameOver = true;
+            IsPlayerQuit = true;
+        }
+
+        protected override bool CheckGameOver()
         {
             return NotaktoBoard.AreAllBoardsDead();
         }
 
-        // Display the result of the game
         protected override void AnnounceWinner()
         {
-            // Condition with a winner
             if (NotaktoBoard.AreAllBoardsDead())
             {
-                // In Notakto, the player who made the last move (filled the last board) loses
-                Console.WriteLine($"\nGame over! All boards are dead!");
-                Console.WriteLine($"{CurrentPlayer.Name} made the final move and loses!");
+                renderer.DisplayMessage($"\nGame over! All boards are dead!");
+                renderer.DisplayMessage($"{CurrentPlayer.Name} made the final move and loses!");
 
-                // The winner is the other player
                 AbstractPlayer winner = (CurrentPlayer == Player1) ? Player2 : Player1;
-                Console.WriteLine($"{winner.Name} wins!");
+                renderer.DisplayMessage($"{winner.Name} wins!");
             }
-            Console.WriteLine("\nPress any key to continue...");
-            Console.ReadKey();
+            renderer.PressAnyKeyToContinue();
         }
 
-        public override void DisplayGameStatus()
+        protected override void DisplayGameStatus()
         {
-            Console.WriteLine($"\nCurrent Turn: {CurrentPlayer.Name}");
-            Console.WriteLine($"Move #{MoveHistory.Count}");
+            renderer.DisplayMessage($"\nCurrent Turn: {CurrentPlayer.Name}");
+            renderer.DisplayMessage($"Move #{MoveHistory.Count}");
             Board.DisplayBoard();
         }
 
@@ -209,160 +318,68 @@ namespace GameFrameWork
         protected override void ApplyUndoState(Move move)
         {
             Board.SetBoardState(move.PreviousBoardState);
-            Console.WriteLine($"\nMove undone for {move.Player.Name}");
+            renderer.DisplayMessage($"\nMove undone for {move.Player.Name}");
         }
 
         protected override void ApplyRedoState(Move move)
         {
             Board.MakeMove(move.Row, move.Col, move.MoveData, move.BoardIndex);
-            Console.WriteLine($"\nMove redone for {move.Player.Name}");
+            renderer.DisplayMessage($"\nMove redone for {move.Player.Name}");
         }
 
-        public override void SaveGame(string filename)
+        protected override void SaveGame(string filename)
         {
-            try
-            {
-                string saveDirectory = Path.Combine(Directory.GetCurrentDirectory(), "saveData");
-
-                if (!Directory.Exists(saveDirectory))
-                {
-                    Directory.CreateDirectory(saveDirectory);
-                }
-
-                var boardState = (Tuple<List<char[,]>, List<int>>)Board.GetBoardState();
-                var gameData = new NotaktoGameData
-                {
-                    BoardSize = 3,
-                    BoardCount = 3,
-                    GameMode = GameMode,
-                    CurrentPlayerName = CurrentPlayer.Name,
-                    Player1Name = Player1.Name,
-                    Player2Name = Player2.Name,
-                    GameType = "Notakto",
-                    IsGameOver = IsGameOver,
-                    DeadBoards = boardState.Item2,
-                    Boards = new List<string[][]>()
-                };
-
-                // Convert boards to serializable format
-                foreach (var board in boardState.Item1)
-                {
-                    gameData.Boards.Add(NotaktoGameData.ConvertCharArrayToJagged(board));
-                }
-
-                // Serialize move history
-                gameData.MoveHistory = new List<MovesToSerialize>();
-                foreach (Move move in MoveHistory)
-                {
-                    gameData.MoveHistory.Add(new MovesToSerialize
-                    {
-                        BoardIndex = move.BoardIndex,
-                        Row = move.Row,
-                        Col = move.Col,
-                        PlayerName = move.Player.Name,
-                        MoveData = 1, // Just use 1 for X
-                        PreviousBoardState = new int[0][] // Simplified for now
-                    });
-                }
-
-                string jsonString = JsonSerializer.Serialize(gameData);
-                string saveFilePath = Path.Combine(saveDirectory, filename + ".json");
-
-                File.WriteAllText(saveFilePath, jsonString);
-                Console.WriteLine($"\nGame saved successfully as {filename}");
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"\nError saving game: {e.Message}");
-            }
+            var gameData = new NotaktoGameData();
+            gameData.PopulateFromGame(this);
+            dataPersistence.SaveGameData(gameData, filename);
         }
 
         public override bool LoadGame(string filename)
         {
-            try
+            var gameData = dataPersistence.LoadGameData<NotaktoGameData>(filename);
+            
+            if (gameData != null)
             {
-                string saveDirectory = Path.Combine(Directory.GetCurrentDirectory(), "saveData");
-                string saveFilePath = Path.Combine(saveDirectory, filename + ".json");
-
-                if (File.Exists(saveFilePath))
-                {
-                    string jsonString = File.ReadAllText(saveFilePath);
-                    var gameData = JsonSerializer.Deserialize<NotaktoGameData>(jsonString);
-
-                    NotaktoBoard = new NotaktoBoard();
-                    Board = NotaktoBoard;
-
-                    // Restore game state
-                    GameMode = gameData.GameMode;
-                    IsGameOver = gameData.IsGameOver;
-
-                    // Restore players
-                    if (GameMode == "HvH")
-                    {
-                        Player1 = new NotaktoHumanPlayer(gameData.Player1Name);
-                        Player2 = new NotaktoHumanPlayer(gameData.Player2Name);
-                    }
-                    else
-                    {
-                        Player1 = new NotaktoHumanPlayer(gameData.Player1Name);
-                        Player2 = new NotaktoComputerPlayer();
-                    }
-
-                    CurrentPlayer = gameData.CurrentPlayerName == Player1.Name ? Player1 : Player2;
-
-                    // Restore board state
-                    List<char[,]> boards = new List<char[,]>();
-                    foreach (var board in gameData.Boards)
-                    {
-                        boards.Add(NotaktoGameData.ConvertJaggedToCharArray(board));
-                    }
-                    
-                    var boardStateToRestore = Tuple.Create(boards, gameData.DeadBoards);
-                    Board.SetBoardState(boardStateToRestore);
-
-                    Console.WriteLine($"\nGame loaded successfully from {filename}");
-                    return true;
-                }
-                else
-                {
-                    Console.WriteLine("\nSave file not found. Please check the filename and try again.");
-                    return false;
-                }
+                gameData.RestoreToGame(this);
+                return true;
             }
-            catch (Exception e)
-            {
-                Console.WriteLine($"\nError loading game: {e.Message}");
-                return false;
-            }
+            
+            return false;
         }
 
-        protected override void DisplayRules()
+        protected override string GetGameRules()
         {
-            Console.WriteLine("\n============================================ Notakto Rules ============================================");
-            Console.WriteLine("\nNotakto is played on three 3x3 boards.");
-            Console.WriteLine("Both players use the same symbol: X");
-            Console.WriteLine("\nPlayers take turns placing X on any empty cell on any live board.");
-            Console.WriteLine("When a board gets three X's in a row (horizontally, vertically, or diagonally), it becomes 'dead'.");
-            Console.WriteLine("The player who is forced to complete the three-in-a-row on the LAST live board loses!");
-            Console.WriteLine("\nStrategy tip: Try to avoid making moves that will force you to complete the final board.");
+            return @"
+============================================ Notakto Rules ============================================
+
+Notakto is played on three 3x3 boards.
+Both players use the same symbol: X
+
+Players take turns placing X on any empty cell on any live board.
+When a board gets three X's in a row (horizontally, vertically, or diagonally), it becomes 'dead'.
+The player who is forced to complete the three-in-a-row on the LAST live board loses!
+
+Strategy tip: Try to avoid making moves that will force you to complete the final board.";
         }
 
-        protected override void DisplayCommands()
+        protected override string GetGameCommands()
         {
-            Console.WriteLine("\n============================================ Notakto Commands ============================================");
-            Console.WriteLine("\nDuring your turn, you can choose from the following options:");
-            Console.WriteLine("1. Make a move - Place an X on one of the live boards");
-            Console.WriteLine("2. Undo previous moves - Revert to an earlier state of the game");
-            Console.WriteLine("3. Save the game - Save the current game state");
-            Console.WriteLine("4. View help menu - Display game rules and commands");
-            Console.WriteLine("5. Quit the game - Exit the application");
-            
-            Console.WriteLine("\nWhen making a move:");
-            Console.WriteLine("1. First select which board (1-3) you want to play on");
-            Console.WriteLine("2. Then select the position (1-9) where you want to place X");
-            Console.WriteLine("3. You can confirm your move or redo it before ending your turn");
-            
-            Console.WriteLine("\nRemember: Avoid being the player who completes the last board!");
+            return @"
+============================================ Notakto Commands ============================================
+
+During your turn, you can choose from the following options:
+1. Make a move - Place an X on one of the live boards
+2. Undo previous moves - Revert to an earlier state of the game
+3. Save the game - Save the current game state
+4. View help menu - Display game rules and commands
+5. Quit the game - Exit the application
+
+When making a move:
+1. First select which board (1-3) you want to play on
+2. Then select the position (1-9) where you want to place X
+3. You can confirm your move or redo it before ending your turn
+
+Remember: Avoid being the player who completes the last board!";
         }
     }
 }
