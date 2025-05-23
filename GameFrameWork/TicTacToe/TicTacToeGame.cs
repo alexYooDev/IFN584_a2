@@ -1,4 +1,5 @@
 using System.Data.SqlTypes;
+using System.Diagnostics;
 using System.Text.Json;
 namespace GameFrameWork
 {
@@ -123,20 +124,22 @@ namespace GameFrameWork
 
         public override void StartGame()
         {
-            Console.WriteLine("\n============================================ Game Started!  ============================================");
+            renderer.DisplayMessage("\n============================================ Game Started!  ============================================");
             IsGameOver = false;
             IsPlayerQuit = false; // Reset the quit flag when starting
 
             // Offer undo after loading a game -> MoveHistory > 0 means it is a loaded game
             if (MoveHistory.Count > 0)
             {
-                DisplayGameStatus();
+                renderer.DisplayGameStatus(CurrentPlayer.Name, MoveHistory.Count);
+                renderer.DisplayBoard(Board);
                 OfferUndoAfterLoad();
             }
 
             while (!IsGameOver)
             {
-                DisplayGameStatus();
+                renderer.DisplayGameStatus(CurrentPlayer.Name, MoveHistory.Count);
+                renderer.DisplayBoard(Board);
 
                 if (CurrentPlayer.Type == PlayerType.Human)
                 {
@@ -168,7 +171,8 @@ namespace GameFrameWork
             // Only announce winner and display result if player didn't quit
             if (!IsPlayerQuit)
             {
-                DisplayGameStatus();
+                renderer.DisplayGameStatus(CurrentPlayer.Name, MoveHistory.Count);
+                renderer.DisplayBoard(Board);
                 AnnounceWinner();
                 DisplayGameResult();
             }
@@ -199,19 +203,19 @@ namespace GameFrameWork
                     if (movesUndone % 2 == 1)
                     {
                         SwithCurrentPlayer();
-                        Console.WriteLine($"Turn switched to {CurrentPlayer.Name}");
+                        renderer.DisplayMessage($"Turn switched to {CurrentPlayer.Name}");
                     }
                     
-                    Board.DisplayBoard(); // Show the board after undo
+                    renderer.DisplayBoard(Board); // Show the board after undo
                 }
                 else
                 {
-                    Console.WriteLine($"Invalid input. You can undo up to {maxUndo} of your move(s).");
+                    renderer.DisplayMessage($"Invalid input. You can undo up to {maxUndo} of your move(s).");
                 }
             }
             else
             {
-                Console.WriteLine("No moves to undo.");
+                renderer.DisplayMessage("No moves to undo.");
             }
         }
 
@@ -221,13 +225,12 @@ namespace GameFrameWork
 
             if (maxUndo > 0)
             {
-                Console.WriteLine($"\nYou have {maxUndo} move(s) that can be undone.");
-                Console.WriteLine("Would you like to undo any moves? (y/n)");
-                string response = Console.ReadLine().ToLower();
+                renderer.DisplayMessage($"\nYou have {maxUndo} move(s) that can be undone.");
+                bool confirm = inputHandler.GetUserConfirmation("Would you like to undo any moves?");
 
-                if (response == "y" || response == "yes")
+                if (confirm)
                 {
-                    Console.Write($"How many moves to undo (up to {maxUndo})? ");
+                    renderer.DisplayMessage($"How many moves to undo (up to {maxUndo})? ");
                     if (int.TryParse(Console.ReadLine(), out int undoCount) && undoCount > 0 && undoCount <= maxUndo)
                     {
                         // Use the base class method which correctly filters by player
@@ -237,7 +240,7 @@ namespace GameFrameWork
                         // If it's now a computer's turn after undoing, let it play
                         if (CurrentPlayer.Type == PlayerType.Computer)
                         {
-                            DisplayGameStatus();
+                            renderer.DisplayGameStatus(CurrentPlayer.Name, MoveHistory.Count);
                             ProcessComputerTurn();
 
                             // Check if the game is over after computer move
@@ -250,7 +253,7 @@ namespace GameFrameWork
                     }
                     else
                     {
-                        Console.WriteLine($"Invalid input. No moves will be undone.");
+                        renderer.DisplayMessage("Invalid input. No moves will be undone.");
                     }
                 }
             }
@@ -316,24 +319,17 @@ namespace GameFrameWork
             bool turnComplete = false;
             while (!turnComplete)
             {
-                Console.WriteLine("\n|| +++ Options +++ ||");
-                Console.WriteLine("\nSelect your option for this turn:\n");
-                Console.WriteLine("1. Make a move");
-                Console.WriteLine("2. Undo previous moves");
-                Console.WriteLine("3. Save the game");
-                Console.WriteLine("4. View help menu");
-                Console.WriteLine("5. Quit the game");
-                Console.Write("\nEnter your choice >> ");
+                renderer.DisplayTurnOptions();
 
-                string input = Console.ReadLine();
+                PlayerChoice input = inputHandler.GetPlayerChoice();
 
                 switch (input)
                 {
-                    case "1":
+                    case PlayerChoice.MakeMove:
                         MakeHumanMove();
                         turnComplete = true; // Turn is complete after move is confirmed
                         break;
-                    case "2":
+                    case PlayerChoice.Undo:
                         int maxUndo = GetUndoableMoveCountForPlayer(CurrentPlayer);
                         if (maxUndo > 0)
                         {
@@ -343,34 +339,34 @@ namespace GameFrameWork
                                 // Use the base class method which correctly filters by player
                                 UndoPlayerMoves(CurrentPlayer, undoCount);
                                 UndoneMovesCount += undoCount;
-                                Board.DisplayBoard(); // Show the board after undo
+                                renderer.DisplayBoard(Board); // Show the board after undo
                             }
                             else
                             {
-                                Console.WriteLine($"Invalid input. You can undo up to {maxUndo} of your move(s).");
+                                renderer.DisplayMessage($"Invalid input. You can undo up to {maxUndo} of your move(s).");
                             }
                         }
                         else
                         {
-                            Console.WriteLine("No moves to undo.");
+                            renderer.DisplayMessage("No moves to undo.");
                         }
                         break;
-                    case "3":
+                    case PlayerChoice.Save:
                         Console.Write("\nEnter filename to save >> ");
                         string saveFilename = Console.ReadLine();
                         SaveGame(saveFilename);
                         // Do not end turn, allow player to continue
                         break;
-                    case "4":
+                    case PlayerChoice.Help:
                         renderer.DisplayHelpMenu();
-                        Board.DisplayBoard();
+                        renderer.DisplayBoard(Board);
                         // Do not end turn, allow player to continue
                         break;
-                    case "5":
+                    case PlayerChoice.Quit:
                         HandleQuitRequest();
                         return; // Immediately exit the method without setting turnComplete
                     default:
-                        Console.WriteLine("\nInvalid choice. Please try again.");
+                        renderer.DisplayMessage("\nInvalid choice. Please try again.");
                         break;
                 }
             }
@@ -564,13 +560,6 @@ namespace GameFrameWork
             return false;
         }
 
-        protected override void DisplayGameStatus()
-        {
-            Console.WriteLine($"\nCurrent Turn: {CurrentPlayer.Name}");
-            Console.WriteLine($"Target Sum: {TargetSum}");
-            Board.DisplayBoard();
-        }
-
         protected override void AnnounceWinner()
         {
             if (Board.IsBoardFull() && !CheckWinningLine())
@@ -587,8 +576,8 @@ namespace GameFrameWork
 
         private void DisplayGameResult()
         {
-            Console.WriteLine($"\nFinal Turn: {CurrentPlayer.Name}");
-            Console.WriteLine($"Target Sum: {TargetSum}");
+            renderer.DisplayMessage($"\nFinal Turn: {CurrentPlayer.Name}");
+            renderer.DisplayMessage($"Target Sum: {TargetSum}");
         }
 
         // Save game : Serialize necessary game information -> save board, boardState, move history to JSON supported form
@@ -635,7 +624,7 @@ namespace GameFrameWork
                 computerPlayer.GetAvailableNumbers().Add(number);
             }
 
-            Console.WriteLine($"\nMove undone for {move.Player.Name}");
+            renderer.DisplayMessage($"\nMove undone for {move.Player.Name}");
         }
 
         protected override void ApplyRedoState(Move move)
@@ -655,7 +644,7 @@ namespace GameFrameWork
                 computerPlayer.GetAvailableNumbers().Add(number);
             }
 
-            Console.WriteLine($"\nMove redone. Current player: {CurrentPlayer.Name}");
+            renderer.DisplayMessage($"\nMove redone. Current player: {CurrentPlayer.Name}");
         }
 
         protected override void SwithCurrentPlayer()

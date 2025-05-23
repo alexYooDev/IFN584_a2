@@ -58,7 +58,7 @@ namespace GameFrameWork
 
         public PlayerChoice GetPlayerChoice()
         {
-            string input = GetUserInput("Enter your choice");
+            string input = GetUserInput("Enter your choice >> ");
 
             switch (input)
             {

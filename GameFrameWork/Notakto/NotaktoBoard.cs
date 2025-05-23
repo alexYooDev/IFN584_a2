@@ -36,6 +36,8 @@ namespace GameFrameWork
             }
         }
 
+        /* Oriented to landscape Better view in a single glance */
+
         public override void DisplayBoard(int boardIndex = 0)
         {
             Console.WriteLine("\n|| +++ Current Notakto Board Status +++ ||\n");
@@ -280,6 +282,8 @@ namespace GameFrameWork
                 }
             }
         }
+
+        /* Boards Display orientation to landscape => better view in a single glance */
 
         private void DisplayGridWithPositions()
         {
