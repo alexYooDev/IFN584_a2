@@ -88,11 +88,6 @@ namespace GameFrameWork
             return true;
         }
 
-        public override bool AreAllBoardsFull()
-        {
-            // return IsBoardFull, since Gomoku only uses single board for a game
-            return IsBoardFull();
-        }
 
         public override object GetBoardState()
         {
