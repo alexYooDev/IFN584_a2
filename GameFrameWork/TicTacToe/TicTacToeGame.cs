@@ -22,6 +22,7 @@ namespace GameFrameWork
         {
             int boardSize = SelectBoardSize();
             Board = new TicTacToeBoard(boardSize);
+            SelectGameMode();
 
             // Initialize the number sets
             for (int i = 1; i <= boardSize * boardSize; ++i)
@@ -87,43 +88,9 @@ namespace GameFrameWork
 
         public override void ConfigurePlayer()
         {
-            int mode = 0;
-            bool validMode = false;
-
-            while (!validMode)
+            switch (GameMode)
             {
-                Console.WriteLine("\n|| +++ Select the mode of the game +++ ||");
-                Console.WriteLine("1. HvH (Human vs Human)");
-                Console.WriteLine("2. HvC (Human vs Computer)");
-                Console.Write("\nEnter your choice >> ");
-                try
-                {
-                    string input = Console.ReadLine();
-                    mode = Convert.ToInt32(input);
-
-                    if (mode == 1 || mode == 2)
-                    {
-                        validMode = true;
-                    }
-                    else
-                    {
-                        Console.WriteLine("\nInvalid mode selected. Please enter 1 or 2.");
-                    }
-                }
-                catch (FormatException)
-                {
-                    Console.WriteLine("\nInvalid input. Please enter a number (1 or 2).");
-                }
-                catch (Exception)
-                {
-                    Console.WriteLine("\nUnexpected error occurred. Please try again.");
-                }
-            }
-
-            switch (mode)
-            {
-                case 1:
-                    GameMode = "HvH";
+                case "HvH":
                     Console.Write("\nEnter player 1 name >> ");
                     string player1Name = Console.ReadLine();
                     Player1 = new TicTacToeHumanPlayer(player1Name, OddNumbers);
@@ -132,8 +99,7 @@ namespace GameFrameWork
                     string player2Name = Console.ReadLine();
                     Player2 = new TicTacToeHumanPlayer(player2Name, EvenNumbers);
                     break;
-                case 2:
-                    GameMode = "HvC";
+                case "HvC":
                     Console.Write("\nEnter your name >> ");
                     string playerName = Console.ReadLine();
                     Player1 = new TicTacToeHumanPlayer(playerName, OddNumbers);
@@ -197,7 +163,7 @@ namespace GameFrameWork
             }
         }
         
-        protected void HandleUndoRequest()
+        protected override void HandleUndoRequest()
         {
             int maxUndo = GetUndoableMoveCountForPlayer(CurrentPlayer);
             if (maxUndo > 0)

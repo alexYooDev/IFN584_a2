@@ -26,10 +26,10 @@ namespace GameFrameWork
             int rows = board.GetLength(0);
             int cols = board.GetLength(1);
             string[][] jaggedArray = new string[rows][];
-            for (int i = 0; i < rows; i++)
+            for (int i = 0; i < rows; ++i)
             {
                 jaggedArray[i] = new string[cols];
-                for (int j = 0; j < cols; j++)
+                for (int j = 0; j < cols; ++j)
                 {
                     jaggedArray[i][j] = board[i, j].ToString();
                 }

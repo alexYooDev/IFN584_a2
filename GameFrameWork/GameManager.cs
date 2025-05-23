@@ -160,10 +160,12 @@ namespace GameFrameWork
                 // Fallback: detect game type from game object
                 if (game is TicTacToeGame)
                     gameDisplayName = "Numerical Tic-Tac-Toe";
-                // else if (game is GomokuGame)
+               // else if (game is GomokuGame)
                 //     gameDisplayName = "Gomoku";
                 else if (game is NotaktoGame)
                     gameDisplayName = "Notakto";
+                else if (game is GomokuGame)
+                    gameDisplayName = "Gomoku";
                 else
                     gameDisplayName = "Game";
             }
