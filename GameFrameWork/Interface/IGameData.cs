@@ -1,5 +1,6 @@
 namespace GameFrameWork
 {
+    /* interface for gameData format */
     public interface IGameData
     {
         string GameType { get; set; }
@@ -9,6 +10,5 @@ namespace GameFrameWork
         string Player2Name { get; set; }
         bool IsGameOver { get; set; }
         List<MovesToSerialize> MoveHistory { get; set; }
-        List<MovesToSerialize> RedoHistory { get; set; }
     }
 }

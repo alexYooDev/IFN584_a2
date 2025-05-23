@@ -3,7 +3,7 @@ namespace GameFrameWork
     using System.Collections.Generic;
     using System.Text.Json;
     
-    public abstract class GameData
+    public abstract class GameData: IGameData
     {
         public int BoardSize { get; set; }
         public int BoardCount { get; set; } = 1;
