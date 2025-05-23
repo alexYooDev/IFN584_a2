@@ -2,7 +2,7 @@ namespace GameFrameWork
 {
     public class TicTacToeBoard : AbstractBoard
     {
-       private int[,] Slots;
+        private int[,] Slots;
 
         public TicTacToeBoard(int size) : base(size)
         {
@@ -11,12 +11,6 @@ namespace GameFrameWork
             BoardsState = new List<object> { Slots };
         }
 
-        // Add this method to implement the abstract method from AbstractBoard
-        public override bool AreAllBoardsFull()
-        {
-            // For TicTacToe, there's only one board
-            return IsBoardFull();
-        }
 
         public override void DisplayBoard(int boardIndex = 0)
         {
@@ -213,6 +207,13 @@ namespace GameFrameWork
         public void SetPosition(int row, int col, int number)
         {
             Slots[row, col] = number;
+        }
+
+
+        // Implement this to inherit abstract
+        public override bool AreAllBoardsDead()
+        {
+            return IsBoardFull();
         }
     }
 }

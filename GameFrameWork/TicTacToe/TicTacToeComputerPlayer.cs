@@ -61,7 +61,7 @@ namespace GameFrameWork
             // No winning move found
             return null;
         }
-        
+
         // Helper method to check if a move is a winning move
         private bool IsWinningMove(TicTacToeBoard board, int row, int col)
         {
@@ -148,7 +148,7 @@ namespace GameFrameWork
         {
             return SelectRandomNumber();
         }
-        
+
         // TicTacToe specific method to select a random number
         public int SelectRandomNumber()
         {
@@ -162,9 +162,15 @@ namespace GameFrameWork
                 AvailableNumbers.Remove(selectedNumber);
                 return selectedNumber;
             }
-            
+
             // For unexpected error
             throw new InvalidOperationException("No numbers available for computer player");
+        }
+
+
+        public override object FindLosingMove(AbstractBoard board)
+        {
+            return null;
         }
     }
 }

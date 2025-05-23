@@ -24,7 +24,7 @@ namespace GameFrameWork
                 "=======================================",
                 "||  Written by:                       ||",
                 "||         [N12159069] Alex Yoo       ||",
-                "||         [N12159069] Yang-lin, Liu  ||",
+                "||         [N12102725] Yang-Ling, Liu ||",
                 "||         [N12159069] Alex Yoo       ||",
                 "||         [N12159069] Alex Yoo       ||",
                 "======================================="
@@ -44,7 +44,7 @@ namespace GameFrameWork
             Console.WriteLine("|| Welcome to the World of Board Games  ||");
             Console.WriteLine("=========================================");
             Console.WriteLine("1. Numerical Tic-Tac-Toe");
-            Console.WriteLine("2. Notakto (coming soon)");
+            Console.WriteLine("2. Notakto");
             Console.WriteLine("3. Gomoku (coming soon)");
             Console.WriteLine("4. Exit");
             Console.Write("\nSelect a game to play: ");
@@ -58,9 +58,9 @@ namespace GameFrameWork
             {
                 return; // Return to main menu if SelectStartOptions returns false
             }
-            
+
             game.Play();
-            
+
             Console.WriteLine("\nGame over! Would you like to play again? (Y/N)");
             string playAgain = Console.ReadLine();
 
@@ -102,8 +102,7 @@ namespace GameFrameWork
                             PlayGame("NumericalTicTacToe");
                             break;
                         case "2":
-                            Console.WriteLine("Notakto will be available in a future update!");
-                            PressAnyKeyToContinue();
+                            PlayGame("Notakto");
                             break;
                         case "3":
                             Console.WriteLine("Gomoku will be available in a future update!");
