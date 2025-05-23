@@ -3,16 +3,17 @@ namespace GameFrameWork
     public class TicTacToeGameData : GameData
     {
         public int TargetSum { get; set; }
-        public List<int> Player1Numbers { get; set; } = new List<int>();
-        public List<int> Player2Numbers { get; set; } = new List<int>();
+        public List<int> Player1Moves { get; set; } = new List<int>();
+        public List<int> Player2Moves { get; set; } = new List<int>();
         public int[][] BoardState { get; set; }
+
+
 
         public TicTacToeGameData()
         {
             GameType = "NumericalTicTacToe";
-            Player1Numbers = new List<int>();
-            Player2Numbers = new List<int>();
-            BoardState = new int[0][];
+            Player1Moves = new List<int>();
+            Player2Moves = new List<int>();
         }
 
         // POPULATE DATA FROM GAME
@@ -20,28 +21,29 @@ namespace GameFrameWork
         {
             var ticTacToeGame = (TicTacToeGame)game;
             
-            // Common data - using public properties from AbstractGame
+            // Common data 
             BoardSize = ticTacToeGame.Board.GetSize();
-            GameMode = ticTacToeGame.GetGameMode(); // Need to add this public method
-            CurrentPlayerName = ticTacToeGame.GetCurrentPlayerName(); // Need to add this public method
-            Player1Name = ticTacToeGame.GetPlayer1Name(); // Need to add this public method
-            Player2Name = ticTacToeGame.GetPlayer2Name(); // Need to add this public method
-            IsGameOver = ticTacToeGame.GetIsGameOver(); // Need to add this public method
+            GameMode = ticTacToeGame.GetGameMode();
+            CurrentPlayerName = ticTacToeGame.GetCurrentPlayerName();
+            Player1Name = ticTacToeGame.GetPlayer1Name();
+            Player2Name = ticTacToeGame.GetPlayer2Name(); 
+            IsGameOver = ticTacToeGame.GetIsGameOver(); 
             
             // TicTacToe-specific data
-            TargetSum = ticTacToeGame.GetTargetSum(); // Need to add this public method
-            
+            TargetSum = ticTacToeGame.GetTargetSum(); 
+
             // Board state
             int[,] boardArray = (int[,])ticTacToeGame.Board.GetBoardState();
+             Console.WriteLine("=== DEBUG BoardState ===");
+             Console.WriteLine($"Board size: {boardArray.GetLength(0)}x{boardArray.GetLength(1)}");
             BoardState = ConvertTo2DJaggedArray(boardArray);
             
             // Player numbers - need public access methods
-            Player1Numbers = ticTacToeGame.GetPlayer1Numbers();
-            Player2Numbers = ticTacToeGame.GetPlayer2Numbers();
+            Player1Moves = ticTacToeGame.GetPlayer1Numbers().ToList();
+            Player2Moves = ticTacToeGame.GetPlayer2Numbers().ToList();
             
             // Serialize move histories - need public access methods
             SerializeMoveHistory(ticTacToeGame.GetMoveHistory());
-            SerializeRedoHistory(ticTacToeGame.GetRedoHistory());
         }
 
         // RESTORE DATA TO GAME
@@ -62,14 +64,13 @@ namespace GameFrameWork
             ticTacToeGame.SetTargetSum(TargetSum);
             
             // Restore players
-            ticTacToeGame.RestorePlayersFromData(GameMode, Player1Name, Player2Name, Player1Numbers, Player2Numbers);
+            ticTacToeGame.RestorePlayersFromData(GameMode, Player1Name, Player2Name, Player1Moves, Player2Moves);
             
             // Set current player
             ticTacToeGame.SetCurrentPlayerByName(CurrentPlayerName);
             
             // Restore move histories
             ticTacToeGame.SetMoveHistory(DeserializeMoveHistory(ticTacToeGame.GetPlayer1(), ticTacToeGame.GetPlayer2()));
-            ticTacToeGame.SetRedoHistory(DeserializeRedoHistory(ticTacToeGame.GetPlayer1(), ticTacToeGame.GetPlayer2()));
         }
 
         // GAME-SPECIFIC SERIALIZATION METHODS

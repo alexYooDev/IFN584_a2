@@ -15,19 +15,15 @@ namespace GameFrameWork
         public List<object> Player2Moves { get; set; }
         public string GameType { get; set; }
         public bool IsGameOver { get; set; }
-        public object BoardState { get; set; }
+        public object[][] BoardState { get; set; }
         public List<MovesToSerialize> MoveHistory { get; set; }
-        public List<MovesToSerialize> RedoHistory { get; set; }
         public int? UndoneMovesCount { get; set; }
-        public Dictionary<string, object> GameSpecificData { get; set; }
 
         protected GameData()
         {
             Player1Moves = new List<object>();
             Player2Moves = new List<object>();
-            GameSpecificData = new Dictionary<string, object>();
             MoveHistory = new List<MovesToSerialize>();
-            RedoHistory = new List<MovesToSerialize>();
         }
 
         // COMMON SAVE/LOAD LOGIC BELONGS HERE
@@ -107,24 +103,6 @@ namespace GameFrameWork
             }
         }
 
-        public virtual void SerializeRedoHistory(Stack<Move> redoHistory)
-        {
-            RedoHistory.Clear();
-            
-            foreach (Move move in redoHistory)
-            {
-                var serializedMove = new MovesToSerialize
-                {
-                    BoardIndex = move.BoardIndex,
-                    Row = move.Row,
-                    Col = move.Col,
-                    PlayerName = move.Player.Name,
-                    MoveData = SerializeMoveData(move.MoveData),
-                    PreviousBoardState = SerializeBoardState(move.PreviousBoardState)
-                };
-                RedoHistory.Add(serializedMove);
-            }
-        }
 
         public virtual Stack<Move> DeserializeMoveHistory(AbstractPlayer player1, AbstractPlayer player2)
         {
@@ -154,33 +132,6 @@ namespace GameFrameWork
             return moveStack;
         }
 
-        public virtual Stack<Move> DeserializeRedoHistory(AbstractPlayer player1, AbstractPlayer player2)
-        {
-            var redoStack = new Stack<Move>();
-            
-            if (RedoHistory != null)
-            {
-                // Restore in reverse order to maintain stack order
-                for (int i = RedoHistory.Count - 1; i >= 0; i--)
-                {
-                    var serializedMove = RedoHistory[i];
-                    AbstractPlayer player = serializedMove.PlayerName == player1.Name ? player1 : player2;
-                    
-                    Move move = new Move(
-                        serializedMove.BoardIndex,
-                        serializedMove.Row,
-                        serializedMove.Col,
-                        player,
-                        DeserializeMoveData(serializedMove.MoveData),
-                        DeserializeBoardState(serializedMove.PreviousBoardState)
-                    );
-                    
-                    redoStack.Push(move);
-                }
-            }
-            
-            return redoStack;
-        }
 
         // ABSTRACT METHODS FOR GAME-SPECIFIC SERIALIZATION
         protected abstract int SerializeMoveData(object moveData);

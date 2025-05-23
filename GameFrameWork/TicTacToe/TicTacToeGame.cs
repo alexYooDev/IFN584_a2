@@ -34,20 +34,19 @@ namespace GameFrameWork
         public Stack<Move> GetMoveHistory() => MoveHistory;
         public Stack<Move> GetRedoHistory() => RedoHistory;
 
-        public List<int> GetPlayer1Numbers()
+        public HashSet<int> GetPlayer1Numbers()
         {
-            return Player1 is TicTacToeHumanPlayer humanPlayer1 ? 
-                humanPlayer1.GetAvailableNumbers().ToList() : 
-                Player1 is TicTacToeComputerPlayer computerPlayer1 ? 
-                computerPlayer1.GetAvailableNumbers().ToList() : new List<int>();
+            return Player1 is TicTacToeHumanPlayer humanPlayer
+                ? humanPlayer.GetAvailableNumbers()
+                : new HashSet<int>();
         }
 
-        public List<int> GetPlayer2Numbers()
+        public HashSet<int> GetPlayer2Numbers()
         {
             return Player2 is TicTacToeHumanPlayer humanPlayer2 ? 
-                humanPlayer2.GetAvailableNumbers().ToList() :
+                humanPlayer2.GetAvailableNumbers() :
                 Player2 is TicTacToeComputerPlayer computerPlayer2 ? 
-                computerPlayer2.GetAvailableNumbers().ToList() : new List<int>();
+                computerPlayer2.GetAvailableNumbers() : new HashSet<int>();
         }
 
         // Setters for data restoration
@@ -286,7 +285,7 @@ namespace GameFrameWork
                 renderer.DisplayBoard(Board);
                 
                 // Ask for confirmation using interface
-                bool confirmed = inputHandler.GetUserConfirmation("Confirm this move?");
+                bool confirmed = inputHandler.GetUserConfirmation("Confirm this move? y - confirm n - redo move");
                 
                 if (confirmed)
                 {

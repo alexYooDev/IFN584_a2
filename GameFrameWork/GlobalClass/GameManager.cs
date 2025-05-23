@@ -45,7 +45,7 @@ namespace GameFrameWork
             Console.WriteLine("=========================================");
             Console.WriteLine("1. Numerical Tic-Tac-Toe");
             Console.WriteLine("2. Notakto");
-            Console.WriteLine("3. Gomoku (coming soon)");
+            Console.WriteLine("3. Gomoku");
             Console.WriteLine("4. Exit");
             Console.Write("\nSelect a game to play: ");
         }

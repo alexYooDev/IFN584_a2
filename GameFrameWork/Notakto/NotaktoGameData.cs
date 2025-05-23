@@ -39,7 +39,6 @@ namespace GameFrameWork
             
             // Serialize move histories
             SerializeMoveHistory(notaktoGame.GetMoveHistory());
-            SerializeRedoHistory(notaktoGame.GetRedoHistory());
         }
 
         // RESTORE DATA TO GAME
@@ -73,7 +72,6 @@ namespace GameFrameWork
             
             // Restore move histories
             notaktoGame.SetMoveHistory(DeserializeMoveHistory(notaktoGame.GetPlayer1(), notaktoGame.GetPlayer2()));
-            notaktoGame.SetRedoHistory(DeserializeRedoHistory(notaktoGame.GetPlayer1(), notaktoGame.GetPlayer2()));
         }
 
         // GAME-SPECIFIC SERIALIZATION METHODS

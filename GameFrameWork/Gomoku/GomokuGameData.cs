@@ -2,7 +2,7 @@ namespace GameFrameWork
 {
     public class GomokuGameData : GameData
     {
-        public string[][] BoardState { get; set; }
+        public char[][] BoardState { get; set; }
 
         public GomokuGameData()
         {
@@ -28,7 +28,6 @@ namespace GameFrameWork
             
             // Serialize move histories
             SerializeMoveHistory(gomokuGame.GetMoveHistory());
-            SerializeRedoHistory(gomokuGame.GetRedoHistory());
         }
 
         // RESTORE DATA TO GAME
@@ -55,7 +54,6 @@ namespace GameFrameWork
             
             // Restore move histories
             gomokuGame.SetMoveHistory(DeserializeMoveHistory(gomokuGame.GetPlayer1(), gomokuGame.GetPlayer2()));
-            gomokuGame.SetRedoHistory(DeserializeRedoHistory(gomokuGame.GetPlayer1(), gomokuGame.GetPlayer2()));
         }
 
         // GAME-SPECIFIC SERIALIZATION METHODS
@@ -95,25 +93,25 @@ namespace GameFrameWork
         }
 
         // CONVERSION UTILITIES
-        public static string[][] ConvertTo2DJaggedArray(char[,] array2D)
+        public static char[][] ConvertTo2DJaggedArray(char[,] array2D)
         {
             int rows = array2D.GetLength(0);
             int cols = array2D.GetLength(1);
-            string[][] jaggedArray = new string[rows][];
+            char[][] jaggedArray = new char[rows][];
 
             for (int i = 0; i < rows; i++)
             {
-                jaggedArray[i] = new string[cols];
+                jaggedArray[i] = new char[cols];
                 for (int j = 0; j < cols; j++)
                 {
-                    jaggedArray[i][j] = array2D[i, j].ToString();
+                    jaggedArray[i][j] = array2D[i, j];
                 }
             }
 
             return jaggedArray;
         }
 
-        public static char[,] ConvertToArray2D(string[][] jaggedArray)
+        public static char[,] ConvertToArray2D(char[][] jaggedArray)
         {
             int rows = jaggedArray.Length;
             int cols = jaggedArray[0].Length;
@@ -123,7 +121,7 @@ namespace GameFrameWork
             {
                 for (int j = 0; j < cols; j++)
                 {
-                    array2D[i, j] = string.IsNullOrEmpty(jaggedArray[i][j]) ? '.' : jaggedArray[i][j][0];
+                    array2D[i, j] = jaggedArray[i][j];
                 }
             }
 

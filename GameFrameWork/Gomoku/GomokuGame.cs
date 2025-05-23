@@ -226,7 +226,7 @@ namespace GameFrameWork
                 Board.MakeMove(row, col, symbol);
                 renderer.DisplayBoard(Board);
 
-                bool confirmed = inputHandler.GetUserConfirmation("Confirm this move?");
+                bool confirmed = inputHandler.GetUserConfirmation("Confirm this move? y - confirm n - redo");
 
                 if (confirmed)
                 {
