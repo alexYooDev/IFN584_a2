@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using Notakto;
-
-
 namespace GameFrameWork
 {
     public static class GameFactory
@@ -20,7 +15,7 @@ namespace GameFrameWork
                     throw new NotImplementedException("Gomoku game is not implemented yet");
                 default:
                     throw new ArgumentException($"Game Type is not valid: {gameType}. Try again");
-            }
+            } 
         }
     }
 }

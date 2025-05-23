@@ -1,47 +1,44 @@
-// define Notakto board, make and check valid move, board logic(whether a board is full)
-
 using System;
 using System.Collections.Generic;
-using GameFrameWork;
 
-namespace Notakto
+namespace GameFrameWork
 {
     public class NotaktoBoard : AbstractBoard
     {
+        private const int Size = 3;  
         private const int BoardCount = 3; // number of boards
-        private const int Size = 3;       // board size, always 3*3
-        private List<char[,]> Boards;     // present three boards in 2D array (slot)
-        private List<int> DeadBoards;     // store dead board
+        private List<char[,]> Boards;
+        private List<int> DeadBoards;
 
-        public NotaktoBoard() : base(Size, BoardCount) // 3*3, 3 boards
+        public NotaktoBoard() : base(Size, BoardCount) // 3x3 size, 3 boards
         {
             Boards = new List<char[,]>();
             DeadBoards = new List<int>();
             BoardsState = new List<object>();
+
+            InitializeBoards();
         }
 
-        // called when first time launch the Notakto game
-        /*protected override void InitializeBoards()
-         {
-             for (int i = 0; i < BoardCount; ++i)
-             {
-                 char[,] board = new char[Size, Size];
-                 for (int row = 0; row < Size; ++row)
-                 {
-                     for (int col = 0; col < Size; ++col)
-                     {
-                         board[row, col] = ' ';
-                     }
-                 }
-                 Boards.Add(board);
-             }
-         }
-         */
-
-
-        public override void DisplayBoard(int boardIndex)
+        private void InitializeBoards()
         {
-            Console.WriteLine("\n|| +++ Current Board Status +++ ||\n");
+            for (int i = 0; i < BoardCount; i++)
+            {
+                char[,] board = new char[Size, Size];
+                for (int row = 0; row < Size; row++)
+                {
+                    for (int col = 0; col < Size; col++)
+                    {
+                        board[row, col] = ' ';
+                    }
+                }
+                Boards.Add(board);
+                BoardsState.Add(board);
+            }
+        }
+
+        public override void DisplayBoard(int boardIndex = 0)
+        {
+            Console.WriteLine("\n|| +++ Current Notakto Board Status +++ ||\n");
             for (int b = 0; b < BoardCount; ++b)
             {
                 Console.WriteLine($"Board {b + 1}{(DeadBoards.Contains(b) ? " [DEAD]" : "")}:");
@@ -55,7 +52,7 @@ namespace Notakto
 
                     for (int j = 0; j < Size; ++j)
                     {
-                        char cell = GetValue(b, i, j);
+                        char cell = GetValue(b,i,j);
                         Console.Write(cell == ' ' ? "|   " : $"| {cell} ");
                     }
                     Console.Write("|");
@@ -68,29 +65,36 @@ namespace Notakto
                 Console.WriteLine();
             }
         }
-        public override bool IsValidMove(int row, int col, object moveData, int boardIndex = 0, bool displayMessages = true)
 
+        public override bool IsValidMove(int row, int col, object moveData, int boardIndex = 0, bool displayMessages = true)
         {
             // Check if board number is valid (1 to 3) 
             if (boardIndex < 0 || boardIndex >= BoardCount)
             {
                 if (displayMessages)
-                    Console.WriteLine("The board you selected is out of range! Please select a valid one!");
+                {
+                     Console.WriteLine("The board you selected is out of range! Please select a valid one!");
+                }
                 return false;
             }
+
             // Check if row and column are within the boundary of the board
             if (row < 0 || row >= Size || col < 0 || col >= Size)
             {
                 if (displayMessages)
-                    Console.WriteLine("Your move exceeds the board! Please try again!");
+                {
+                     Console.WriteLine("Your move exceeds the board! Please try again!");
+                }
                 return false;
             }
 
-            // Check if the board is dead
+             // Check if the board is dead
             if (DeadBoards.Contains(boardIndex))
             {
                 if (displayMessages)
+                {
                     Console.WriteLine("The board you selected is already dead! Please select other board!");
+                }
                 return false;
             }
 
@@ -98,44 +102,41 @@ namespace Notakto
             if (Boards[boardIndex][row, col] != ' ')
             {
                 if (displayMessages)
+                {
                     Console.WriteLine("This slot is already occupied! Please try again!");
+                }
                 return false;
             }
 
-            // Check valid
-            return Boards[boardIndex][row, col] == ' ';
+            return true;
         }
 
         public override void MakeMove(int row, int col, object moveData = null, int boardIndex = 0)
         {
-            if (!IsValidMove(row, col, moveData, boardIndex))
+            if (IsValidMove(row, col, moveData, boardIndex, false))
             {
-                throw new InvalidOperationException("Invalid move...Please try again!");
-            }
+                Boards[boardIndex][row, col] = 'X';
 
-            Boards[boardIndex][row, col] = 'X';
-
-            if (CheckThreeInARow(Boards[boardIndex]) && !DeadBoards.Contains(boardIndex))
-            {
-                DeadBoards.Add(boardIndex);
+                if (CheckThreeInARow(boardIndex) && !DeadBoards.Contains(boardIndex))
+                {
+                    DeadBoards.Add(boardIndex);
+                }
             }
         }
 
-
-        // Add this method to implement the abstract method from AbstractBoard
         public override bool IsBoardFull(int boardIndex = 0)
         {
-            return false; //notakto never get full
+            //notakto never get full
+            return false;
         }
 
-        public override bool AreAllBoardsDead()
+        public bool AreAllBoardsDead()
         {
             return DeadBoards.Count == BoardCount;
         }
 
         public override object GetBoardState()
         {
-            // Create a deep copy of the board state
             List<char[,]> currentBoardState = new List<char[,]>(); // a list to store three boards
             for (int b = 0; b < BoardCount; ++b)
             {
@@ -149,29 +150,38 @@ namespace Notakto
                 }
                 currentBoardState.Add(saved);
             }
-            int[] currentDeadBoards = DeadBoards.ToArray();
-
+            List<int> currentDeadBoards = new List<int>(DeadBoards);
             return Tuple.Create(currentBoardState, currentDeadBoards);
         }
 
         public override void SetBoardState(object state)
         {
-            if (state is Tuple<List<char[,]>, List<int>> boardState) // boardsState, deadBoards
+            // boardsState, deadBoards
+            if (state is Tuple<List<char[,]>, List<int>> boardState)
             {
                 Boards = boardState.Item1;
                 DeadBoards = boardState.Item2;
+                BoardsState.Clear();
+                foreach (var board in Boards)
+                {
+                    BoardsState.Add(board);
+                }
             }
         }
 
-        public bool CheckThreeInARow(char[,] board)
+        // pass index for chcekcing if the 3 line is present in the corresponding boardIndex - Alex
+        public bool CheckThreeInARow(int boardIndex)
         {
-            for (int i = 0; i < Size; ++i)
+            char[,] board = Boards[boardIndex];
+
+            for (int i = 0; i < Size; i++)
             {
-                // check vertical and horizontal
+                // Check horizontal and vertical
                 if (board[i, 0] == 'X' && board[i, 1] == 'X' && board[i, 2] == 'X') return true;
                 if (board[0, i] == 'X' && board[1, i] == 'X' && board[2, i] == 'X') return true;
             }
-            // check diagonals
+
+            // Check diagonals
             if (board[0, 0] == 'X' && board[1, 1] == 'X' && board[2, 2] == 'X') return true;
             if (board[0, 2] == 'X' && board[1, 1] == 'X' && board[2, 0] == 'X') return true;
 
@@ -183,61 +193,9 @@ namespace Notakto
             return DeadBoards.Contains(boardIndex);
         }
 
-
-
-        public void DisplayGridWithPositions()
+        public char GetValue(int boardIndex, int row, int col)
         {
-            for (int b = 0; b < BoardCount; ++b)
-            {
-                Console.WriteLine($"\nBoard {b + 1}{(DeadBoards.Contains(b) ? " [DEAD]" : "")}:");
-                int gridNum = 1;
-
-                // Display the grid with numbers
-                for (int i = 0; i < Size; ++i)
-                {
-                    for (int k = 0; k < Size; ++k)
-                    {
-                        Console.Write("------");
-                    }
-                    Console.WriteLine();
-                    Console.Write($"|");
-                    for (int j = 0; j < Size; ++j)
-                    {
-                        char slotValue = Boards[b][i, j];
-
-                        // If the slot is empty, display a grid number
-                        if (slotValue == ' ')
-                        {
-
-                            /* Grid layout up to 3 digits numbers */
-                            if (gridNum < 10)
-                            {
-                                Console.Write($"  {gridNum}  |"); // 2 spaces before, 2 after for 1 digit
-                            }
-                            else if (gridNum < 100)
-                            {
-                                Console.Write($" {gridNum}  |"); // 1 space before, 2 after for 2 digits
-                            }
-                            else
-                            {
-                                Console.Write($"{gridNum}  |"); // no space before, 2 after for 3 digits
-                            }
-                        }
-                        // If it is taken, blank slot is displayed instead
-                        else
-                        {
-                            Console.Write("  X  |");
-                        }
-                        gridNum++;
-                    }
-                    Console.WriteLine();
-                }
-                for (int k = 0; k < Size; ++k)
-                {
-                    Console.Write("------");
-                }
-                Console.WriteLine();
-            }
+            return Boards[boardIndex][row, col];
         }
 
         public int[] SelectPosition()
@@ -247,20 +205,24 @@ namespace Notakto
                 try
                 {
                     // Display the grid with numbers
-                    Console.WriteLine("\n|| +++ Select a board and position to put the number +++ ||\n");
-
                     DisplayGridWithPositions();
-                    Console.Write($"\nWhich board do you wat to put the number? (1 - {BoardCount}) >> ");
+
+                    Console.Write($"\nWhich board do you want to place X? (1 - {BoardCount}) >> ");
                     int selectedBoard = Convert.ToInt32(Console.ReadLine()) - 1;
 
-                    while (IsBoardDead(selectedBoard))
+                    if (selectedBoard < 0 || selectedBoard >= BoardCount)
                     {
-                        Console.WriteLine("The board you selected is already dead! Please select other board!");
-                        Console.Write($"\nWhich board do you wat to put the number? (1 - {BoardCount}) >> ");
-                        selectedBoard = Convert.ToInt32(Console.ReadLine()) - 1;
+                        Console.WriteLine("Invalid board number! Try again!");
+                        continue;
                     }
 
-                    Console.Write($"\nWhere in the board {selectedBoard + 1}are you put the number? (1 - {Size * Size}) >> ");
+                    if (IsBoardDead(selectedBoard))
+                    {
+                        Console.WriteLine("The board you selected is already dead! Please select another board!");
+                        continue;
+                    }
+
+                    Console.Write($"\nWhere in board {selectedBoard + 1} do you want to place X? (1 - {Size * Size}) >> ");
                     int position = Convert.ToInt32(Console.ReadLine());
 
                     if (position < 1 || position > Size * Size)
@@ -280,11 +242,11 @@ namespace Notakto
                         continue;
                     }
 
-                    return new int[] { row, col };
+                    return new int[] { selectedBoard, row, col };
                 }
                 catch (FormatException)
                 {
-                    Console.WriteLine("Your Input should be a number! Try again!");
+                    Console.WriteLine("Your input should be a number! Try again!");
                 }
                 catch (Exception)
                 {
@@ -293,14 +255,46 @@ namespace Notakto
             }
         }
 
-        public char GetValue(int board, int row, int col)
+        private void DisplayGridWithPositions()
         {
-            return Boards[board][row, col];
-        }
+            Console.WriteLine("\n|| +++ Select Board and Position +++ ||\n");
 
-        public void SetPosition(int board, int row, int col)
-        {
-            Boards[board][row, col] = 'X';
+            for (int b = 0; b < BoardCount; b++)
+            {
+                Console.WriteLine($"Board {b + 1}{(DeadBoards.Contains(b) ? " [DEAD]" : "")}:");
+                int gridNum = 1;
+
+                for (int i = 0; i < Size; i++)
+                {
+                    for (int k = 0; k < Size; k++)
+                    {
+                        Console.Write("------");
+                    }
+                    Console.WriteLine();
+                    Console.Write("|");
+                    for (int j = 0; j < Size; j++)
+                    {
+                        char slotValue = Boards[b][i, j];
+
+                        if (slotValue == ' ')
+                        {
+                            Console.Write($"  {gridNum}  |");
+                        }
+                        else
+                        {
+                            Console.Write("  X  |");
+                        }
+                        gridNum++;
+                    }
+                    Console.WriteLine();
+                }
+                for (int k = 0; k < Size; k++)
+                {
+                    Console.Write("------");
+                }
+                Console.WriteLine();
+                Console.WriteLine();
+            }
         }
     }
 }

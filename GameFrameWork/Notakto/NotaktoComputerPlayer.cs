@@ -1,123 +1,108 @@
-// Handle Notakto computer player logic
-
-using System;
-using System.Collections.Generic;
-using GameFrameWork;
-
-
-namespace Notakto
+namespace GameFrameWork
 {
-    public abstract class NotaktoComputerPlayer : AbstractComputerPlayer
+    public class NotaktoComputerPlayer : AbstractComputerPlayer
     {
-        // player type : Human or Computer
-        public string Type { get; }
-
         // For computer player to access board
         private NotaktoBoard Board;
+        private int[] FavorableMove;
 
-
-        public NotaktoComputerPlayer(string name, PlayerType type) : base("Computer", PlayerType.Computer, 'X')
+        public NotaktoComputerPlayer() : base("Computer", PlayerType.Computer, 'X')
         {
         }
 
-        // Notakto doesn't have a winning move
         public override object FindWinningMove(AbstractBoard board)
         {
+            // In Notakto, there are no "winning" moves in the traditional sense
+            // Instead, we try to avoid losing moves
+            Board = (NotaktoBoard)board;
+            
+            // Find a move that doesn't immediately lose the game
+            var safeMove = FindSafeMove();
+            if (safeMove != null)
+            {
+                FavorableMove = safeMove;
+                return 'X';
+            }
+            
             return null;
         }
 
 
-        public override object FindLosingMove(AbstractBoard board)
+        // renamed to make it clear
+        private int[] FindSafeMove()
         {
-            NotaktoBoard notaktoBoard = (NotaktoBoard)board;
-            int boardCount = board.GetBoardCount();
 
+            int boardCount = Board.GetBoardCount();
             for (int b = 0; b < boardCount; ++b)
             {
-                if (notaktoBoard.IsBoardDead(b))
+                if (Board.IsBoardDead(b))
                     continue;
 
-                for (int row = 0; row < 3; ++row)
+                for (int row = 0; row < boardCount; ++row)
                 {
-                    for (int col = 0; col < 3; ++col)
+                    for (int col = 0; col < boardCount; ++col)
                     {
-                        if (notaktoBoard.IsValidMove(row, col, null, b, false))
+                        if (Board.IsValidMove(row, col, null, b, false))
                         {
                             // Simulate the move
-                            object previousState = notaktoBoard.GetBoardState();
-                            notaktoBoard.MakeMove(row, col, null, b);
+                            object previousState = Board.GetBoardState();
+                            Board.MakeMove(row, col, null, b);
 
-                            bool isLosing = notaktoBoard.CheckThreeInARow(b);
+                            // give boardIndex as argument
+                            bool isLosingMove = Board.CheckThreeInARow(b);
 
-                            // Undo simulation
-                            notaktoBoard.SetBoardState(previousState);
+                            // Restore state for undo
+                            Board.SetBoardState(previousState);
 
-                            if (isLosing)
+                            if (!isLosingMove)
                                 return new int[] { b, row, col };
                         }
                     }
                 }
             }
-
-            return null; // No losing move found
+            return null;
         }
 
         public override object SelectRandomMove()
         {
-            var notaktoBoard = (NotaktoBoard)NotaktoReference;
-
-            List<int[]> safeMoves = new List<int[]>();
-
-            for (int b = 0; b < 3; ++b)
+            // Try to find a safe move first
+            var safeMove = FindSafeMove();
+            if (safeMove != null)
             {
-                if (notaktoBoard.IsBoardDead(b))
+                FavorableMove = safeMove;
+                return 'X';
+            }
+
+            // If no safe moves, find any valid move (forced losing move)
+            for (int b = 0; b < 3; b++)
+            {
+                if (Board.IsBoardDead(b))
                     continue;
 
-                for (int row = 0; row < 3; ++row)
+                for (int row = 0; row < 3; row++)
                 {
-                    for (int col = 0; col < 3; ++col)
+                    for (int col = 0; col < 3; col++)
                     {
-                        if (!notaktoBoard.IsValidMove(row, col, null, b, false))
-                            continue;
-
-                        // Simulate
-                        object previousState = notaktoBoard.GetBoardState();
-                        notaktoBoard.MakeMove(row, col, null, b);
-
-                        bool isLosing = notaktoBoard.CheckThreeInARow(b);
-
-                        notaktoBoard.SetBoardState(previousState);
-
-                        //save all moves that are not losingmove, tham random pickup one
-                        if (!isLosing)
-                            safeMoves.Add(new int[] { b, row, col });
+                        if (Board.IsValidMove(row, col, null, b, false))
+                        {
+                            FavorableMove = new int[] { b, row, col };
+                            return 'X';
+                        }
                     }
                 }
             }
 
-            if (safeMoves.Count > 0)
-            {
-                Random rand = new Random();
-                return safeMoves[rand.Next(safeMoves.Count)];
-            }
+            return null;
+        }
 
-            // If no safe moves, just take the first valid one (forced losing move)
-            for (int b = 0; b < boardCount; ++b)
-            {
-                if (notaktoBoard.IsBoardDead(b))
-                    continue;
+        public void SetBoard(NotaktoBoard board)
+        {
+            Board = board;
+        }
 
-                for (int row = 0; row < 3; ++row)
-                {
-                    for (int col = 0; col < 3; ++col)
-                    {
-                        if (notaktoBoard.IsValidMove(row, col, null, b, false))
-                            return new int[] { b, row, col };
-                    }
-                }
-            }
-
-            throw new InvalidOperationException("There is no valid moves available for computer player.");
+        public int[] GetFavorableMove()
+        {
+            return FavorableMove;
         }
     }
 }

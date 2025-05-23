@@ -7,9 +7,6 @@ namespace GameFrameWork
         // For computer player - find winning moves
         public abstract object FindWinningMove(AbstractBoard board);
 
-        //For Notaktoe computer player - find losing moves
-        public abstract object FindLosingMove(AbstractBoard board);
-
         // For computer player - select random move when no winning move (for Notakto, select random move when no losing move )
         public abstract object SelectRandomMove();
     }

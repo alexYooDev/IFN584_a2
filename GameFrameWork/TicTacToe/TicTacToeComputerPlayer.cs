@@ -166,11 +166,5 @@ namespace GameFrameWork
             // For unexpected error
             throw new InvalidOperationException("No numbers available for computer player");
         }
-
-
-        public override object FindLosingMove(AbstractBoard board)
-        {
-            return null;
-        }
     }
 }

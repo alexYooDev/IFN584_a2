@@ -1,3 +1,5 @@
+using System.IO.Compression;
+
 namespace GameFrameWork
 {
     public class TicTacToeBoard : AbstractBoard
@@ -67,6 +69,7 @@ namespace GameFrameWork
                 Slots[row, col] = number;
             }
         }
+
 
         public override bool IsBoardFull(int boardIndex = 0)
         {
@@ -207,13 +210,6 @@ namespace GameFrameWork
         public void SetPosition(int row, int col, int number)
         {
             Slots[row, col] = number;
-        }
-
-
-        // Implement this to inherit abstract
-        public override bool AreAllBoardsDead()
-        {
-            return IsBoardFull();
         }
     }
 }

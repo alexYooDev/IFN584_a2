@@ -54,7 +54,7 @@ namespace GameFrameWork
         {
             AbstractGame game = GameFactory.CreateGame(gameType);
 
-            if (!SelectStartOptions(game))
+            if (!SelectStartOptions(game, gameType))
             {
                 return; // Return to main menu if SelectStartOptions returns false
             }
@@ -105,8 +105,7 @@ namespace GameFrameWork
                             PlayGame("Notakto");
                             break;
                         case "3":
-                            Console.WriteLine("Gomoku will be available in a future update!");
-                            PressAnyKeyToContinue();
+                            PlayGame("Gomoku");
                             break;
                         case "4":
                             gameOptionsExit = true;
@@ -132,22 +131,56 @@ namespace GameFrameWork
             }
         }
 
-        public static bool SelectStartOptions(AbstractGame game)
+        public static bool SelectStartOptions(AbstractGame game, string gameType)
         {
             bool startOptionsExit = false;
+            
+            // Determine game display name
+            string gameDisplayName = "Game";
+            if (gameType != null)
+            {
+                switch (gameType.ToLower())
+                {
+                    case "numericaltictactoe":
+                        gameDisplayName = "Numerical Tic-Tac-Toe";
+                        break;
+                    case "gomoku":
+                        gameDisplayName = "Gomoku";
+                        break;
+                    case "notakto":
+                        gameDisplayName = "Notakto";
+                        break;
+                    default:
+                        gameDisplayName = "Game";
+                        break;
+                }
+            }
+            else
+            {
+                // Fallback: detect game type from game object
+                if (game is TicTacToeGame)
+                    gameDisplayName = "Numerical Tic-Tac-Toe";
+                // else if (game is GomokuGame)
+                //     gameDisplayName = "Gomoku";
+                else if (game is NotaktoGame)
+                    gameDisplayName = "Notakto";
+                else
+                    gameDisplayName = "Game";
+            }
+            
             while (!startOptionsExit)
             {
                 Console.Clear();
-                Console.WriteLine($"Numerical Tic-Tac-Toe Options:");
+                Console.WriteLine($"{gameDisplayName} Options:");
                 Console.WriteLine("1. Start a new game");
                 Console.WriteLine("2. Load a saved game");
                 Console.WriteLine("3. Back to game selection");
                 Console.Write("\nSelect an option >> ");
                 string startOptionInput = Console.ReadLine();
-                int startOption;
+                
                 try
                 {
-                    startOption = int.Parse(startOptionInput);
+                    int startOption = int.Parse(startOptionInput);
                     switch (startOption)
                     {
                         case 1:
@@ -157,11 +190,12 @@ namespace GameFrameWork
                         case 2:
                             Console.WriteLine("\nEnter file name to load >> ");
                             string filename = Console.ReadLine();
-                            TicTacToeGame loadedGame = (TicTacToeGame)game;
-                            if (loadedGame.LoadGame(filename))
+                            
+                            // Use polymorphic LoadGame method instead of casting
+                            if (game.LoadGame(filename))
                             {
                                 // Game loaded successfully, start playing
-                                loadedGame.StartGame();
+                                game.StartGame();
                                 // After game is done, come back to this menu
                                 startOptionsExit = false;
                             }
