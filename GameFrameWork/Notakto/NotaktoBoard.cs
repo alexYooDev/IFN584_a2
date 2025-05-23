@@ -39,31 +39,57 @@ namespace GameFrameWork
         public override void DisplayBoard(int boardIndex = 0)
         {
             Console.WriteLine("\n|| +++ Current Notakto Board Status +++ ||\n");
+
+            int cellWidth = 6;
+            // Print board headers
             for (int b = 0; b < BoardCount; ++b)
             {
-                Console.WriteLine($"Board {b + 1}{(DeadBoards.Contains(b) ? " [DEAD]" : "")}:");
-                for (int i = 0; i < Size; ++i)
+                int totalBoardWidth = Size * cellWidth + 1; // +1 for the starting '|'
+                string header = $"Board {b + 1}{(DeadBoards.Contains(b) ? " [DEAD]" : "")}";
+                Console.Write(header.PadRight(totalBoardWidth));
+                if (b < BoardCount - 1) Console.Write("   ");
+            }
+            Console.WriteLine();
+
+            for (int i = 0; i < Size; ++i)
+            {
+                // Print horizontal lines for all boards
+                for (int b = 0; b < BoardCount; ++b)
                 {
                     for (int k = 0; k < Size; ++k)
                     {
-                        Console.Write("----");
+                        Console.Write("+-----");
                     }
-                    Console.WriteLine();
+                    Console.Write("+");
+                    if (b < BoardCount - 1) Console.Write("   ");
+                }
+                Console.WriteLine();
 
+                // Print row for all boards
+                for (int b = 0; b < BoardCount; ++b)
+                {
                     for (int j = 0; j < Size; ++j)
                     {
-                        char cell = GetValue(b,i,j);
-                        Console.Write(cell == ' ' ? "|   " : $"| {cell} ");
+                        char cell = GetValue(b, i, j);
+                        string cellStr = cell == ' ' ? "     " : $"  {cell}  ";
+                        Console.Write($"|{cellStr}");
                     }
                     Console.Write("|");
-                    Console.WriteLine();
-                }
-                for (int k = 0; k < Size; ++k)
-                {
-                    Console.Write("----");
+                    if (b < BoardCount - 1) Console.Write("   ");
                 }
                 Console.WriteLine();
             }
+            // Print bottom lines for all boards
+            for (int b = 0; b < BoardCount; ++b)
+            {
+                for (int k = 0; k < Size; ++k)
+                {
+                    Console.Write("+-----");
+                }
+                Console.Write("+");
+                if (b < BoardCount - 1) Console.Write("   ");
+            }
+            Console.WriteLine();
         }
 
         public override bool IsValidMove(int row, int col, object moveData, int boardIndex = 0, bool displayMessages = true)
@@ -259,42 +285,66 @@ namespace GameFrameWork
         {
             Console.WriteLine("\n|| +++ Select Board and Position +++ ||\n");
 
+            // Print board headers
+            int cellWidth = 6;
             for (int b = 0; b < BoardCount; b++)
             {
-                Console.WriteLine($"Board {b + 1}{(DeadBoards.Contains(b) ? " [DEAD]" : "")}:");
-                int gridNum = 1;
+                // Calculate left padding for the board header
+                int totalBoardWidth = Size * cellWidth + 1; // +1 for the starting '|'
+                string header = $"Board {b + 1}{(DeadBoards.Contains(b) ? " [DEAD]" : "")}";
+                Console.Write(header.PadRight(totalBoardWidth));
+                if (b < BoardCount - 1) Console.Write("   ");
+            }
+            Console.WriteLine();
 
-                for (int i = 0; i < Size; i++)
+            for (int i = 0; i < Size; i++)
+            {
+                // Print horizontal lines for all boards
+                for (int b = 0; b < BoardCount; b++)
                 {
                     for (int k = 0; k < Size; k++)
                     {
-                        Console.Write("------");
+                        Console.Write("+-----");
                     }
-                    Console.WriteLine();
-                    Console.Write("|");
+                    Console.Write("+");
+                    if (b < BoardCount - 1) Console.Write("   ");
+                }
+                Console.WriteLine();
+
+                // Print row for all boards
+                for (int b = 0; b < BoardCount; b++)
+                {
                     for (int j = 0; j < Size; j++)
                     {
                         char slotValue = Boards[b][i, j];
-
+                        int displayNum = (i * Size + j) + 1;
+                        string cell;
                         if (slotValue == ' ')
                         {
-                            Console.Write($"  {gridNum}  |");
+                            cell = displayNum < 10 ? $"  {displayNum}  " : $" {displayNum}  ";
                         }
                         else
                         {
-                            Console.Write("  X  |");
+                            cell = "  X  ";
                         }
-                        gridNum++;
+                        Console.Write($"|{cell}");
                     }
-                    Console.WriteLine();
+                    Console.Write("|");
+                    if (b < BoardCount - 1) Console.Write("   ");
                 }
-                for (int k = 0; k < Size; k++)
-                {
-                    Console.Write("------");
-                }
-                Console.WriteLine();
                 Console.WriteLine();
             }
+            // Print bottom lines for all boards
+            for (int b = 0; b < BoardCount; b++)
+            {
+                for (int k = 0; k < Size; k++)
+                {
+                    Console.Write("+-----");
+                }
+                Console.Write("+");
+                if (b < BoardCount - 1) Console.Write("   ");
+            }
+            Console.WriteLine("\n");
         }
     }
 }
