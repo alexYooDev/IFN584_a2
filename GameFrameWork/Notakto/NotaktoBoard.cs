@@ -2,41 +2,43 @@
 
 using System;
 using System.Collections.Generic;
-using GameFrameWork;
 
-namespace Notakto
+
+namespace GameFrameWork
 {
     public class NotaktoBoard : AbstractBoard
     {
-        private const int BoardCount = 3; // number of boards
-        private const int Size = 3;       // board size, always 3*3
-        private List<char[,]> Boards;     // present three boards in 2D array (slot)
-        private List<int> DeadBoards;     // store dead board
+        //properties
+        private List<char[,]> Boards = new List<char[,]>();
+        // present three boards in 2D array (slot)
+        private List<int> DeadBoards = new List<int>();    // store dead board
 
-        public NotaktoBoard() : base(Size, BoardCount) // 3*3, 3 boards
+        public NotaktoBoard() : base(3, 3) // 3*3, 3 boards
         {
             Boards = new List<char[,]>();
             DeadBoards = new List<int>();
             BoardsState = new List<object>();
+
+            InitializeBoards();
         }
 
         // called when first time launch the Notakto game
-        /*protected override void InitializeBoards()
-         {
-             for (int i = 0; i < BoardCount; ++i)
-             {
-                 char[,] board = new char[Size, Size];
-                 for (int row = 0; row < Size; ++row)
-                 {
-                     for (int col = 0; col < Size; ++col)
-                     {
-                         board[row, col] = ' ';
-                     }
-                 }
-                 Boards.Add(board);
-             }
-         }
-         */
+        private void InitializeBoards()
+        {
+            for (int i = 0; i < BoardCount; ++i)
+            {
+                char[,] board = new char[Size, Size];
+                for (int row = 0; row < Size; ++row)
+                {
+                    for (int col = 0; col < Size; ++col)
+                    {
+                        board[row, col] = ' ';
+                    }
+                }
+                Boards.Add(board);
+            }
+        }
+
 
 
         public override void DisplayBoard(int boardIndex)
@@ -106,7 +108,7 @@ namespace Notakto
             return Boards[boardIndex][row, col] == ' ';
         }
 
-        public override void MakeMove(int row, int col, object moveData = null, int boardIndex = 0)
+        public override void MakeMove(int row, int col, object? moveData = null, int boardIndex = 0)
         {
             if (!IsValidMove(row, col, moveData, boardIndex))
             {
@@ -280,7 +282,7 @@ namespace Notakto
                         continue;
                     }
 
-                    return new int[] { row, col };
+                    return new int[] { selectedBoard, row, col };
                 }
                 catch (FormatException)
                 {
@@ -302,5 +304,12 @@ namespace Notakto
         {
             Boards[board][row, col] = 'X';
         }
+
+        public char[,] GetBoard(int index)
+        {
+            return Boards[index];
+        }
+
+
     }
 }

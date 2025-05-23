@@ -2,12 +2,12 @@
 
 using System;
 using System.Collections.Generic;
-using GameFrameWork;
 
 
-namespace Notakto
+
+namespace GameFrameWork
 {
-    public abstract class NotaktoHumanPlayer : AbstractHumanPlayer
+    public class NotaktoHumanPlayer : AbstractHumanPlayer
     {
         // player type : Human or Computer
         public NotaktoHumanPlayer(string name)
@@ -18,11 +18,15 @@ namespace Notakto
 
         public override object SelectMove(AbstractBoard board)
         {
-            Board notaktoBoard = (NotaktoBoard)board;
-            Console.WriteLine($"\n{name}, it's your turn now");
+            NotaktoBoard notaktoBoard = (NotaktoBoard)board;
 
-            int[] position = SelectPosition(notaktoBoard, selectedBoard);
-            return new int[] { selectedBoard, position[0], position[1] };
+            Console.WriteLine($"\n{this.Name}, it's your turn now");
+
+
+            int[] move = notaktoBoard.SelectPosition();
+
+
+            return move;
         }
     }
 }

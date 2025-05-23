@@ -2,35 +2,33 @@
 
 using System;
 using System.Collections.Generic;
-using GameFrameWork;
 
 
-namespace Notakto
+namespace GameFrameWork
 {
     public abstract class NotaktoComputerPlayer : AbstractComputerPlayer
     {
-        // player type : Human or Computer
-        public string Type { get; }
-
-        // For computer player to access board
-        private NotaktoBoard Board;
-
-
-        public NotaktoComputerPlayer(string name, PlayerType type) : base("Computer", PlayerType.Computer, 'X')
+        private NotaktoBoard notaktoBoard;
+        public NotaktoComputerPlayer() : base("Computer", PlayerType.Computer, 'X')
         {
         }
 
+        public void SetBoard(NotaktoBoard board)
+        {
+            notaktoBoard = board;
+        }
+
         // Notakto doesn't have a winning move
-        public override object FindWinningMove(AbstractBoard board)
+        public override object? FindWinningMove(AbstractBoard board)
         {
             return null;
         }
 
 
-        public override object FindLosingMove(AbstractBoard board)
+        public override object? FindLosingMove(AbstractBoard board)
         {
-            NotaktoBoard notaktoBoard = (NotaktoBoard)board;
-            int boardCount = board.GetBoardCount();
+            notaktoBoard = (NotaktoBoard)board;
+            int boardCount = notaktoBoard.GetBoardCount();
 
             for (int b = 0; b < boardCount; ++b)
             {
@@ -47,7 +45,9 @@ namespace Notakto
                             object previousState = notaktoBoard.GetBoardState();
                             notaktoBoard.MakeMove(row, col, null, b);
 
-                            bool isLosing = notaktoBoard.CheckThreeInARow(b);
+                            bool isLosing = notaktoBoard.CheckThreeInARow(notaktoBoard.GetBoard(b));
+
+
 
                             // Undo simulation
                             notaktoBoard.SetBoardState(previousState);
@@ -62,13 +62,15 @@ namespace Notakto
             return null; // No losing move found
         }
 
+
+
+
         public override object SelectRandomMove()
         {
-            var notaktoBoard = (NotaktoBoard)NotaktoReference;
-
             List<int[]> safeMoves = new List<int[]>();
+            int boardCount = notaktoBoard.BoardCount;
 
-            for (int b = 0; b < 3; ++b)
+            for (int b = 0; b < boardCount; ++b)
             {
                 if (notaktoBoard.IsBoardDead(b))
                     continue;
@@ -84,7 +86,9 @@ namespace Notakto
                         object previousState = notaktoBoard.GetBoardState();
                         notaktoBoard.MakeMove(row, col, null, b);
 
-                        bool isLosing = notaktoBoard.CheckThreeInARow(b);
+                        bool isLosing = notaktoBoard.CheckThreeInARow(notaktoBoard.GetBoard(b));
+
+
 
                         notaktoBoard.SetBoardState(previousState);
 

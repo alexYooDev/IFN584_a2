@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using GameFrameWork;
 
-namespace Notakto
+
+namespace GameFrameWork
 {
     public class NotaktoGameData
     {
@@ -15,14 +15,14 @@ namespace Notakto
         public bool IsGameOver { get; set; }
         public string GameType { get; set; }
 
-        public List<int> DeadBoards { get; set; }
+        public List<int>? DeadBoards { get; set; }
         public List<string[][]> Boards { get; set; }
 
         // Track undone moves
         public int? UndoneMovesCount { get; set; }
 
-        public List<MovesToSerialize> MoveHistory { get; set; }
-        public List<MovesToSerialize> RedoHistory { get; set; }
+        public List<MovesToSerialize>? MoveHistory { get; set; }
+        public List<MovesToSerialize>? RedoHistory { get; set; }
 
         // Convert a char[,] to a string[][] to support json serialization
         public static string[][] ConvertCharArrayToJagged(char[,] board)
