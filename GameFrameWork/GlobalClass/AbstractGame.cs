@@ -178,7 +178,7 @@ namespace GameFrameWork
         /* To start the game loop */
         public virtual void StartGame()
         {
-            Console.WriteLine("\n============================================ Game Started!  ============================================");
+            renderer.DisplayMessage("\n============================================ Game Started!  ============================================");
             IsGameOver = false;
             IsPlayerQuit = false;
 
@@ -256,19 +256,6 @@ namespace GameFrameWork
                         break;
                 }
             }
-        }
-
-        // Common game options
-        protected virtual void DisplayTurnOptions()
-        {
-            Console.WriteLine("\n|| +++ Options +++ ||");
-            Console.WriteLine("\nSelect your option for this turn:\n");
-            Console.WriteLine("1. Make a move");
-            Console.WriteLine("2. Undo previous moves");
-            Console.WriteLine("3. Save the game");
-            Console.WriteLine("4. View help menu");
-            Console.WriteLine("5. Quit the game");
-            Console.Write("\nEnter your choice >> ");
         }
 
         protected virtual void HandleHelpRequest()

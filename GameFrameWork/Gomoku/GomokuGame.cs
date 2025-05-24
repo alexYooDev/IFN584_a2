@@ -319,7 +319,7 @@ namespace GameFrameWork
             if (winningLine != null)
             {
                 renderer.DisplayMessage($"\nGame over! {CurrentPlayer.Name} wins!");
-                renderer.DisplayMessage($"Winning line: {string.Join(" -> ", winningLine.Select(pos => $"({pos.Item1},{pos.Item2})"))}");
+                renderer.DisplayMessage($"Winning line: {string.Join(" -> ", winningLine.Select(pos => $"({pos.Item1+1},{pos.Item2+1})"))}");
             }
             else if (Board.IsBoardFull())
             {
