@@ -330,8 +330,7 @@ namespace GameFrameWork
 
         protected override void DisplayGameStatus()
         {
-            renderer.DisplayMessage($"\nCurrent Turn: {CurrentPlayer.Name} ({CurrentPlayer.MoveSymbol})");
-            renderer.DisplayMessage($"Move #{MoveHistory.Count}");
+            renderer.DisplayGameStatus(CurrentPlayer.Name, MoveHistory.Count);
             Board.DisplayBoard();
         }
 

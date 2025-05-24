@@ -130,6 +130,7 @@ namespace GameFrameWork
             // Offer undo after loading a game -> MoveHistory > 0 means it is a loaded game
             if (MoveHistory.Count > 0)
             {
+                renderer.DisplayMessage($"Target Sum: {TargetSum}");
                 renderer.DisplayGameStatus(CurrentPlayer.Name, MoveHistory.Count);
                 renderer.DisplayBoard(Board);
                 OfferUndoAfterLoad();
@@ -137,6 +138,7 @@ namespace GameFrameWork
 
             while (!IsGameOver)
             {
+                renderer.DisplayMessage($"Target Sum: {TargetSum}");
                 renderer.DisplayGameStatus(CurrentPlayer.Name, MoveHistory.Count);
                 renderer.DisplayBoard(Board);
 
@@ -170,6 +172,7 @@ namespace GameFrameWork
             // Only announce winner and display result if player didn't quit
             if (!IsPlayerQuit)
             {
+                renderer.DisplayMessage($"Target Sum: {TargetSum}");
                 renderer.DisplayGameStatus(CurrentPlayer.Name, MoveHistory.Count);
                 renderer.DisplayBoard(Board);
                 AnnounceWinner();
@@ -239,6 +242,7 @@ namespace GameFrameWork
                         // If it's now a computer's turn after undoing, let it play
                         if (CurrentPlayer.Type == PlayerType.Computer)
                         {
+                            renderer.DisplayMessage($"Target Sum: {TargetSum}");
                             renderer.DisplayGameStatus(CurrentPlayer.Name, MoveHistory.Count);
                             ProcessComputerTurn();
 

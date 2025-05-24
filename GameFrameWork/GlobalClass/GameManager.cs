@@ -47,7 +47,7 @@ namespace GameFrameWork
             Console.WriteLine("2. Notakto");
             Console.WriteLine("3. Gomoku");
             Console.WriteLine("4. Exit");
-            Console.Write("\nSelect a game to play: >> ");
+            Console.Write("\nSelect a game to play >> ");
         }
 
         public static void PlayGame(string gameType)
