@@ -24,6 +24,7 @@ namespace GameFrameWork
             Player1Moves = new List<object>();
             Player2Moves = new List<object>();
             MoveHistory = new List<MovesToSerialize>();
+            BoardState = new object[0][];
         }
 
         // COMMON SAVE/LOAD LOGIC BELONGS HERE
@@ -79,8 +80,10 @@ namespace GameFrameWork
             }
         }
 
-        // ABSTRACT METHODS FOR GAME-SPECIFIC DATA HANDLING
+        // For extracting game specific save data
         public abstract void PopulateFromGame(AbstractGame game);
+
+        // For restoring save data's content back to the game
         public abstract void RestoreToGame(AbstractGame game);
         
         // MOVE HISTORY SERIALIZATION
@@ -102,7 +105,6 @@ namespace GameFrameWork
                 MoveHistory.Add(serializedMove);
             }
         }
-
 
         public virtual Stack<Move> DeserializeMoveHistory(AbstractPlayer player1, AbstractPlayer player2)
         {
@@ -131,7 +133,6 @@ namespace GameFrameWork
             
             return moveStack;
         }
-
 
         // ABSTRACT METHODS FOR GAME-SPECIFIC SERIALIZATION
         protected abstract int SerializeMoveData(object moveData);

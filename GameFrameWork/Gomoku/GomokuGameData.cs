@@ -1,78 +1,128 @@
+using System.Text.Json;
+
 namespace GameFrameWork
 {
     public class GomokuGameData : GameData
     {
-        public char[][] BoardState { get; set; }
-
         public GomokuGameData()
         {
             GameType = "Gomoku";
+            BoardState = new object[0][];
         }
 
-        // POPULATE DATA FROM GAME
         public override void PopulateFromGame(AbstractGame game)
         {
-            var gomokuGame = (GomokuGame)game;
+            if (!(game is GomokuGame gomokuGame)) return;
             
             // Common data
             BoardSize = gomokuGame.Board.GetSize();
+            BoardCount = gomokuGame.Board.GetBoardCount();
             GameMode = gomokuGame.GetGameMode();
             CurrentPlayerName = gomokuGame.GetCurrentPlayerName();
             Player1Name = gomokuGame.GetPlayer1Name();
             Player2Name = gomokuGame.GetPlayer2Name();
             IsGameOver = gomokuGame.GetIsGameOver();
-            
+            GameType = "Gomoku";
+
             // Board state
             char[,] boardArray = (char[,])gomokuGame.Board.GetBoardState();
-            BoardState = ConvertTo2DJaggedArray(boardArray);
+            BoardState = ConvertCharBoardToObjectArray(boardArray);
             
             // Serialize move histories
             SerializeMoveHistory(gomokuGame.GetMoveHistory());
         }
 
-        // RESTORE DATA TO GAME
         public override void RestoreToGame(AbstractGame game)
         {
-            var gomokuGame = (GomokuGame)game;
+            if (!(game is GomokuGame gomokuGame)) return;
             
             // Restore board
-            gomokuGame.SetGomokuBoard(new GomokuBoard(BoardSize, 1));
+            gomokuGame.SetGomokuBoard(new GomokuBoard(BoardSize, BoardCount));
             gomokuGame.Board = gomokuGame.GetGomokuBoard();
             
-            char[,] boardArray = ConvertToArray2D(BoardState);
+            // Restore board state
+            char[,] boardArray = ConvertObjectArrayToCharBoard(BoardState);
             gomokuGame.Board.SetBoardState(boardArray);
             
             // Restore game properties
             gomokuGame.SetGameMode(GameMode);
             gomokuGame.SetIsGameOver(IsGameOver);
-            
+
             // Restore players
             gomokuGame.RestorePlayersFromData(GameMode, Player1Name, Player2Name);
             
-            // Set current player
+            // Set current player and move history
             gomokuGame.SetCurrentPlayerByName(CurrentPlayerName);
-            
-            // Restore move histories
             gomokuGame.SetMoveHistory(DeserializeMoveHistory(gomokuGame.GetPlayer1(), gomokuGame.GetPlayer2()));
+            gomokuGame.SetRedoHistory(new Stack<Move>());
         }
 
-        // GAME-SPECIFIC SERIALIZATION METHODS
+        // Gomoku-specific conversion methods
+        private object[][] ConvertCharBoardToObjectArray(char[,] board)
+        {
+            if (board == null) return new object[0][];
+            
+            int rows = board.GetLength(0);
+            int cols = board.GetLength(1);
+            object[][] result = new object[rows][];
+            
+            for (int i = 0; i < rows; i++)
+            {
+                result[i] = new object[cols];
+                for (int j = 0; j < cols; j++)
+                {
+                    result[i][j] = board[i, j].ToString();
+                }
+            }
+            
+            return result;
+        }
+
+        private char[,] ConvertObjectArrayToCharBoard(object[][] objectArray)
+        {
+            if (objectArray == null || objectArray.Length == 0) 
+                return new char[0, 0];
+            
+            int rows = objectArray.Length;
+            int cols = objectArray[0].Length;
+            char[,] result = new char[rows, cols];
+            
+            for (int i = 0; i < rows; i++)
+            {
+                for (int j = 0; j < cols; j++)
+                {
+                    string value;
+                    if (objectArray[i][j] is JsonElement jsonElement)
+                        value = jsonElement.GetString() ?? "";
+                    else
+                        value = objectArray[i][j]?.ToString() ?? "";
+                    
+                    result[i, j] = string.IsNullOrEmpty(value) ? '.' : value[0];
+                }
+            }
+            
+            return result;
+        }
+
+        // Serialization methods
         protected override int SerializeMoveData(object moveData)
         {
-            // Convert char to int: 'X' = 1, 'O' = 2, '.' = 0
-            char symbol = (char)moveData;
-            return symbol switch
+            if (moveData is char symbol)
             {
-                'X' => 1,
-                'O' => 2,
-                '.' => 0,
-                _ => 0
-            };
+                return symbol switch
+                {
+                    'X' => 1,
+                    'O' => 2,
+                    '.' => 0,
+                    ' ' => 0,
+                    _ => 0
+                };
+            }
+            return 0;
         }
 
         protected override object DeserializeMoveData(int serializedData)
         {
-            // Convert int back to char
             return serializedData switch
             {
                 1 => 'X',
@@ -84,87 +134,48 @@ namespace GameFrameWork
 
         protected override int[][] SerializeBoardState(object boardState)
         {
-            return ConvertTo2DJaggedArrayInt((char[,])boardState);
+            if (boardState is char[,] board)
+            {
+                int rows = board.GetLength(0);
+                int cols = board.GetLength(1);
+                int[][] result = new int[rows][];
+                
+                for (int i = 0; i < rows; i++)
+                {
+                    result[i] = new int[cols];
+                    for (int j = 0; j < cols; j++)
+                    {
+                        char symbol = board[i, j];
+                        result[i][j] = symbol switch
+                        {
+                            'X' => 1,
+                            'O' => 2,
+                            '.' => 0,
+                            _ => 0
+                        };
+                    }
+                }
+                
+                return result;
+            }
+            
+            return new int[0][];
         }
 
         protected override object DeserializeBoardState(int[][] serializedState)
         {
-            return ConvertToArray2DChar(serializedState);
-        }
+            if (serializedState == null || serializedState.Length == 0)
+                return new char[0, 0];
 
-        // CONVERSION UTILITIES
-        public static char[][] ConvertTo2DJaggedArray(char[,] array2D)
-        {
-            int rows = array2D.GetLength(0);
-            int cols = array2D.GetLength(1);
-            char[][] jaggedArray = new char[rows][];
-
-            for (int i = 0; i < rows; i++)
-            {
-                jaggedArray[i] = new char[cols];
-                for (int j = 0; j < cols; j++)
-                {
-                    jaggedArray[i][j] = array2D[i, j];
-                }
-            }
-
-            return jaggedArray;
-        }
-
-        public static char[,] ConvertToArray2D(char[][] jaggedArray)
-        {
-            int rows = jaggedArray.Length;
-            int cols = jaggedArray[0].Length;
-            char[,] array2D = new char[rows, cols];
-
+            int rows = serializedState.Length;
+            int cols = serializedState[0].Length;
+            char[,] board = new char[rows, cols];
+            
             for (int i = 0; i < rows; i++)
             {
                 for (int j = 0; j < cols; j++)
                 {
-                    array2D[i, j] = jaggedArray[i][j];
-                }
-            }
-
-            return array2D;
-        }
-
-        // Additional conversion methods for int serialization
-        private static int[][] ConvertTo2DJaggedArrayInt(char[,] array2D)
-        {
-            int rows = array2D.GetLength(0);
-            int cols = array2D.GetLength(1);
-            int[][] jaggedArray = new int[rows][];
-
-            for (int i = 0; i < rows; i++)
-            {
-                jaggedArray[i] = new int[cols];
-                for (int j = 0; j < cols; j++)
-                {
-                    char symbol = array2D[i, j];
-                    jaggedArray[i][j] = symbol switch
-                    {
-                        'X' => 1,
-                        'O' => 2,
-                        '.' => 0,
-                        _ => 0
-                    };
-                }
-            }
-
-            return jaggedArray;
-        }
-
-        private static char[,] ConvertToArray2DChar(int[][] jaggedArray)
-        {
-            int rows = jaggedArray.Length;
-            int cols = jaggedArray[0].Length;
-            char[,] array2D = new char[rows, cols];
-
-            for (int i = 0; i < rows; i++)
-            {
-                for (int j = 0; j < cols; j++)
-                {
-                    array2D[i, j] = jaggedArray[i][j] switch
+                    board[i, j] = serializedState[i][j] switch
                     {
                         1 => 'X',
                         2 => 'O',
@@ -173,8 +184,8 @@ namespace GameFrameWork
                     };
                 }
             }
-
-            return array2D;
+            
+            return board;
         }
     }
 }

@@ -57,7 +57,6 @@ namespace GameFrameWork
                     }
                 }
             }
-
             // No winning move found
             return null;
         }

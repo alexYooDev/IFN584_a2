@@ -10,7 +10,6 @@ namespace GameFrameWork
         private HashSet<int> EvenNumbers;
         private TicTacToeBoard TicTacToeBoard;
         // Temporary storage for move before confirmation
-        private Move TempMove;
         private int UndoneMovesCount = 0; // Track number of undone moves
 
         public TicTacToeGame(IGameRenderer renderer, IInputHandler inputHandler, IGameDataPersistence dataPersistence) : base(renderer , inputHandler, dataPersistence)
@@ -163,7 +162,7 @@ namespace GameFrameWork
 
                     if (!IsGameOver)
                     {
-                        SwithCurrentPlayer();
+                        SwitchCurrentPlayer();
                     }
                 }
             }
@@ -202,7 +201,7 @@ namespace GameFrameWork
                     // If we undid an odd number of moves, we need to switch current player
                     if (movesUndone % 2 == 1)
                     {
-                        SwithCurrentPlayer();
+                        SwitchCurrentPlayer();
                         renderer.DisplayMessage($"Turn switched to {CurrentPlayer.Name}");
                     }
                     
@@ -247,7 +246,7 @@ namespace GameFrameWork
                             IsGameOver = CheckGameOver();
                             if (!IsGameOver)
                             {
-                                SwithCurrentPlayer();
+                                SwitchCurrentPlayer();
                             }
                         }
                     }
@@ -269,108 +268,66 @@ namespace GameFrameWork
         protected override void MakeHumanMove()
         {
             var humanPlayer = (TicTacToeHumanPlayer)CurrentPlayer;
+            bool moveCompleted = false;
             
-            // Get number from player
-            int number = (int)humanPlayer.SelectMove(Board);
-            
-            // Get position from player
-            int[] position = TicTacToeBoard.SelectPosition();
-            
-            // Save state for potential undo
-            object previousState = Board.GetBoardState();
-
-            if (Board.IsValidMove(position[0], position[1], number, 0, true))
+            while (!moveCompleted)
             {
-                // Make the move
-                Board.MakeMove(position[0], position[1], number);
-                
-                // Show the result
-                renderer.DisplayBoard(Board);
-                
-                // Ask for confirmation using interface
-                bool confirmed = inputHandler.GetUserConfirmation("Confirm this move? y - confirm n - redo move");
-                
-                if (confirmed)
+                try
                 {
-                    // Add to move history
-                    var move = new Move(0, position[0], position[1], CurrentPlayer, number, previousState);
-                    MoveHistory.Push(move);
-                    ClearRedoStackOnNewMove();
+                    // Get number from player
+                    int number = (int)humanPlayer.SelectMove(Board);
+                    
+                    // Get position from player
+                    int[] position = TicTacToeBoard.SelectPosition();
+                    
+                    // Validate the move
+                    if (!Board.IsValidMove(position[0], position[1], number, 0, true))
+                    {
+                        // Return number to player and try again
+                        humanPlayer.GetAvailableNumbers().Add(number);
+                        renderer.DisplayMessage("Invalid move! Please try again.");
+                        continue; // Go back to start of loop
+                    }
+
+                    // Save state for potential undo
+                    object previousState = Board.GetBoardState();
+                    
+                    // Make the move temporarily
+                    Board.MakeMove(position[0], position[1], number);
+                    
+                    // Show the result
+                    renderer.DisplayBoard(Board);
+                    
+                    // Ask for confirmation
+                    bool confirmed = inputHandler.GetUserConfirmation("Confirm this move? [ y - confirm | n - redo move ] >>");
+                    
+                    if (confirmed)
+                    {
+                        // Move is confirmed - add to history
+                        var move = new Move(0, position[0], position[1], CurrentPlayer, number, previousState);
+                        MoveHistory.Push(move);
+                        ClearRedoStackOnNewMove();
+                        
+                        renderer.DisplayMessage($"{CurrentPlayer.Name} placed {number} at position ({position[0] + 1}, {position[1] + 1})");
+                        moveCompleted = true; // Exit the loop
+                    }
+                    else
+                    {
+                        // Move cancelled - restore state and try again
+                        Board.SetBoardState(previousState);
+                        humanPlayer.GetAvailableNumbers().Add(number);
+                        renderer.DisplayMessage("Move cancelled. Please make another move.");
+                        // Loop continues for another attempt
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    // Undo the move and try again
-                    Board.SetBoardState(previousState);
-                    humanPlayer.GetAvailableNumbers().Add(number); // Return the number
-                    renderer.DisplayMessage("Move cancelled. Try again.");
-                    MakeHumanMove(); // Recursive call for new move
-                }
-            }
-            else
-            {
-                renderer.DisplayMessage("Invalid move! Please try again.");
-                humanPlayer.GetAvailableNumbers().Add(number);
-                MakeHumanMove();
-            }
-        }
-
-        protected override void ProcessHumanTurn()
-        {
-            bool turnComplete = false;
-            while (!turnComplete)
-            {
-                renderer.DisplayTurnOptions();
-
-                PlayerChoice input = inputHandler.GetPlayerChoice();
-
-                switch (input)
-                {
-                    case PlayerChoice.MakeMove:
-                        MakeHumanMove();
-                        turnComplete = true; // Turn is complete after move is confirmed
-                        break;
-                    case PlayerChoice.Undo:
-                        int maxUndo = GetUndoableMoveCountForPlayer(CurrentPlayer);
-                        if (maxUndo > 0)
-                        {
-                            Console.Write($"How many moves to undo (up to {maxUndo})? ");
-                            if (int.TryParse(Console.ReadLine(), out int undoCount) && undoCount > 0 && undoCount <= maxUndo)
-                            {
-                                // Use the base class method which correctly filters by player
-                                UndoPlayerMoves(CurrentPlayer, undoCount);
-                                UndoneMovesCount += undoCount;
-                                renderer.DisplayBoard(Board); // Show the board after undo
-                            }
-                            else
-                            {
-                                renderer.DisplayMessage($"Invalid input. You can undo up to {maxUndo} of your move(s).");
-                            }
-                        }
-                        else
-                        {
-                            renderer.DisplayMessage("No moves to undo.");
-                        }
-                        break;
-                    case PlayerChoice.Save:
-                        Console.Write("\nEnter filename to save >> ");
-                        string saveFilename = Console.ReadLine();
-                        SaveGame(saveFilename);
-                        // Do not end turn, allow player to continue
-                        break;
-                    case PlayerChoice.Help:
-                        renderer.DisplayHelpMenu();
-                        renderer.DisplayBoard(Board);
-                        // Do not end turn, allow player to continue
-                        break;
-                    case PlayerChoice.Quit:
-                        HandleQuitRequest();
-                        return; // Immediately exit the method without setting turnComplete
-                    default:
-                        renderer.DisplayMessage("\nInvalid choice. Please try again.");
-                        break;
+                    renderer.DisplayMessage($"Error making move: {ex.Message}. Please try again.");
+                    // Loop continues for another attempt
                 }
             }
         }
+
 
         protected override void ProcessComputerTurn()
         {
@@ -581,28 +538,27 @@ namespace GameFrameWork
         }
 
         // Save game : Serialize necessary game information -> save board, boardState, move history to JSON supported form
-        protected override void SaveGame(string filename)
+        protected override GameData CreateGameData()
         {
-            var gameData = new TicTacToeGameData();
-            gameData.PopulateFromGame(this);
-            dataPersistence.SaveGameData(gameData, filename);
+            return new TicTacToeGameData();
         }
-        
 
-        // Load operation : load the game file and apply details to the game 
-        public override bool LoadGame(string filename)
+        protected override void SaveGameData(GameData gameData, string filename)
         {
-            var gameData = dataPersistence.LoadGameData<TicTacToeGameData>(filename);
-            
-            if (gameData != null)
+            if (gameData is TicTacToeGameData tttData)
             {
-                gameData.RestoreToGame(this);
-                return true;
+                dataPersistence.SaveGameData(tttData, filename);
             }
-            
-            return false;
+            else
+            {
+                throw new InvalidOperationException("Invalid game data type for TicTacToe");
+            }
         }
 
+        protected override GameData LoadGameData(string filename)
+        {
+            return dataPersistence.LoadGameData<TicTacToeGameData>(filename);
+        }
 
         // Override for applying undo state
         protected override void ApplyUndoState(Move move)
@@ -647,7 +603,7 @@ namespace GameFrameWork
             renderer.DisplayMessage($"\nMove redone. Current player: {CurrentPlayer.Name}");
         }
 
-        protected override void SwithCurrentPlayer()
+        protected override void SwitchCurrentPlayer()
         {
             CurrentPlayer = CurrentPlayer == Player1 ? Player2 : Player1;
         }
@@ -708,6 +664,11 @@ namespace GameFrameWork
             - You can undo any number of YOUR moves (not opponent's moves)
             - Undoing is useful for trying different strategies
             - After loading a saved game, you can immediately undo moves
+
+            REDO SYSTEM:
+            - You can redo right after your initial move.
+            - Redoing is useful for adjusting the move that has already been placed.
+            - You can redo any number of times, until you confirm your move.
 
             SAVE/LOAD SYSTEM:
             - Save games at any point during play

@@ -119,6 +119,54 @@ namespace GameFrameWork
             renderer.DisplayMessage("\nSave file not found. Please check the filename and try again.");
         }
 
+        /* Template Method Pattern : provide save/load game structure for all game types */
+
+        protected virtual void SaveGame(string filename)
+        {
+            try
+            {
+                // Create game-specific data object
+                var gameData = CreateGameData();
+
+                // Populate with current game state (including BoardState)
+                gameData.PopulateFromGame(this);
+
+                // Save using data persistence
+                SaveGameData(gameData, filename);
+
+                HandleSaveSuccess(filename);
+            }
+            catch (Exception e)
+            {
+                HandleSaveError(e);
+            }
+        }
+
+        public virtual bool LoadGame(string filename)
+        {
+            try
+            {
+                // Load game-specific data
+                var gameData = LoadGameData(filename);
+
+                if (gameData == null)
+                {
+                    return false;
+                }
+
+                // Restore game state
+                gameData.RestoreToGame(this);
+
+                HandleLoadSuccess(filename);
+                return true;
+            }
+            catch (Exception e)
+            {
+                HandleLoadError(e);
+                return false;
+            }
+        }
+
         /* Template method for game flow */
         public virtual void Play()
         {
@@ -158,7 +206,7 @@ namespace GameFrameWork
 
                 if (!IsGameOver)
                 {
-                    SwithCurrentPlayer();
+                    SwitchCurrentPlayer();
                 }
             }
 
@@ -468,12 +516,15 @@ namespace GameFrameWork
         protected abstract void AnnounceWinner();
         protected abstract void ApplyUndoState(Move move);
         protected abstract void ApplyRedoState(Move move);
-        protected abstract void SwithCurrentPlayer();
         protected abstract string GetGameRules();
         protected abstract string GetGameCommands();
 
-        protected abstract void SaveGame(string filename);
-        public abstract bool LoadGame(string filename);
+        /* Save and load related abstract functions -> specific games can access abstract functions to 
+          reflect their specific game data
+         */
+        protected abstract GameData CreateGameData();
+        protected abstract void SaveGameData(GameData gameData, string filename);
+        protected abstract GameData LoadGameData(string filename);
 
     }
 }

@@ -8,7 +8,6 @@ namespace GameFrameWork
     public class NotaktoGame : AbstractGame
     {
         private NotaktoBoard NotaktoBoard;
-        private Move TempMove;
 
         // Constructor with dependency injection
         public NotaktoGame(IGameRenderer renderer, IInputHandler inputHandler, IGameDataPersistence dataPersistence) 
@@ -141,7 +140,7 @@ namespace GameFrameWork
 
                     if (!IsGameOver)
                     {
-                        SwithCurrentPlayer();
+                        SwitchCurrentPlayer();
                     }
                 }
             }
@@ -160,47 +159,6 @@ namespace GameFrameWork
             StartGame();
         }
 
-        protected override void ProcessHumanTurn()
-        {
-            bool turnComplete = false;
-            while (!turnComplete)
-            {
-                renderer.DisplayMessage("\n|| +++ Options +++ ||");
-                renderer.DisplayMessage("\nSelect your option for this turn:\n");
-                renderer.DisplayMessage("1. Make a move");
-                renderer.DisplayMessage("2. Undo previous moves");
-                renderer.DisplayMessage("3. Save the game");
-                renderer.DisplayMessage("4. View help menu");
-                renderer.DisplayMessage("5. Quit the game");
-
-                string input = inputHandler.GetUserInput("\nEnter your choice");
-
-                switch (input)
-                {
-                    case "1":
-                        MakeHumanMove();
-                        turnComplete = true;
-                        break;
-                    case "2":
-                        HandleUndoRequest();
-                        break;
-                    case "3":
-                        string saveFilename = inputHandler.GetUserInput("\nEnter filename to save");
-                        SaveGame(saveFilename);
-                        break;
-                    case "4":
-                        renderer.DisplayHelpMenu();
-                        Board.DisplayBoard();
-                        break;
-                    case "5":
-                        HandleQuitRequest();
-                        return;
-                    default:
-                        renderer.DisplayMessage("\nInvalid choice. Please try again.");
-                        break;
-                }
-            }
-        }
 
         protected override void MakeHumanMove()
         {
@@ -219,7 +177,7 @@ namespace GameFrameWork
                 Board.MakeMove(row, col, symbol, selectedBoard);
                 renderer.DisplayBoard(Board);
 
-                bool confirmed = inputHandler.GetUserConfirmation("Confirm this move? y - confirm n - redo move");
+                bool confirmed = inputHandler.GetUserConfirmation("Confirm this move? [ y - confirm | n - redo move ] >>");
 
                 if (confirmed)
                 {
@@ -310,10 +268,6 @@ namespace GameFrameWork
             Board.DisplayBoard();
         }
 
-        protected override void SwithCurrentPlayer()
-        {
-            CurrentPlayer = (CurrentPlayer == Player1) ? Player2 : Player1;
-        }
 
         protected override void ApplyUndoState(Move move)
         {
@@ -327,24 +281,26 @@ namespace GameFrameWork
             renderer.DisplayMessage($"\nMove redone for {move.Player.Name}");
         }
 
-        protected override void SaveGame(string filename)
+        protected override GameData CreateGameData()
         {
-            var gameData = new NotaktoGameData();
-            gameData.PopulateFromGame(this);
-            dataPersistence.SaveGameData(gameData, filename);
+            return new NotaktoGameData();
         }
 
-        public override bool LoadGame(string filename)
+        protected override void SaveGameData(GameData gameData, string filename)
         {
-            var gameData = dataPersistence.LoadGameData<NotaktoGameData>(filename);
-            
-            if (gameData != null)
+            if (gameData is NotaktoGameData notaktoData)
             {
-                gameData.RestoreToGame(this);
-                return true;
+                dataPersistence.SaveGameData(notaktoData, filename);
             }
-            
-            return false;
+            else
+            {
+                throw new InvalidOperationException("Invalid game data type for Notakto");
+            }
+        }
+
+        protected override GameData LoadGameData(string filename)
+        {
+            return dataPersistence.LoadGameData<NotaktoGameData>(filename);
         }
 
         protected override string GetGameRules()

@@ -1,19 +1,17 @@
+using System.Text.Json;
+
 namespace GameFrameWork
 {
     public class TicTacToeGameData : GameData
     {
         public int TargetSum { get; set; }
-        public List<int> Player1Moves { get; set; } = new List<int>();
-        public List<int> Player2Moves { get; set; } = new List<int>();
-        public int[][] BoardState { get; set; }
-
 
 
         public TicTacToeGameData()
         {
             GameType = "NumericalTicTacToe";
-            Player1Moves = new List<int>();
-            Player2Moves = new List<int>();
+            Player1Moves = new List<object>();
+            Player2Moves = new List<object>();
         }
 
         // POPULATE DATA FROM GAME
@@ -27,20 +25,19 @@ namespace GameFrameWork
             CurrentPlayerName = ticTacToeGame.GetCurrentPlayerName();
             Player1Name = ticTacToeGame.GetPlayer1Name();
             Player2Name = ticTacToeGame.GetPlayer2Name(); 
-            IsGameOver = ticTacToeGame.GetIsGameOver(); 
+            IsGameOver = ticTacToeGame.GetIsGameOver();
+            GameType = "NumericalTicTacToe";
             
             // TicTacToe-specific data
-            TargetSum = ticTacToeGame.GetTargetSum(); 
+            TargetSum = ticTacToeGame.GetTargetSum();
 
             // Board state
             int[,] boardArray = (int[,])ticTacToeGame.Board.GetBoardState();
-             Console.WriteLine("=== DEBUG BoardState ===");
-             Console.WriteLine($"Board size: {boardArray.GetLength(0)}x{boardArray.GetLength(1)}");
-            BoardState = ConvertTo2DJaggedArray(boardArray);
+            BoardState = ExtractBoardState(ticTacToeGame.Board);
             
             // Player numbers - need public access methods
-            Player1Moves = ticTacToeGame.GetPlayer1Numbers().ToList();
-            Player2Moves = ticTacToeGame.GetPlayer2Numbers().ToList();
+            Player1Moves = ConvertToObjectList(ticTacToeGame.GetPlayer1Numbers());
+            Player2Moves = ConvertToObjectList(ticTacToeGame.GetPlayer2Numbers());
             
             // Serialize move histories - need public access methods
             SerializeMoveHistory(ticTacToeGame.GetMoveHistory());
@@ -55,16 +52,15 @@ namespace GameFrameWork
             ticTacToeGame.SetTicTacToeBoard(new TicTacToeBoard(BoardSize));
             ticTacToeGame.Board = ticTacToeGame.GetTicTacToeBoard();
             
-            int[,] boardArray = ConvertToArray2D(BoardState);
-            ticTacToeGame.Board.SetBoardState(boardArray);
+            RestoreBoardState(ticTacToeGame.Board);
             
             // Restore game properties - need public setter methods
             ticTacToeGame.SetGameMode(GameMode);
             ticTacToeGame.SetIsGameOver(IsGameOver);
             ticTacToeGame.SetTargetSum(TargetSum);
-            
+
             // Restore players
-            ticTacToeGame.RestorePlayersFromData(GameMode, Player1Name, Player2Name, Player1Moves, Player2Moves);
+            ticTacToeGame.RestorePlayersFromData(GameMode, Player1Name, Player2Name, ConvertToIntList(Player1Moves), ConvertToIntList(Player2Moves));
             
             // Set current player
             ticTacToeGame.SetCurrentPlayerByName(CurrentPlayerName);
@@ -72,11 +68,89 @@ namespace GameFrameWork
             // Restore move histories
             ticTacToeGame.SetMoveHistory(DeserializeMoveHistory(ticTacToeGame.GetPlayer1(), ticTacToeGame.GetPlayer2()));
         }
+        
+        private static object[][] ExtractBoardState(AbstractBoard board)
+        {
+            if (board is TicTacToeBoard tttBoard)
+            {
+                // Get the internal board state
+                var internalBoard = tttBoard.GetBoardState() as int[,];
+                
+                if (internalBoard == null)
+                    return new object[0][];
 
-        // GAME-SPECIFIC SERIALIZATION METHODS
+                int size = board.GetSize();
+                object[][] serializedBoard = new object[size][];
+                
+                for (int i = 0; i < size; i++)
+                {
+                    serializedBoard[i] = new object[size];
+                    for (int j = 0; j < size; j++)
+                    {
+                        serializedBoard[i][j] = internalBoard[i, j];
+                    }
+                }
+                
+                return serializedBoard;
+            }
+            
+            return new object[0][];
+        }
+
+        private void RestoreBoardState(AbstractBoard board)
+        {
+            if (board is TicTacToeBoard tttBoard && BoardState != null)
+            {
+                int size = BoardState.Length;
+                int[,] restoredBoard = new int[size, size];
+                
+                for (int i = 0; i < size; i++)
+                {
+                    for (int j = 0; j < size; j++)
+                    {
+                        if (BoardState[i][j] is JsonElement jsonElement)
+                        {
+                            restoredBoard[i, j] = jsonElement.GetInt32();
+                        }
+                        else
+                        {
+                            restoredBoard[i, j] = Convert.ToInt32(BoardState[i][j]);
+                        }
+                    }
+                }
+                
+                tttBoard.SetBoardState(restoredBoard);
+            }
+        }
+
+        private static List<object> ConvertToObjectList(HashSet<int> numbers)
+        {
+            return numbers.Cast<object>().ToList();
+        }
+
+        private static List<int> ConvertToIntList(List<object> objects)
+        {
+            var result = new List<int>();
+            
+            foreach (var obj in objects)
+            {
+                if (obj is JsonElement jsonElement)
+                {
+                    result.Add(jsonElement.GetInt32());
+                }
+                else
+                {
+                    result.Add(Convert.ToInt32(obj));
+                }
+            }
+            
+            return result;
+        }
+        // GAME-SPECIFIC DATA SERIALIZATION METHODS
+
         protected override int SerializeMoveData(object moveData)
         {
-            return (int)moveData;
+            return moveData is int number ? number : 0;
         }
 
         protected override object DeserializeMoveData(int serializedData)
@@ -86,48 +160,45 @@ namespace GameFrameWork
 
         protected override int[][] SerializeBoardState(object boardState)
         {
-            return ConvertTo2DJaggedArray((int[,])boardState);
+            if (boardState is int[,] board)
+            {
+                int rows = board.GetLength(0);
+                int cols = board.GetLength(1);
+                int[][] serialized = new int[rows][];
+                
+                for (int i = 0; i < rows; i++)
+                {
+                    serialized[i] = new int[cols];
+                    for (int j = 0; j < cols; j++)
+                    {
+                        serialized[i][j] = board[i, j];
+                    }
+                }
+                
+                return serialized;
+            }
+            
+            return new int[0][];
         }
 
         protected override object DeserializeBoardState(int[][] serializedState)
         {
-            return ConvertToArray2D(serializedState);
-        }
+            if (serializedState == null || serializedState.Length == 0)
+                return new int[0, 0];
 
-        // CONVERSION UTILITIES
-        public static int[][] ConvertTo2DJaggedArray(int[,] array2D)
-        {
-            int rows = array2D.GetLength(0);
-            int cols = array2D.GetLength(1);
-            int[][] jaggedArray = new int[rows][];
-
-            for (int i = 0; i < rows; i++)
-            {
-                jaggedArray[i] = new int[cols];
-                for (int j = 0; j < cols; j++)
-                {
-                    jaggedArray[i][j] = array2D[i, j];
-                }
-            }
-
-            return jaggedArray;
-        }
-
-        public static int[,] ConvertToArray2D(int[][] jaggedArray)
-        {
-            int rows = jaggedArray.Length;
-            int cols = jaggedArray[0].Length;
-            int[,] array2D = new int[rows, cols];
-
+            int rows = serializedState.Length;
+            int cols = serializedState[0].Length;
+            int[,] board = new int[rows, cols];
+            
             for (int i = 0; i < rows; i++)
             {
                 for (int j = 0; j < cols; j++)
                 {
-                    array2D[i, j] = jaggedArray[i][j];
+                    board[i, j] = serializedState[i][j];
                 }
             }
-
-            return array2D;
+            
+            return board;
         }
     }
 }

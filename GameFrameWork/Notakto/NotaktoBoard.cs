@@ -184,11 +184,28 @@ namespace GameFrameWork
 
         public override void SetBoardState(object state)
         {
-            // boardsState, deadBoards
             if (state is Tuple<List<char[,]>, List<int>> boardState)
             {
-                Boards = boardState.Item1;
-                DeadBoards = boardState.Item2;
+                // Use current boards if provided boards are invalid
+                if (boardState.Item1 != null && boardState.Item1.Count == BoardCount)
+                {
+                    Boards = boardState.Item1;
+                }
+                
+                // Always update dead boards (with validation)
+                DeadBoards.Clear();
+                if (boardState.Item2 != null)
+                {
+                    foreach (int deadBoard in boardState.Item2)
+                    {
+                        if (deadBoard >= 0 && deadBoard < BoardCount)
+                        {
+                            DeadBoards.Add(deadBoard);
+                        }
+                    }
+                }
+
+                // Update BoardsState
                 BoardsState.Clear();
                 foreach (var board in Boards)
                 {
