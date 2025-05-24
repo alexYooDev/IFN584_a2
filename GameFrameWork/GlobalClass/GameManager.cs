@@ -24,9 +24,9 @@ namespace GameFrameWork
                 "=======================================",
                 "||  Written by:                       ||",
                 "||         [N12159069] Alex Yoo       ||",
-                "||         [N12102725] Yang-Ling, Liu ||",
-                "||         [N12159069] Alex Yoo       ||",
-                "||         [N12159069] Alex Yoo       ||",
+                "||         [N12102725] Yen-Ling, Liu  ||",
+                "||         [N11691611] Norfatini      ||",
+                "||         [N11725575] Wan            ||",
                 "======================================="
             };
             foreach (string line in introduction)
@@ -47,7 +47,7 @@ namespace GameFrameWork
             Console.WriteLine("2. Notakto");
             Console.WriteLine("3. Gomoku");
             Console.WriteLine("4. Exit");
-            Console.Write("\nSelect a game to play: ");
+            Console.Write("\nSelect a game to play: >> ");
         }
 
         public static void PlayGame(string gameType)
@@ -157,11 +157,9 @@ namespace GameFrameWork
             }
             else
             {
-                // Fallback: detect game type from game object
+                // fallback acation - Detect game type from game object
                 if (game is TicTacToeGame)
                     gameDisplayName = "Numerical Tic-Tac-Toe";
-               // else if (game is GomokuGame)
-                //     gameDisplayName = "Gomoku";
                 else if (game is NotaktoGame)
                     gameDisplayName = "Notakto";
                 else if (game is GomokuGame)
@@ -188,12 +186,13 @@ namespace GameFrameWork
                         case 1:
                             Console.WriteLine("\nStarting a new game...");
                             startOptionsExit = true;
-                            return true; // Return true to indicate we should play the game
+                            // Return true to indicate we should play the game
+                            return true; 
                         case 2:
                             Console.WriteLine("\nEnter file name to load >> ");
                             string filename = Console.ReadLine();
                             
-                            // Use polymorphic LoadGame method instead of casting
+                            // Use polymorphic LoadGame method
                             if (game.LoadGame(filename))
                             {
                                 // Game loaded successfully, start playing
@@ -203,7 +202,7 @@ namespace GameFrameWork
                             }
                             else
                             {
-                                GameManager.PressAnyKeyToContinue();
+                                PressAnyKeyToContinue();
                             }
                             break;
                         case 3:
@@ -211,14 +210,14 @@ namespace GameFrameWork
                             return false; // Return false to indicate we want to go back to game selection
                         default:
                             Console.WriteLine("\nInvalid option selected. Please try again.");
-                            GameManager.PressAnyKeyToContinue();
+                            PressAnyKeyToContinue();
                             break;
                     }
                 }
                 catch (FormatException)
                 {
                     Console.WriteLine("\nInvalid input. Please enter a number.");
-                    GameManager.PressAnyKeyToContinue();
+                    PressAnyKeyToContinue();
                 }
             }
             return true; // Default case - should play the game
