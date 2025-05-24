@@ -310,7 +310,6 @@ namespace GameFrameWork
         // Handle save request
         protected virtual void HandleSaveRequest()
         {
-            Console.Write("\nEnter filename to save >> ");
             string saveFilename = inputHandler.GetUserInput("Enter filename to save");
             SaveGame(saveFilename);
         }
