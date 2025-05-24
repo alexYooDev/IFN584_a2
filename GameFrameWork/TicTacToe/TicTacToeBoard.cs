@@ -88,23 +88,43 @@ namespace GameFrameWork
 
         public override object GetBoardState()
         {
-            // Create a deep copy of the board state
-            int[,] currentBoardState = new int[Size, Size];
+            // Create a deep copy of the current board state
+            /* crucial for computer finning a winning move */
+            int[,] state = new int[Size, Size];
+            
             for (int i = 0; i < Size; i++)
             {
                 for (int j = 0; j < Size; j++)
                 {
-                    currentBoardState[i, j] = Slots[i, j];
+                    state[i, j] = Slots[i, j];
                 }
             }
-            return currentBoardState;
+            
+            return state;
         }
 
         public override void SetBoardState(object state)
         {
             if (state is int[,] boardState)
             {
-                Slots = boardState;
+                // Create a deep copy - don't just assign the reference!
+                int rows = boardState.GetLength(0);
+                int cols = boardState.GetLength(1);
+                
+                // Ensure Slots is the right size
+                if (Slots == null || Slots.GetLength(0) != rows || Slots.GetLength(1) != cols)
+                {
+                    Slots = new int[rows, cols];
+                }
+                
+                // Copy values, not references
+                for (int i = 0; i < rows; i++)
+                {
+                    for (int j = 0; j < cols; j++)
+                    {
+                        Slots[i, j] = boardState[i, j];
+                    }
+                }
             }
         }
 

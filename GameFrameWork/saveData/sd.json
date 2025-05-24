@@ -1,0 +1,32 @@
+{
+  "boardSize": 3,
+  "boardCount": 3,
+  "gameMode": "HvC",
+  "currentPlayerName": "alex",
+  "player1Name": "alex",
+  "player2Name": "Computer",
+  "player1Moves": [],
+  "player2Moves": [],
+  "gameType": "Notakto",
+  "isGameOver": false,
+  "boardState": [],
+  "moveHistory": [
+    {
+      "boardIndex": 0,
+      "row": 0,
+      "col": 0,
+      "playerName": "Computer",
+      "moveData": 1,
+      "previousBoardState": []
+    },
+    {
+      "boardIndex": 0,
+      "row": 0,
+      "col": 2,
+      "playerName": "alex",
+      "moveData": 1,
+      "previousBoardState": []
+    }
+  ],
+  "undoneMovesCount": null
+}

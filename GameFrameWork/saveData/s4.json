@@ -1,0 +1,485 @@
+{
+  "boardSize": 3,
+  "boardCount": 3,
+  "gameMode": "HvC",
+  "currentPlayerName": "alex",
+  "player1Name": "alex",
+  "player2Name": "Computer",
+  "player1Moves": [],
+  "player2Moves": [],
+  "gameType": "Notakto",
+  "isGameOver": false,
+  "boardState": [
+    [
+      "X",
+      " ",
+      "X"
+    ],
+    [
+      "X",
+      " ",
+      " "
+    ],
+    [
+      " ",
+      "X",
+      "X"
+    ],
+    [
+      "X",
+      " ",
+      " "
+    ],
+    [
+      " ",
+      " ",
+      " "
+    ],
+    [
+      " ",
+      " ",
+      "X"
+    ],
+    [
+      " ",
+      "X",
+      " "
+    ],
+    [
+      " ",
+      " ",
+      " "
+    ],
+    [
+      " ",
+      " ",
+      " "
+    ]
+  ],
+  "moveHistory": [
+    {
+      "boardIndex": 1,
+      "row": 0,
+      "col": 0,
+      "playerName": "Computer",
+      "moveData": 1,
+      "previousBoardState": [
+        [
+          1,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0,
+          1,
+          1
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ]
+    },
+    {
+      "boardIndex": 1,
+      "row": 2,
+      "col": 2,
+      "playerName": "alex",
+      "moveData": 1,
+      "previousBoardState": [
+        [
+          1,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0,
+          1,
+          1
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ]
+    },
+    {
+      "boardIndex": 0,
+      "row": 2,
+      "col": 1,
+      "playerName": "Computer",
+      "moveData": 1,
+      "previousBoardState": [
+        [
+          1,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ]
+    },
+    {
+      "boardIndex": 0,
+      "row": 2,
+      "col": 2,
+      "playerName": "alex",
+      "moveData": 1,
+      "previousBoardState": [
+        [
+          1,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ]
+    },
+    {
+      "boardIndex": 0,
+      "row": 1,
+      "col": 0,
+      "playerName": "Computer",
+      "moveData": 1,
+      "previousBoardState": [
+        [
+          1,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ]
+    },
+    {
+      "boardIndex": 2,
+      "row": 0,
+      "col": 1,
+      "playerName": "alex",
+      "moveData": 1,
+      "previousBoardState": [
+        [
+          1,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ]
+    },
+    {
+      "boardIndex": 0,
+      "row": 1,
+      "col": 0,
+      "playerName": "Computer",
+      "moveData": 1,
+      "previousBoardState": [
+        [
+          1,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ]
+    },
+    {
+      "boardIndex": 0,
+      "row": 0,
+      "col": 0,
+      "playerName": "Computer",
+      "moveData": 1,
+      "previousBoardState": [
+        [
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ]
+    },
+    {
+      "boardIndex": 0,
+      "row": 0,
+      "col": 2,
+      "playerName": "alex",
+      "moveData": 1,
+      "previousBoardState": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ]
+    }
+  ],
+  "undoneMovesCount": null
+}
