@@ -2,7 +2,7 @@ namespace GameFrameWork
 {
     public class GameManager
     {
-        private bool IsRestarted = false;
+        private readonly bool IsRestarted = false;
 
         public void Run()
         {
