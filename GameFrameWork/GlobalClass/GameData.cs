@@ -17,7 +17,6 @@ namespace GameFrameWork
         public bool IsGameOver { get; set; }
         public object[][] BoardState { get; set; }
         public List<MovesToSerialize> MoveHistory { get; set; }
-        public int? UndoneMovesCount { get; set; }
 
         protected GameData()
         {
