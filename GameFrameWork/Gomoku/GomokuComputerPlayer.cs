@@ -12,7 +12,6 @@ namespace GameFrameWork
 
         public override object FindWinningMove(AbstractBoard board)
         {
-            /* type casting */
             Board = (GomokuBoard)board;
 
             char mySymbol = (char)MoveSymbol;
@@ -26,7 +25,7 @@ namespace GameFrameWork
                 return mySymbol;
             }
 
-            /* block opponent's move if it is winning move  */
+            /* 2. block opponent's move if it is winning move  */
             var blockMove = FindWinningMoveForSymbol(opponetSymbol);
             if (blockMove != null)
             {
@@ -35,7 +34,7 @@ namespace GameFrameWork
             }
 
 
-            /* find move that is favorable to computers next move */
+            /* 3. find move that is favorable to computers next move */
             var favorableMove = FindFavorableMove(mySymbol);
             if (favorableMove != null)
             {
@@ -43,7 +42,7 @@ namespace GameFrameWork
                 return mySymbol; 
             }
 
-            /* if no winning move is found */
+            /* 4. if no winning move is found */
             return null;
         }
 

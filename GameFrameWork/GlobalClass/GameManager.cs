@@ -2,7 +2,6 @@ namespace GameFrameWork
 {
     public class GameManager
     {
-        // The game is restarted or not
         private bool IsRestarted = false;
 
         public void Run()
@@ -56,7 +55,8 @@ namespace GameFrameWork
 
             if (!SelectStartOptions(game, gameType))
             {
-                return; // Return to main menu if SelectStartOptions returns false
+                // Return to main menu if SelectStartOptions returns false
+                return;
             }
 
             game.Play();
@@ -157,7 +157,7 @@ namespace GameFrameWork
             }
             else
             {
-                // fallback acation - Detect game type from game object
+                // fallback action - Detect game type from game object
                 if (game is TicTacToeGame)
                     gameDisplayName = "Numerical Tic-Tac-Toe";
                 else if (game is NotaktoGame)
@@ -207,7 +207,7 @@ namespace GameFrameWork
                             break;
                         case 3:
                             Console.WriteLine("\nReturning to game selection...");
-                            return false; // Return false to indicate we want to go back to game selection
+                            return false; 
                         default:
                             Console.WriteLine("\nInvalid option selected. Please try again.");
                             PressAnyKeyToContinue();
@@ -220,7 +220,7 @@ namespace GameFrameWork
                     PressAnyKeyToContinue();
                 }
             }
-            return true; // Default case - should play the game
+            return true;
         }
 
         public static void PressAnyKeyToContinue()

@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.IO;
-
 namespace GameFrameWork
 {
     public class GomokuGame : AbstractGame

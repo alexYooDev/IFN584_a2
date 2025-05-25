@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 namespace GameFrameWork
 {
     public class NotaktoBoard : AbstractBoard

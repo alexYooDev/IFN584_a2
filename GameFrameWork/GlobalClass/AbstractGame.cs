@@ -1,5 +1,3 @@
-using System.Text.Json;
-
 namespace GameFrameWork
 {
     using System.Collections.Generic;
@@ -514,12 +512,9 @@ namespace GameFrameWork
 
 
         /* Abstract methods that need implementation in derived classes */
-
         protected abstract void ConfigureGame();
         protected abstract void CreateHumanVsHumanPlayers(string player1Name, string player2Name);
         protected abstract void CreateHumanVsComputerPlayers(string playerName);
-
-        /* Configure player settings => for setting their names */
         protected abstract void MakeHumanMove();
         protected abstract void ProcessComputerTurn();
         protected abstract bool CheckGameOver();

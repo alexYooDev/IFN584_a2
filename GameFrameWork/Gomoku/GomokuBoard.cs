@@ -146,21 +146,20 @@ namespace GameFrameWork
             {
                 try
                 {
-                    // Display the grid with numbers
                     Console.WriteLine("\n|| +++ Select a position to place your stone +++ ||\n");
 
-                    DisplayGridWithPositions();  // NEW: Show numbered grid
+                    DisplayGridWithPositions(); 
                     Console.Write($"\nWhere on the board do you want to place your stone? (1 - {Size * Size}) >> ");
                     int position = Convert.ToInt32(Console.ReadLine());
 
-                    if (position < 1 || position > Size * Size)  // NEW: Range validation
+                    if (position < 1 || position > Size * Size)
                     {
                         Console.WriteLine("\nYou exceed the range of the board! Try again!");
                         continue;
                     }
 
-                    int row = (position - 1) / Size;  // NEW: Convert number to coordinates
-                    int col = (position - 1) % Size;  // NEW: Convert number to coordinates
+                    int row = (position - 1) / Size;
+                    int col = (position - 1) % Size;
 
                     /* When the position is already taken */
                     if (Slots[row, col] != '.')

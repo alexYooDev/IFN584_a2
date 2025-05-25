@@ -1,5 +1,3 @@
-using System.IO.Compression;
-
 namespace GameFrameWork
 {
     public class TicTacToeBoard : AbstractBoard
@@ -187,21 +185,10 @@ namespace GameFrameWork
                             cellContent = $" {gridNum} "; // 1 space before, 1 after for 3 digits
                         }
                     }
-                    // If it is taken, show the actual number
+                    // If it is taken, show empty slot
                     else
                     {
-                        if (slotValue < 10)
-                        {
-                            cellContent = $"  {slotValue}  ";
-                        }
-                        else if (slotValue < 100)
-                        {
-                            cellContent = $" {slotValue}  ";
-                        }
-                        else
-                        {
-                            cellContent = $" {slotValue} ";
-                        }
+                        cellContent = "     ";
                     }
                     
                     Console.Write($"|{cellContent}");
