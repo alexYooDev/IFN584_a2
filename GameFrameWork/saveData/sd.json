@@ -9,23 +9,147 @@
   "player2Moves": [],
   "gameType": "Notakto",
   "isGameOver": false,
-  "boardState": [],
+  "boardState": [
+    [
+      "O",
+      ".",
+      "."
+    ],
+    [
+      ".",
+      ".",
+      "."
+    ],
+    [
+      ".",
+      ".",
+      "."
+    ],
+    [
+      ".",
+      ".",
+      "."
+    ],
+    [
+      ".",
+      "X",
+      "."
+    ],
+    [
+      ".",
+      ".",
+      "."
+    ],
+    [
+      ".",
+      ".",
+      "."
+    ],
+    [
+      ".",
+      ".",
+      "."
+    ],
+    [
+      ".",
+      ".",
+      "."
+    ]
+  ],
   "moveHistory": [
     {
       "boardIndex": 0,
       "row": 0,
       "col": 0,
       "playerName": "Computer",
-      "moveData": 1,
-      "previousBoardState": []
+      "moveData": 0,
+      "previousBoardState": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ]
     },
     {
       "boardIndex": 0,
-      "row": 0,
-      "col": 2,
+      "row": 4,
+      "col": 1,
       "playerName": "alex",
       "moveData": 1,
-      "previousBoardState": []
+      "previousBoardState": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ]
     }
   ],
   "undoneMovesCount": null

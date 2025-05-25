@@ -1,17 +1,14 @@
-using System;
-using System.Collections.Generic;
-
 namespace GameFrameWork
 {
     public class NotaktoBoard : AbstractBoard
     {
-        private const int Size = 3;  
-        private const int BoardCount = 3; // number of boards
         private List<char[,]> Boards;
         private List<int> DeadBoards;
 
-        public NotaktoBoard() : base(Size, BoardCount) // 3x3 size, 3 boards
+        public NotaktoBoard() : base(3, 3) // 3x3 size, 3 boards
         {
+            Size = 3;
+            BoardCount = 3;
             Boards = new List<char[,]>();
             DeadBoards = new List<int>();
             BoardsState = new List<object>();

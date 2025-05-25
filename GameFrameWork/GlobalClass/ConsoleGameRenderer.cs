@@ -6,6 +6,7 @@ namespace GameFrameWork
         {
             board.DisplayBoard();
         }
+        
         public void DisplayMessage(string message)
         {
             Console.WriteLine(message);
@@ -14,7 +15,7 @@ namespace GameFrameWork
         public void DisplayGameStatus(string currentPlayer, int moveCount)
         {
             Console.WriteLine($"\nCurrent Turn: {currentPlayer}");
-            Console.WriteLine($"Move: #${moveCount}");
+            Console.WriteLine($"Move: #{moveCount}");
         }
 
         public void DisplayTurnOptions()
@@ -26,7 +27,6 @@ namespace GameFrameWork
             Console.WriteLine("3. Save the game");
             Console.WriteLine("4. View help menu");
             Console.WriteLine("5. Quit the game");
-            Console.Write("\nEnter your choice >> ");
         }
 
         public void DisplayHelpMenu()
@@ -36,7 +36,6 @@ namespace GameFrameWork
             Console.WriteLine("1. Game Rules");
             Console.WriteLine("2. Available Commands");
             Console.WriteLine("3. Return to Game");
-            Console.Write("\nEnter your choice >> ");
         }
 
         public void DisplayRules(string rules)

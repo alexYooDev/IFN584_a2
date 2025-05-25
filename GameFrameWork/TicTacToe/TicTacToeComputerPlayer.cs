@@ -62,7 +62,7 @@ namespace GameFrameWork
         }
 
         // Helper method to check if a move is a winning move
-        private bool IsWinningMove(TicTacToeBoard board, int row, int col)
+        private static bool IsWinningMove(TicTacToeBoard board, int row, int col)
         {
             int boardSize = board.GetSize();
             int targetSum = boardSize * (boardSize * boardSize + 1) / 2;

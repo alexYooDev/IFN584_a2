@@ -1,0 +1,42 @@
+{
+  "boardSize": 3,
+  "boardCount": 1,
+  "gameMode": "HvC",
+  "currentPlayerName": "Alex",
+  "player1Name": "Alex",
+  "player2Name": "Computer",
+  "player1Moves": [
+    1,
+    3,
+    5,
+    7,
+    9
+  ],
+  "player2Moves": [
+    2,
+    4,
+    6,
+    8
+  ],
+  "gameType": "NumericalTicTacToe",
+  "isGameOver": false,
+  "boardState": [
+    [
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0
+    ]
+  ],
+  "moveHistory": [],
+  "undoneMovesCount": null
+}

@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.IO;
-
 namespace GameFrameWork
 {
     public class GomokuGame : AbstractGame
@@ -94,10 +89,6 @@ namespace GameFrameWork
             }
         }
 
-        protected override void ConfigurePlayer()
-        {
-            ConfigurePlayersWithNames();
-        }
 
         protected override void CreateHumanVsHumanPlayers(string player1Name, string player2Name)
         {
@@ -159,14 +150,6 @@ namespace GameFrameWork
                 AnnounceWinner();
             }
         }
-
-        public override void Play()
-        {
-            ConfigureGame();
-            ConfigurePlayer();
-            StartGame();
-        }
-
 
         protected override void MakeHumanMove()
         {
@@ -251,7 +234,7 @@ namespace GameFrameWork
                 
                 UndoPlayerMoves(CurrentPlayer, undoCount);
                 
-                Board.DisplayBoard(); // Show the board after undo
+                renderer.DisplayBoard(Board);
             }
             else
             {
@@ -319,7 +302,7 @@ namespace GameFrameWork
             if (winningLine != null)
             {
                 renderer.DisplayMessage($"\nGame over! {CurrentPlayer.Name} wins!");
-                renderer.DisplayMessage($"Winning line: {string.Join(" -> ", winningLine.Select(pos => $"({pos.Item1},{pos.Item2})"))}");
+                renderer.DisplayMessage($"Winning line: {string.Join(" -> ", winningLine.Select(pos => $"({pos.Item1+1},{pos.Item2+1})"))}");
             }
             else if (Board.IsBoardFull())
             {
@@ -330,9 +313,8 @@ namespace GameFrameWork
 
         protected override void DisplayGameStatus()
         {
-            renderer.DisplayMessage($"\nCurrent Turn: {CurrentPlayer.Name} ({CurrentPlayer.MoveSymbol})");
-            renderer.DisplayMessage($"Move #{MoveHistory.Count}");
-            Board.DisplayBoard();
+            renderer.DisplayGameStatus(CurrentPlayer.Name, MoveHistory.Count);
+            renderer.DisplayBoard(Board);
         }
 
 

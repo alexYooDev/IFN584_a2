@@ -27,13 +27,10 @@ public abstract class AbstractBoard
     public abstract object GetBoardState(); 
     public abstract void SetBoardState(object state);
 
-    // Common method for getting the board size
     public int GetSize()
     {
         return Size;
     }
-
-    // Get total number of boards (for Notakto)
     public int GetBoardCount()
     {
         return BoardCount;

@@ -2,8 +2,8 @@
   "boardSize": 3,
   "boardCount": 3,
   "gameMode": "HvC",
-  "currentPlayerName": "alex",
-  "player1Name": "alex",
+  "currentPlayerName": "Alex",
+  "player1Name": "Alex",
   "player2Name": "Computer",
   "player1Moves": [],
   "player2Moves": [],
@@ -16,11 +16,6 @@
       "X"
     ],
     [
-      "X",
-      " ",
-      " "
-    ],
-    [
       " ",
       " ",
       " "
@@ -41,7 +36,12 @@
       " "
     ],
     [
-      "X",
+      " ",
+      " ",
+      " "
+    ],
+    [
+      " ",
       " ",
       " "
     ],
@@ -57,100 +57,6 @@
     ]
   ],
   "moveHistory": [
-    {
-      "boardIndex": 0,
-      "row": 1,
-      "col": 0,
-      "playerName": "Computer",
-      "moveData": 1,
-      "previousBoardState": [
-        [
-          1,
-          0,
-          1,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0
-        ],
-        [
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0
-        ],
-        [
-          1,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0
-        ],
-        [
-          0,
-          0,
-          0
-        ]
-      ]
-    },
-    {
-      "boardIndex": 2,
-      "row": 0,
-      "col": 0,
-      "playerName": "alex",
-      "moveData": 1,
-      "previousBoardState": [
-        [
-          1,
-          0,
-          1,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0
-        ],
-        [
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0
-        ],
-        [
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0
-        ],
-        [
-          0,
-          0,
-          0
-        ]
-      ]
-    },
     {
       "boardIndex": 0,
       "row": 0,
@@ -202,7 +108,7 @@
       "boardIndex": 0,
       "row": 0,
       "col": 2,
-      "playerName": "alex",
+      "playerName": "Alex",
       "moveData": 1,
       "previousBoardState": [
         [

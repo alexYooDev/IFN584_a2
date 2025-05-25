@@ -8,7 +8,7 @@ namespace GameFrameWork
     {
         public string GetUserInput(string prompt)
         {
-            Console.Write($"{prompt} >> ");
+            Console.Write($"\n{prompt} >> ");
             /* return the users input */
             return Console.ReadLine() ?? string.Empty;
         }
@@ -19,7 +19,7 @@ namespace GameFrameWork
             {
                 try
                 {
-                    Console.Write($"{prompt} ({min}-{max}) >> ");
+                    Console.Write($"\n{prompt} ({min}-{max}) >> ");
                     int value = int.Parse(Console.ReadLine() ?? "0");
 
                     if (value >= min && value <= max)
@@ -58,7 +58,7 @@ namespace GameFrameWork
 
         public PlayerChoice GetPlayerChoice()
         {
-            string input = GetUserInput("Enter your choice >> ");
+            string input = GetUserInput("\nEnter your choice");
 
             switch (input)
             {

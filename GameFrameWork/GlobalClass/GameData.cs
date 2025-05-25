@@ -17,7 +17,6 @@ namespace GameFrameWork
         public bool IsGameOver { get; set; }
         public object[][] BoardState { get; set; }
         public List<MovesToSerialize> MoveHistory { get; set; }
-        public int? UndoneMovesCount { get; set; }
 
         protected GameData()
         {
@@ -27,7 +26,6 @@ namespace GameFrameWork
             BoardState = new object[0][];
         }
 
-        // COMMON SAVE/LOAD LOGIC BELONGS HERE
         public virtual void SaveToFile(string filename)
         {
             try
@@ -80,13 +78,10 @@ namespace GameFrameWork
             }
         }
 
-        // For extracting game specific save data
         public abstract void PopulateFromGame(AbstractGame game);
 
-        // For restoring save data's content back to the game
         public abstract void RestoreToGame(AbstractGame game);
         
-        // MOVE HISTORY SERIALIZATION
         public virtual void SerializeMoveHistory(Stack<Move> moveHistory)
         {
             MoveHistory.Clear();
@@ -134,13 +129,11 @@ namespace GameFrameWork
             return moveStack;
         }
 
-        // ABSTRACT METHODS FOR GAME-SPECIFIC SERIALIZATION
         protected abstract int SerializeMoveData(object moveData);
         protected abstract object DeserializeMoveData(int serializedData);
         protected abstract int[][] SerializeBoardState(object boardState);
         protected abstract object DeserializeBoardState(int[][] serializedState);
 
-        // JSON SERIALIZATION OPTIONS
         protected static JsonSerializerOptions GetJsonOptions()
         {
             return new JsonSerializerOptions
@@ -150,7 +143,6 @@ namespace GameFrameWork
             };
         }
 
-        // EVENT HANDLERS - CAN BE OVERRIDDEN FOR CUSTOM MESSAGING
         protected virtual void OnSaveSuccess(string filename)
         {
             Console.WriteLine($"\nGame saved successfully as {filename}");

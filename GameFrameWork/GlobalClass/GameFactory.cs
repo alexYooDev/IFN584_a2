@@ -15,7 +15,6 @@ namespace GameFrameWork
                 case "notakto":
                     return new NotaktoGame(renderer, inputHandler, dataPersistence);
                 case "gomoku":
-                    // This will be implemented in a future update
                     return new GomokuGame(renderer, inputHandler, dataPersistence);
                 default:
                     throw new ArgumentException($"Game Type is not valid: {gameType}. Try again");

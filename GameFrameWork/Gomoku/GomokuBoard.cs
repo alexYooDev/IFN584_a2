@@ -28,23 +28,41 @@ namespace GameFrameWork
             
             for (int i = 0; i < Size; i++)
             {
-                for (int k = 0; k < Size; ++k)
+                // Print horizontal border lines
+                for (int k = 0; k < Size; k++)
                 {
-                    Console.Write("----");
+                    Console.Write("+-----");
                 }
-                Console.WriteLine();
+                Console.WriteLine("+");
+                
+                // Print the row content
                 for (int j = 0; j < Size; j++)
                 {
-                    Console.Write($"| {Slots[i, j]} ");
+                    char slotValue = Slots[i, j];
+                    string cellContent;
+                    
+                    if (slotValue == '.')
+                    {
+                        // Empty slot - show as dot centered
+                        cellContent = "  .  ";
+                    }
+                    else
+                    {
+                        // Stone (X or O) - center it
+                        cellContent = $"  {slotValue}  ";
+                    }
+                    
+                    Console.Write($"|{cellContent}");
                 }
-                Console.Write("|");
-                Console.WriteLine();
+                Console.WriteLine("|");
             }
-            for (int k = 0; k < Size; ++k)
+            
+            // Print bottom border line
+            for (int k = 0; k < Size; k++)
             {
-                Console.Write("----");
+                Console.Write("+-----");
             }
-            Console.WriteLine();
+            Console.WriteLine("+");
         }
 
         public override bool IsValidMove(int row, int col, object moveData, int boardIndex = 0, bool displayMessages = true)
@@ -128,21 +146,20 @@ namespace GameFrameWork
             {
                 try
                 {
-                    // Display the grid with numbers
                     Console.WriteLine("\n|| +++ Select a position to place your stone +++ ||\n");
 
-                    DisplayGridWithPositions();  // NEW: Show numbered grid
+                    DisplayGridWithPositions(); 
                     Console.Write($"\nWhere on the board do you want to place your stone? (1 - {Size * Size}) >> ");
                     int position = Convert.ToInt32(Console.ReadLine());
 
-                    if (position < 1 || position > Size * Size)  // NEW: Range validation
+                    if (position < 1 || position > Size * Size)
                     {
                         Console.WriteLine("\nYou exceed the range of the board! Try again!");
                         continue;
                     }
 
-                    int row = (position - 1) / Size;  // NEW: Convert number to coordinates
-                    int col = (position - 1) % Size;  // NEW: Convert number to coordinates
+                    int row = (position - 1) / Size;
+                    int col = (position - 1) % Size;
 
                     /* When the position is already taken */
                     if (Slots[row, col] != '.')
@@ -168,52 +185,55 @@ namespace GameFrameWork
         {
             int gridNum = 1;
 
-            Console.WriteLine("\n|| +++ Current Board with Position Numbers +++ ||\n");
-            
-            // Display the grid with numbers
-            for (int i = 0; i < Size; ++i)
+            for (int i = 0; i < Size; i++)
             {
-                for (int k = 0; k < Size; ++k)
+                // Print horizontal border lines
+                for (int k = 0; k < Size; k++)
                 {
-                    Console.Write("------");
+                    Console.Write("+-----");
                 }
-                Console.WriteLine();
-                Console.Write($"|");
-                for (int j = 0; j < Size; ++j)
+                Console.WriteLine("+");
+                
+                // Print the row content with position numbers
+                for (int j = 0; j < Size; j++)
                 {
                     char slotValue = Slots[i, j];
-
+                    string cellContent;
+                    
                     // If the slot is empty, display a grid number
                     if (slotValue == '.')
                     {
-                        /* Grid layout up to 3 digits numbers */
                         if (gridNum < 10)
                         {
-                            Console.Write($"  {gridNum}  |"); // 2 spaces before, 2 after for 1 digit
+                            cellContent = $"  {gridNum}  "; // 2 spaces before, 2 after for 1 digit
                         }
                         else if (gridNum < 100)
                         {
-                            Console.Write($" {gridNum}  |"); // 1 space before, 2 after for 2 digits
+                            cellContent = $" {gridNum}  "; // 1 space before, 2 after for 2 digits
                         }
                         else
                         {
-                            Console.Write($" {gridNum} |"); // 1 space before, 1 after for 3 digits
+                            cellContent = $" {gridNum} "; // 1 space before, 1 after for 3 digits
                         }
                     }
                     // If it is taken, display the piece (X or O)
                     else
                     {
-                        Console.Write($"  {slotValue}  |");
+                        cellContent = $"  {slotValue}  ";
                     }
+                    
+                    Console.Write($"|{cellContent}");
                     gridNum++;
                 }
-                Console.WriteLine();
+                Console.WriteLine("|");
             }
-            for (int k = 0; k < Size; ++k)
+            
+            // Print bottom border line
+            for (int k = 0; k < Size; k++)
             {
-                Console.Write("------");
+                Console.Write("+-----");
             }
-            Console.WriteLine();
+            Console.WriteLine("+");
         }
 
         public List<(int, int)> CheckForWinningCondition(int row, int col, char symbol)

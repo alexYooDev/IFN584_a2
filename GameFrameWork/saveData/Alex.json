@@ -1,0 +1,88 @@
+{
+  "boardSize": 3,
+  "boardCount": 1,
+  "gameMode": "HvC",
+  "currentPlayerName": "Alex",
+  "player1Name": "Alex",
+  "player2Name": "Computer",
+  "player1Moves": [
+    1,
+    5,
+    7,
+    9
+  ],
+  "player2Moves": [
+    2,
+    6,
+    8
+  ],
+  "gameType": "NumericalTicTacToe",
+  "isGameOver": false,
+  "boardState": [
+    [
+      3,
+      4,
+      0
+    ],
+    [
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0
+    ]
+  ],
+  "moveHistory": [
+    {
+      "boardIndex": 0,
+      "row": 0,
+      "col": 1,
+      "playerName": "Computer",
+      "moveData": 4,
+      "previousBoardState": [
+        [
+          3,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ]
+    },
+    {
+      "boardIndex": 0,
+      "row": 0,
+      "col": 0,
+      "playerName": "Alex",
+      "moveData": 3,
+      "previousBoardState": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ]
+    }
+  ]
+}

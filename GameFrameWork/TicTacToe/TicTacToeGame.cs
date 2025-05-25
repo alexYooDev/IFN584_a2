@@ -1,6 +1,3 @@
-using System.Data.SqlTypes;
-using System.Diagnostics;
-using System.Text.Json;
 namespace GameFrameWork
 {
     public class TicTacToeGame : AbstractGame
@@ -79,6 +76,12 @@ namespace GameFrameWork
 
         protected override void ConfigureGame()
         {
+            UndoneMovesCount = 0;
+            OddNumbers.Clear();
+            EvenNumbers.Clear();
+
+
+            /* Select Board size  */
             int boardSize = SelectBoardSize();
             TicTacToeBoard = new TicTacToeBoard(boardSize);
             Board = TicTacToeBoard;
@@ -102,12 +105,6 @@ namespace GameFrameWork
             renderer.DisplayMessage("\n|| +++ Size of the board +++ ||");
             return inputHandler.GetUserIntInput("Select the size of the board (3 => 3X3/ 4 => 4X4/ 5 => 5X5/ etc.)", 3, 15);
         }
-
-
-        protected override void ConfigurePlayer()
-        {
-            ConfigurePlayersWithNames();
-        }
         
         protected override void CreateHumanVsHumanPlayers(string player1Name, string player2Name)
         {
@@ -130,6 +127,7 @@ namespace GameFrameWork
             // Offer undo after loading a game -> MoveHistory > 0 means it is a loaded game
             if (MoveHistory.Count > 0)
             {
+                renderer.DisplayMessage($"Target Sum: {TargetSum}");
                 renderer.DisplayGameStatus(CurrentPlayer.Name, MoveHistory.Count);
                 renderer.DisplayBoard(Board);
                 OfferUndoAfterLoad();
@@ -137,6 +135,7 @@ namespace GameFrameWork
 
             while (!IsGameOver)
             {
+                renderer.DisplayMessage($"Target Sum: {TargetSum}");
                 renderer.DisplayGameStatus(CurrentPlayer.Name, MoveHistory.Count);
                 renderer.DisplayBoard(Board);
 
@@ -170,6 +169,7 @@ namespace GameFrameWork
             // Only announce winner and display result if player didn't quit
             if (!IsPlayerQuit)
             {
+                renderer.DisplayMessage($"Target Sum: {TargetSum}");
                 renderer.DisplayGameStatus(CurrentPlayer.Name, MoveHistory.Count);
                 renderer.DisplayBoard(Board);
                 AnnounceWinner();
@@ -239,6 +239,7 @@ namespace GameFrameWork
                         // If it's now a computer's turn after undoing, let it play
                         if (CurrentPlayer.Type == PlayerType.Computer)
                         {
+                            renderer.DisplayMessage($"Target Sum: {TargetSum}");
                             renderer.DisplayGameStatus(CurrentPlayer.Name, MoveHistory.Count);
                             ProcessComputerTurn();
 
@@ -256,13 +257,6 @@ namespace GameFrameWork
                     }
                 }
             }
-        }
-
-        public override void Play()
-        {
-            ConfigureGame();
-            ConfigurePlayer();
-            StartGame();
         }
 
         protected override void MakeHumanMove()
@@ -494,28 +488,6 @@ namespace GameFrameWork
             return !hasEmptySlot && sum == TargetSum;
         }
 
-        private bool IsWinningMove(int row, int col)
-        {
-            int boardSize = Board.GetSize();
-
-            // Check row
-            if (CalculateSumInLine("row", row))
-                return true;
-
-            // Check column
-            if (CalculateSumInLine("col", col))
-                return true;
-
-            // Check diagonal if applicable
-            if (row == col && CalculateSumInLine("diagonal", 0))
-                return true;
-
-            // Check anti-diagonal if applicable
-            if (row + col == boardSize - 1 && CalculateSumInLine("anti-diagonal", 0))
-                return true;
-
-            return false;
-        }
 
         protected override void AnnounceWinner()
         {
@@ -611,75 +583,75 @@ namespace GameFrameWork
         protected override string GetGameRules()
         {
         return @"
-            ============================================ Numerical Tic-Tac-Toe Rules ============================================
+============================================ Numerical Tic-Tac-Toe Rules ============================================
 
-            OBJECTIVE:
-            The goal is to be the first player to get a sum equal to the target sum in any row, column, or diagonal.
+OBJECTIVE:
+The goal is to be the first player to get a sum equal to the target sum in any row, column, or diagonal.
 
-            GAME SETUP:
-            - The game is played on an NxN grid (you choose the size: 3x3, 4x4, 5x5, etc.)
-            - Player 1 uses ODD numbers (1, 3, 5, 7, 9, ...)
-            - Player 2 uses EVEN numbers (2, 4, 6, 8, 10, ...)
-            - Each number can only be used once during the game
+GAME SETUP:
+- The game is played on an NxN grid (you choose the size: 3x3, 4x4, 5x5, etc.)
+- Player 1 uses ODD numbers (1, 3, 5, 7, 9, ...)
+- Player 2 uses EVEN numbers (2, 4, 6, 8, 10, ...)
+- Each number can only be used once during the game
 
-            TARGET SUM:
-            The target sum is calculated as: N × (N² + 1) ÷ 2
-            - For 3x3 board: Target sum = 15
-            - For 4x4 board: Target sum = 34
-            - For 5x5 board: Target sum = 65
+TARGET SUM:
+The target sum is calculated as: N × (N² + 1) ÷ 2
+- For 3x3 board: Target sum = 15
+- For 4x4 board: Target sum = 34
+- For 5x5 board: Target sum = 65
 
-            HOW TO WIN:
-            - Get a complete row, column, or diagonal that adds up to exactly the target sum
-            - All positions in the line must be filled (no empty spaces)
+HOW TO WIN:
+- Get a complete row, column, or diagonal that adds up to exactly the target sum
+- All positions in the line must be filled (no empty spaces)
 
-            GAME MODES:
-            - HvH (Human vs Human): Two players take turns
-            - HvC (Human vs Computer): Play against the computer
+GAME MODES:
+- HvH (Human vs Human): Two players take turns
+- HvC (Human vs Computer): Play against the computer
 
-            GAME FLOW:
-            1. Players take turns selecting a number from their available set
-            2. Place the number on any empty position on the board
-            3. First player to achieve the target sum in any line wins
-            4. If the board fills up with no winner, the game is a draw";
+GAME FLOW:
+1. Players take turns selecting a number from their available set
+2. Place the number on any empty position on the board
+3. First player to achieve the target sum in any line wins
+4. If the board fills up with no winner, the game is a draw";
         }
         
         protected override string GetGameCommands()
         {
             return @"
-            ============================================ Game Commands ============================================
+============================================ Game Commands ============================================
 
-            DURING YOUR TURN:
-            1. Make a move     - Select a number and place it on the board
-            2. Undo moves      - Revert previous moves (you can undo multiple moves)
-            3. Save game       - Save the current game state to a file
-            4. View help       - Display these instructions and game rules
-            5. Quit game       - Exit the game (with confirmation)
+DURING YOUR TURN:
+1. Make a move     - Select a number and place it on the board
+2. Undo moves      - Revert previous moves (you can undo multiple moves)
+3. Save game       - Save the current game state to a file
+4. View help       - Display these instructions and game rules
+5. Quit game       - Exit the game (with confirmation)
 
-            MAKING A MOVE:
-            1. Choose a number from your available set (odd or even numbers)
-            2. Select a position on the board (1 to N²)
-            3. Confirm or redo your move before ending your turn
+MAKING A MOVE:
+1. Choose a number from your available set (odd or even numbers)
+2. Select a position on the board (1 to N²)
+3. Confirm or redo your move before ending your turn
 
-            UNDO SYSTEM:
-            - You can undo any number of YOUR moves (not opponent's moves)
-            - Undoing is useful for trying different strategies
-            - After loading a saved game, you can immediately undo moves
+UNDO SYSTEM:
+- You can undo any number of YOUR moves (not opponent's moves)
+- Undoing is useful for trying different strategies
+- After loading a saved game, you can immediately undo moves
 
-            REDO SYSTEM:
-            - You can redo right after your initial move.
-            - Redoing is useful for adjusting the move that has already been placed.
-            - You can redo any number of times, until you confirm your move.
+REDO SYSTEM:
+- You can redo right after your initial move.
+- Redoing is useful for adjusting the move that has already been placed.
+- You can redo any number of times, until you confirm your move.
 
-            SAVE/LOAD SYSTEM:
-            - Save games at any point during play
-            - Enter a filename (without extension) when saving
-            - Use the same filename when loading
-            - Saved games remember the exact game state, including move history
+SAVE/LOAD SYSTEM:
+- Save games at any point during play
+- Enter a filename (without extension) when saving
+- Use the same filename when loading
+- Saved games remember the exact game state, including move history
 
-            TIPS:
-            - Plan ahead: Consider what numbers your opponent has available
-            - Watch for defensive plays: Block opponent's potential winning lines
-            - Use smaller numbers early to save larger numbers for strategic plays";
+TIPS:
+- Plan ahead: Consider what numbers your opponent has available
+- Watch for defensive plays: Block opponent's potential winning lines
+- Use smaller numbers early to save larger numbers for strategic plays";
         }
     }
 }

@@ -6,7 +6,8 @@ namespace GameFrameWork
         public int Row { get; set; }
         public int Col { get; set; }
         public AbstractPlayer Player { get; set; }
-        public object MoveData { get; set; }  // Can be a number, symbol, etc.
+        // numbers = Numerical TTT , symbol = Gomoku, Notakto, etc.
+        public object MoveData { get; set; }
         public object PreviousBoardState { get; set; }
         
         public Move(int boardIndex, int row, int col, AbstractPlayer player, object moveData, object previousBoardState)

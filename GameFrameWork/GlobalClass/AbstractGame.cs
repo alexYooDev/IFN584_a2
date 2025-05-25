@@ -1,5 +1,3 @@
-using System.Text.Json;
-
 namespace GameFrameWork
 {
     using System.Collections.Generic;
@@ -79,67 +77,19 @@ namespace GameFrameWork
             CurrentPlayer = Player1;
         }
 
-        protected string GetSaveDirectory()
-        {
-            string saveDirectory = Path.Combine(Directory.GetCurrentDirectory(), "saveData");
-            if (!Directory.Exists(saveDirectory))
-            {
-                Directory.CreateDirectory(saveDirectory);
-            }
-            return saveDirectory;
-        }
-
-        protected string GetSaveFilePath(string filename)
-        {
-            return Path.Combine(GetSaveDirectory(), filename + ".json");
-        }
-
-        protected void HandleSaveSuccess(string filename)
-        {
-            renderer.DisplayMessage($"\nGame saved successfully as {filename}");
-        }
-
-        protected void HandleSaveError(Exception e)
-        {
-            renderer.DisplayMessage($"\nError saving game: {e.Message}");
-        }
-
-        protected void HandleLoadSuccess(string filename)
-        {
-            renderer.DisplayMessage($"\nGame loaded successfully from {filename}");
-        }
-
-        protected void HandleLoadError(Exception e)
-        {
-            renderer.DisplayMessage($"\nError loading game: {e.Message}");
-        }
-
-        protected void HandleFileNotFound()
-        {
-            renderer.DisplayMessage("\nSave file not found. Please check the filename and try again.");
-        }
 
         /* Template Method Pattern : provide save/load game structure for all game types */
 
         protected virtual void SaveGame(string filename)
         {
-            try
-            {
-                // Create game-specific data object
-                var gameData = CreateGameData();
+            // Create game-specific data object
+            var gameData = CreateGameData();
 
-                // Populate with current game state (including BoardState)
-                gameData.PopulateFromGame(this);
+            // Populate with current game state (including BoardState)
+            gameData.PopulateFromGame(this);
 
-                // Save using data persistence
-                SaveGameData(gameData, filename);
-
-                HandleSaveSuccess(filename);
-            }
-            catch (Exception e)
-            {
-                HandleSaveError(e);
-            }
+            // Save using data persistence
+            SaveGameData(gameData, filename);
         }
 
         public virtual bool LoadGame(string filename)
@@ -157,12 +107,10 @@ namespace GameFrameWork
                 // Restore game state
                 gameData.RestoreToGame(this);
 
-                HandleLoadSuccess(filename);
                 return true;
             }
             catch (Exception e)
             {
-                HandleLoadError(e);
                 return false;
             }
         }
@@ -170,25 +118,47 @@ namespace GameFrameWork
         /* Template method for game flow */
         public virtual void Play()
         {
+            IsGameOver = false;
             IsPlayerQuit = false;
+            MoveHistory.Clear();
+            RedoHistory.Clear();
+            CurrentPlayer = null;
+            Player1 = null;
+            Player2 = null;
+            Board = null;
+            GameMode = null;
             ConfigureGame();
+            ConfigurePlayersWithNames();
             StartGame();
         }
 
         /* To start the game loop */
         public virtual void StartGame()
         {
-            Console.WriteLine("\n============================================ Game Started!  ============================================");
+            renderer.DisplayMessage("\n============================================ Game Started!  ============================================");
             IsGameOver = false;
             IsPlayerQuit = false;
 
-            // Offer undo after loading a game -> MoveHistory > 0 means it is a loaded game
+            // Handle loaded game scenario
             if (MoveHistory.Count > 0)
             {
                 DisplayGameStatus();
                 OfferUndoAfterLoad();
             }
 
+            // Main game loop - standardized for all games
+            ExecuteGameLoop();
+
+            // Handle game end - only if player didn't quit
+            if (!IsPlayerQuit)
+            {
+                DisplayGameStatus();
+                AnnounceWinner();
+            }
+        }
+
+        private void ExecuteGameLoop()
+        {
             while (!IsGameOver)
             {
                 DisplayGameStatus();
@@ -196,27 +166,30 @@ namespace GameFrameWork
                 if (CurrentPlayer.Type == PlayerType.Human)
                 {
                     ProcessHumanTurn();
+                    
+                    if (IsPlayerQuit)
+                    {
+                        break;
+                    }
                 }
                 else
                 {
                     ProcessComputerTurn();
                 }
 
-                IsGameOver = CheckGameOver();
-
-                if (!IsGameOver)
+                if (!IsPlayerQuit)
                 {
-                    SwitchCurrentPlayer();
+                    IsGameOver = CheckGameOver();
+
+                    if (!IsGameOver)
+                    {
+                        SwitchCurrentPlayer();
+                    }
                 }
             }
-
-            // Only display results if player didn't quit
-            if (!IsPlayerQuit)
-            {
-                DisplayGameStatus();
-                AnnounceWinner();
-            }
         }
+
+
 
         // Process human player turn using interface methods
         protected virtual void ProcessHumanTurn()
@@ -258,19 +231,6 @@ namespace GameFrameWork
             }
         }
 
-        // Common game options
-        protected virtual void DisplayTurnOptions()
-        {
-            Console.WriteLine("\n|| +++ Options +++ ||");
-            Console.WriteLine("\nSelect your option for this turn:\n");
-            Console.WriteLine("1. Make a move");
-            Console.WriteLine("2. Undo previous moves");
-            Console.WriteLine("3. Save the game");
-            Console.WriteLine("4. View help menu");
-            Console.WriteLine("5. Quit the game");
-            Console.Write("\nEnter your choice >> ");
-        }
-
         protected virtual void HandleHelpRequest()
         {
             renderer.DisplayHelpMenu();
@@ -310,7 +270,6 @@ namespace GameFrameWork
         // Handle save request
         protected virtual void HandleSaveRequest()
         {
-            Console.Write("\nEnter filename to save >> ");
             string saveFilename = inputHandler.GetUserInput("Enter filename to save");
             SaveGame(saveFilename);
         }
@@ -503,13 +462,9 @@ namespace GameFrameWork
 
 
         /* Abstract methods that need implementation in derived classes */
-
         protected abstract void ConfigureGame();
-        protected abstract void ConfigurePlayer();
         protected abstract void CreateHumanVsHumanPlayers(string player1Name, string player2Name);
         protected abstract void CreateHumanVsComputerPlayers(string playerName);
-
-        /* Configure player settings => for setting their names */
         protected abstract void MakeHumanMove();
         protected abstract void ProcessComputerTurn();
         protected abstract bool CheckGameOver();
