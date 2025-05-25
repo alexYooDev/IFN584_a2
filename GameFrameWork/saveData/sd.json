@@ -1,0 +1,156 @@
+{
+  "boardSize": 3,
+  "boardCount": 3,
+  "gameMode": "HvC",
+  "currentPlayerName": "alex",
+  "player1Name": "alex",
+  "player2Name": "Computer",
+  "player1Moves": [],
+  "player2Moves": [],
+  "gameType": "Notakto",
+  "isGameOver": false,
+  "boardState": [
+    [
+      "O",
+      ".",
+      "."
+    ],
+    [
+      ".",
+      ".",
+      "."
+    ],
+    [
+      ".",
+      ".",
+      "."
+    ],
+    [
+      ".",
+      ".",
+      "."
+    ],
+    [
+      ".",
+      "X",
+      "."
+    ],
+    [
+      ".",
+      ".",
+      "."
+    ],
+    [
+      ".",
+      ".",
+      "."
+    ],
+    [
+      ".",
+      ".",
+      "."
+    ],
+    [
+      ".",
+      ".",
+      "."
+    ]
+  ],
+  "moveHistory": [
+    {
+      "boardIndex": 0,
+      "row": 0,
+      "col": 0,
+      "playerName": "Computer",
+      "moveData": 0,
+      "previousBoardState": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ]
+    },
+    {
+      "boardIndex": 0,
+      "row": 4,
+      "col": 1,
+      "playerName": "alex",
+      "moveData": 1,
+      "previousBoardState": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ]
+    }
+  ],
+  "undoneMovesCount": null
+}

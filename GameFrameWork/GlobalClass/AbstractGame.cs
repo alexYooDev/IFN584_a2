@@ -77,67 +77,19 @@ namespace GameFrameWork
             CurrentPlayer = Player1;
         }
 
-        protected string GetSaveDirectory()
-        {
-            string saveDirectory = Path.Combine(Directory.GetCurrentDirectory(), "saveData");
-            if (!Directory.Exists(saveDirectory))
-            {
-                Directory.CreateDirectory(saveDirectory);
-            }
-            return saveDirectory;
-        }
-
-        protected string GetSaveFilePath(string filename)
-        {
-            return Path.Combine(GetSaveDirectory(), filename + ".json");
-        }
-
-        protected void HandleSaveSuccess(string filename)
-        {
-            renderer.DisplayMessage($"\nGame saved successfully as {filename}");
-        }
-
-        protected void HandleSaveError(Exception e)
-        {
-            renderer.DisplayMessage($"\nError saving game: {e.Message}");
-        }
-
-        protected void HandleLoadSuccess(string filename)
-        {
-            renderer.DisplayMessage($"\nGame loaded successfully from {filename}");
-        }
-
-        protected void HandleLoadError(Exception e)
-        {
-            renderer.DisplayMessage($"\nError loading game: {e.Message}");
-        }
-
-        protected void HandleFileNotFound()
-        {
-            renderer.DisplayMessage("\nSave file not found. Please check the filename and try again.");
-        }
 
         /* Template Method Pattern : provide save/load game structure for all game types */
 
         protected virtual void SaveGame(string filename)
         {
-            try
-            {
-                // Create game-specific data object
-                var gameData = CreateGameData();
+            // Create game-specific data object
+            var gameData = CreateGameData();
 
-                // Populate with current game state (including BoardState)
-                gameData.PopulateFromGame(this);
+            // Populate with current game state (including BoardState)
+            gameData.PopulateFromGame(this);
 
-                // Save using data persistence
-                SaveGameData(gameData, filename);
-
-                HandleSaveSuccess(filename);
-            }
-            catch (Exception e)
-            {
-                HandleSaveError(e);
-            }
+            // Save using data persistence
+            SaveGameData(gameData, filename);
         }
 
         public virtual bool LoadGame(string filename)
@@ -155,12 +107,10 @@ namespace GameFrameWork
                 // Restore game state
                 gameData.RestoreToGame(this);
 
-                HandleLoadSuccess(filename);
                 return true;
             }
             catch (Exception e)
             {
-                HandleLoadError(e);
                 return false;
             }
         }
