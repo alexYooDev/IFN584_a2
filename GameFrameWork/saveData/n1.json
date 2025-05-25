@@ -12,11 +12,6 @@
   "boardState": [
     [
       "X",
-      "X",
-      " "
-    ],
-    [
-      " ",
       " ",
       "X"
     ],
@@ -32,7 +27,12 @@
     ],
     [
       " ",
-      "X",
+      " ",
+      " "
+    ],
+    [
+      " ",
+      " ",
       " "
     ],
     [
@@ -60,64 +60,17 @@
     {
       "boardIndex": 0,
       "row": 0,
-      "col": 1,
+      "col": 0,
       "playerName": "Computer",
       "moveData": 1,
       "previousBoardState": [
         [
-          1,
-          0,
-          0,
-          0,
-          0,
-          1,
-          0,
-          0,
-          0
-        ],
-        [
-          0,
-          0,
           0,
           0,
           1,
           0,
           0,
           0,
-          0
-        ],
-        [
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0
-        ],
-        [
-          0,
-          0,
-          0
-        ]
-      ]
-    },
-    {
-      "boardIndex": 1,
-      "row": 1,
-      "col": 1,
-      "playerName": "Alex",
-      "moveData": 1,
-      "previousBoardState": [
-        [
-          1,
-          0,
-          0,
-          0,
-          0,
-          1,
           0,
           0,
           0
@@ -154,53 +107,6 @@
     {
       "boardIndex": 0,
       "row": 0,
-      "col": 0,
-      "playerName": "Computer",
-      "moveData": 1,
-      "previousBoardState": [
-        [
-          0,
-          0,
-          0,
-          0,
-          0,
-          1,
-          0,
-          0,
-          0
-        ],
-        [
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0
-        ],
-        [
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0
-        ],
-        [
-          0,
-          0,
-          0
-        ]
-      ]
-    },
-    {
-      "boardIndex": 0,
-      "row": 1,
       "col": 2,
       "playerName": "Alex",
       "moveData": 1,

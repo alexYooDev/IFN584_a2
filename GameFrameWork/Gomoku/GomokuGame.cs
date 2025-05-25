@@ -94,10 +94,6 @@ namespace GameFrameWork
             }
         }
 
-        protected override void ConfigurePlayer()
-        {
-            ConfigurePlayersWithNames();
-        }
 
         protected override void CreateHumanVsHumanPlayers(string player1Name, string player2Name)
         {
@@ -159,14 +155,6 @@ namespace GameFrameWork
                 AnnounceWinner();
             }
         }
-
-        public override void Play()
-        {
-            ConfigureGame();
-            ConfigurePlayer();
-            StartGame();
-        }
-
 
         protected override void MakeHumanMove()
         {
@@ -251,7 +239,7 @@ namespace GameFrameWork
                 
                 UndoPlayerMoves(CurrentPlayer, undoCount);
                 
-                Board.DisplayBoard(); // Show the board after undo
+                renderer.DisplayBoard(Board);
             }
             else
             {
@@ -331,7 +319,7 @@ namespace GameFrameWork
         protected override void DisplayGameStatus()
         {
             renderer.DisplayGameStatus(CurrentPlayer.Name, MoveHistory.Count);
-            Board.DisplayBoard();
+            renderer.DisplayBoard(Board);
         }
 
 

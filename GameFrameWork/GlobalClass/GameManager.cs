@@ -189,7 +189,7 @@ namespace GameFrameWork
                             // Return true to indicate we should play the game
                             return true; 
                         case 2:
-                            Console.WriteLine("\nEnter file name to load >> ");
+                            Console.Write("\nEnter file name to load >> ");
                             string filename = Console.ReadLine();
                             
                             // Use polymorphic LoadGame method

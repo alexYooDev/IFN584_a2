@@ -86,10 +86,6 @@ namespace GameFrameWork
             }
         }
 
-        protected override void ConfigurePlayer()
-        {
-            ConfigurePlayersWithNames();
-        }
 
         protected override void CreateHumanVsHumanPlayers(string player1Name, string player2Name)
         {
@@ -150,13 +146,6 @@ namespace GameFrameWork
                 DisplayGameStatus();
                 AnnounceWinner();
             }
-        }
-
-        public override void Play()
-        {
-            ConfigureGame();
-            ConfigurePlayer();
-            StartGame();
         }
 
 
@@ -264,7 +253,7 @@ namespace GameFrameWork
         protected override void DisplayGameStatus()
         {
             renderer.DisplayGameStatus(CurrentPlayer.Name, MoveHistory.Count);
-            Board.DisplayBoard();
+            renderer.DisplayBoard(Board);
         }
 
 

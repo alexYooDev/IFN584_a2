@@ -16,33 +16,55 @@ namespace GameFrameWork
 
         public override void DisplayBoard(int boardIndex = 0)
         {
-            Console.WriteLine("\n|| +++ Current Board Status +++ ||\n");
+            Console.WriteLine("\n|| +++ Current Numerical Tic-Tac-Toe Board Status +++ ||\n");
+            
             for (int i = 0; i < Size; i++)
             {
-                for (int k = 0; k < Size; ++k)
+                // Print horizontal border lines
+                for (int k = 0; k < Size; k++)
                 {
-                    Console.Write("----");
+                    Console.Write("+-----");
                 }
-                Console.WriteLine();
+                Console.WriteLine("+");
+                
+                // Print the row content
                 for (int j = 0; j < Size; j++)
                 {
-                    if (Slots[i, j] < 10)
+                    int slotValue = Slots[i, j];
+                    string cellContent;
+                    
+                    if (slotValue == 0)
                     {
-                        Console.Write(Slots[i, j] == 0 ? $"|   " : $"| {Slots[i, j]} ");
+                        // Empty slot - show blank
+                        cellContent = "     ";
+                    }
+                    else if (slotValue < 10)
+                    {
+                        // Single digit number - center it
+                        cellContent = $"  {slotValue}  ";
+                    }
+                    else if (slotValue < 100)
+                    {
+                        // Two digit number - center it
+                        cellContent = $" {slotValue}  ";
                     }
                     else
                     {
-                        Console.Write($"| {Slots[i, j]}");
+                        // Three digit number - center it
+                        cellContent = $" {slotValue} ";
                     }
+                    
+                    Console.Write($"|{cellContent}");
                 }
-                Console.Write("|");
-                Console.WriteLine();
+                Console.WriteLine("|");
             }
-            for (int k = 0; k < Size; ++k)
+            
+            // Print bottom border line
+            for (int k = 0; k < Size; k++)
             {
-                Console.Write("----");
+                Console.Write("+-----");
             }
-            Console.WriteLine();
+            Console.WriteLine("+");
         }
 
         public override bool IsValidMove(int row, int col, object moveData, int boardIndex = 0, bool displayMessages = true)
@@ -130,53 +152,70 @@ namespace GameFrameWork
 
         public void DisplayGridWithPositions()
         {
+            Console.WriteLine("\n|| +++ Select a position to put the number +++ ||\n");
+            
             int gridNum = 1;
 
-            // Display the grid with numbers
-            for (int i = 0; i < Size; ++i)
+            for (int i = 0; i < Size; i++)
             {
-                for (int k = 0; k < Size; ++k)
+                // Print horizontal border lines
+                for (int k = 0; k < Size; k++)
                 {
-                    Console.Write("------");
+                    Console.Write("+-----");
                 }
-                Console.WriteLine();
-                Console.Write($"|");
-                for (int j = 0; j < Size; ++j)
+                Console.WriteLine("+");
+                
+                // Print the row content with position numbers
+                for (int j = 0; j < Size; j++)
                 {
                     int slotValue = Slots[i, j];
-
+                    string cellContent;
+                    
                     // If the slot is empty, display a grid number
                     if (slotValue == 0)
                     {
-
-                        /* Grid layout up to 3 digits numbers */
                         if (gridNum < 10)
                         {
-                            Console.Write($"  {gridNum}  |"); // 2 spaces before, 2 after for 1 digit
+                            cellContent = $"  {gridNum}  "; // 2 spaces before, 2 after for 1 digit
                         }
                         else if (gridNum < 100)
                         {
-                            Console.Write($" {gridNum}  |"); // 1 space before, 2 after for 2 digits
+                            cellContent = $" {gridNum}  "; // 1 space before, 2 after for 2 digits
                         }
                         else
                         {
-                            Console.Write($"{gridNum}  |"); // no space before, 2 after for 3 digits
+                            cellContent = $" {gridNum} "; // 1 space before, 1 after for 3 digits
                         }
                     }
-                    // If it is taken, blank slot is displayed instead
+                    // If it is taken, show the actual number
                     else
                     {
-                        Console.Write("     |");
+                        if (slotValue < 10)
+                        {
+                            cellContent = $"  {slotValue}  ";
+                        }
+                        else if (slotValue < 100)
+                        {
+                            cellContent = $" {slotValue}  ";
+                        }
+                        else
+                        {
+                            cellContent = $" {slotValue} ";
+                        }
                     }
+                    
+                    Console.Write($"|{cellContent}");
                     gridNum++;
                 }
-                Console.WriteLine();
+                Console.WriteLine("|");
             }
-            for (int k = 0; k < Size; ++k)
+            
+            // Print bottom border line
+            for (int k = 0; k < Size; k++)
             {
-                Console.Write("------");
+                Console.Write("+-----");
             }
-            Console.WriteLine();
+            Console.WriteLine("+");
         }
 
         public int[] SelectPosition()

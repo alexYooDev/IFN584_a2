@@ -170,8 +170,17 @@ namespace GameFrameWork
         /* Template method for game flow */
         public virtual void Play()
         {
+            IsGameOver = false;
             IsPlayerQuit = false;
+            MoveHistory.Clear();
+            RedoHistory.Clear();
+            CurrentPlayer = null;
+            Player1 = null;
+            Player2 = null;
+            Board = null;
+            GameMode = null;
             ConfigureGame();
+            ConfigurePlayersWithNames();
             StartGame();
         }
 
@@ -182,13 +191,26 @@ namespace GameFrameWork
             IsGameOver = false;
             IsPlayerQuit = false;
 
-            // Offer undo after loading a game -> MoveHistory > 0 means it is a loaded game
+            // Handle loaded game scenario
             if (MoveHistory.Count > 0)
             {
                 DisplayGameStatus();
                 OfferUndoAfterLoad();
             }
 
+            // Main game loop - standardized for all games
+            ExecuteGameLoop();
+
+            // Handle game end - only if player didn't quit
+            if (!IsPlayerQuit)
+            {
+                DisplayGameStatus();
+                AnnounceWinner();
+            }
+        }
+
+        private void ExecuteGameLoop()
+        {
             while (!IsGameOver)
             {
                 DisplayGameStatus();
@@ -196,27 +218,30 @@ namespace GameFrameWork
                 if (CurrentPlayer.Type == PlayerType.Human)
                 {
                     ProcessHumanTurn();
+                    
+                    if (IsPlayerQuit)
+                    {
+                        break;
+                    }
                 }
                 else
                 {
                     ProcessComputerTurn();
                 }
 
-                IsGameOver = CheckGameOver();
-
-                if (!IsGameOver)
+                if (!IsPlayerQuit)
                 {
-                    SwitchCurrentPlayer();
+                    IsGameOver = CheckGameOver();
+
+                    if (!IsGameOver)
+                    {
+                        SwitchCurrentPlayer();
+                    }
                 }
             }
-
-            // Only display results if player didn't quit
-            if (!IsPlayerQuit)
-            {
-                DisplayGameStatus();
-                AnnounceWinner();
-            }
         }
+
+
 
         // Process human player turn using interface methods
         protected virtual void ProcessHumanTurn()
@@ -491,7 +516,6 @@ namespace GameFrameWork
         /* Abstract methods that need implementation in derived classes */
 
         protected abstract void ConfigureGame();
-        protected abstract void ConfigurePlayer();
         protected abstract void CreateHumanVsHumanPlayers(string player1Name, string player2Name);
         protected abstract void CreateHumanVsComputerPlayers(string playerName);
 

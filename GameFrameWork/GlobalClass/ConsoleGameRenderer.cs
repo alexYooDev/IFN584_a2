@@ -6,6 +6,7 @@ namespace GameFrameWork
         {
             board.DisplayBoard();
         }
+        
         public void DisplayMessage(string message)
         {
             Console.WriteLine(message);
@@ -14,7 +15,7 @@ namespace GameFrameWork
         public void DisplayGameStatus(string currentPlayer, int moveCount)
         {
             Console.WriteLine($"\nCurrent Turn: {currentPlayer}");
-            Console.WriteLine($"Move: #${moveCount}");
+            Console.WriteLine($"Move: #{moveCount}");
         }
 
         public void DisplayTurnOptions()
